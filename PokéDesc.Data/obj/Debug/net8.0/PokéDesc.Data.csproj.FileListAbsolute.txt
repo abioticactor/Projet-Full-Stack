@@ -1,0 +1,16 @@
+/Users/corentinjozwiak/Projet-Full-Stack-1/PokéDesc.Data/bin/Debug/net8.0/PokéDesc.Data.deps.json
+/Users/corentinjozwiak/Projet-Full-Stack-1/PokéDesc.Data/bin/Debug/net8.0/PokéDesc.Data.dll
+/Users/corentinjozwiak/Projet-Full-Stack-1/PokéDesc.Data/bin/Debug/net8.0/PokéDesc.Data.pdb
+/Users/corentinjozwiak/Projet-Full-Stack-1/PokéDesc.Data/bin/Debug/net8.0/PokéDesc.Domain.dll
+/Users/corentinjozwiak/Projet-Full-Stack-1/PokéDesc.Data/bin/Debug/net8.0/PokéDesc.Domain.pdb
+/Users/corentinjozwiak/Projet-Full-Stack-1/PokéDesc.Data/obj/Debug/net8.0/PokéDesc.Data.csproj.AssemblyReference.cache
+/Users/corentinjozwiak/Projet-Full-Stack-1/PokéDesc.Data/obj/Debug/net8.0/PokéDesc.Data.GeneratedMSBuildEditorConfig.editorconfig
+/Users/corentinjozwiak/Projet-Full-Stack-1/PokéDesc.Data/obj/Debug/net8.0/PokéDesc.Data.AssemblyInfoInputs.cache
+/Users/corentinjozwiak/Projet-Full-Stack-1/PokéDesc.Data/obj/Debug/net8.0/PokéDesc.Data.AssemblyInfo.cs
+/Users/corentinjozwiak/Projet-Full-Stack-1/PokéDesc.Data/obj/Debug/net8.0/PokéDesc.Data.csproj.CoreCompileInputs.cache
+/Users/corentinjozwiak/Projet-Full-Stack-1/PokéDesc.Data/obj/Debug/net8.0/PokéDesc.Data.sourcelink.json
+/Users/corentinjozwiak/Projet-Full-Stack-1/PokéDesc.Data/obj/Debug/net8.0/Pok_Desc.BB514AD2.Up2Date
+/Users/corentinjozwiak/Projet-Full-Stack-1/PokéDesc.Data/obj/Debug/net8.0/PokéDesc.Data.dll
+/Users/corentinjozwiak/Projet-Full-Stack-1/PokéDesc.Data/obj/Debug/net8.0/refint/PokéDesc.Data.dll
+/Users/corentinjozwiak/Projet-Full-Stack-1/PokéDesc.Data/obj/Debug/net8.0/PokéDesc.Data.pdb
+/Users/corentinjozwiak/Projet-Full-Stack-1/PokéDesc.Data/obj/Debug/net8.0/ref/PokéDesc.Data.dll
