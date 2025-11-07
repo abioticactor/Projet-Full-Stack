@@ -637,42 +637,35 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\DINH\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\coren\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\DINH\\OneDrive\\Documents\\PokédescV2\\Projet-Full-Stack\\PokéDesc.Business\\PokéDesc.Business.csproj",
+      "projectUniqueName": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Business\\PokéDesc.Business.csproj",
       "projectName": "PokéDesc.Business",
-      "projectPath": "C:\\Users\\DINH\\OneDrive\\Documents\\PokédescV2\\Projet-Full-Stack\\PokéDesc.Business\\PokéDesc.Business.csproj",
-      "packagesPath": "C:\\Users\\DINH\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\DINH\\OneDrive\\Documents\\PokédescV2\\Projet-Full-Stack\\PokéDesc.Business\\obj\\",
+      "projectPath": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Business\\PokéDesc.Business.csproj",
+      "packagesPath": "C:\\Users\\coren\\.nuget\\packages\\",
+      "outputPath": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Business\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\DINH\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\coren\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Users\\DINH\\OneDrive\\Documents\\PokédescV2\\Projet-Full-Stack\\PokéDesc.Data\\PokéDesc.Data.csproj": {
-              "projectPath": "C:\\Users\\DINH\\OneDrive\\Documents\\PokédescV2\\Projet-Full-Stack\\PokéDesc.Data\\PokéDesc.Data.csproj"
+            "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Data\\PokéDesc.Data.csproj": {
+              "projectPath": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Data\\PokéDesc.Data.csproj"
             },
-            "C:\\Users\\DINH\\OneDrive\\Documents\\PokédescV2\\Projet-Full-Stack\\PokéDesc.Domain\\PokéDesc.Domain.csproj": {
-              "projectPath": "C:\\Users\\DINH\\OneDrive\\Documents\\PokédescV2\\Projet-Full-Stack\\PokéDesc.Domain\\PokéDesc.Domain.csproj"
+            "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Domain\\PokéDesc.Domain.csproj": {
+              "projectPath": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Domain\\PokéDesc.Domain.csproj"
             }
           }
         }
@@ -687,7 +680,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "10.0.100"
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "net8.0": {
@@ -722,7 +715,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.100-rc.2.25502.107/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

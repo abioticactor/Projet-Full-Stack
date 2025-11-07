@@ -23,3 +23,16 @@ C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.Domain\
 C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.Domain\obj\Debug\net8.0\refint\PokéDesc.Domain.dll
 C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.Domain\obj\Debug\net8.0\PokéDesc.Domain.pdb
 C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.Domain\obj\Debug\net8.0\ref\PokéDesc.Domain.dll
+E:\Cours\ESEO\E5\Systeme_Information\Projet_FullStack\Depot_Git\Projet-Full-Stack\PokéDesc.Domain\bin\Debug\net8.0\PokéDesc.Domain.deps.json
+E:\Cours\ESEO\E5\Systeme_Information\Projet_FullStack\Depot_Git\Projet-Full-Stack\PokéDesc.Domain\bin\Debug\net8.0\PokéDesc.Domain.dll
+E:\Cours\ESEO\E5\Systeme_Information\Projet_FullStack\Depot_Git\Projet-Full-Stack\PokéDesc.Domain\bin\Debug\net8.0\PokéDesc.Domain.pdb
+E:\Cours\ESEO\E5\Systeme_Information\Projet_FullStack\Depot_Git\Projet-Full-Stack\PokéDesc.Domain\obj\Debug\net8.0\PokéDesc.Domain.csproj.AssemblyReference.cache
+E:\Cours\ESEO\E5\Systeme_Information\Projet_FullStack\Depot_Git\Projet-Full-Stack\PokéDesc.Domain\obj\Debug\net8.0\PokéDesc.Domain.GeneratedMSBuildEditorConfig.editorconfig
+E:\Cours\ESEO\E5\Systeme_Information\Projet_FullStack\Depot_Git\Projet-Full-Stack\PokéDesc.Domain\obj\Debug\net8.0\PokéDesc.Domain.AssemblyInfoInputs.cache
+E:\Cours\ESEO\E5\Systeme_Information\Projet_FullStack\Depot_Git\Projet-Full-Stack\PokéDesc.Domain\obj\Debug\net8.0\PokéDesc.Domain.AssemblyInfo.cs
+E:\Cours\ESEO\E5\Systeme_Information\Projet_FullStack\Depot_Git\Projet-Full-Stack\PokéDesc.Domain\obj\Debug\net8.0\PokéDesc.Domain.csproj.CoreCompileInputs.cache
+E:\Cours\ESEO\E5\Systeme_Information\Projet_FullStack\Depot_Git\Projet-Full-Stack\PokéDesc.Domain\obj\Debug\net8.0\PokéDesc.Domain.sourcelink.json
+E:\Cours\ESEO\E5\Systeme_Information\Projet_FullStack\Depot_Git\Projet-Full-Stack\PokéDesc.Domain\obj\Debug\net8.0\PokéDesc.Domain.dll
+E:\Cours\ESEO\E5\Systeme_Information\Projet_FullStack\Depot_Git\Projet-Full-Stack\PokéDesc.Domain\obj\Debug\net8.0\refint\PokéDesc.Domain.dll
+E:\Cours\ESEO\E5\Systeme_Information\Projet_FullStack\Depot_Git\Projet-Full-Stack\PokéDesc.Domain\obj\Debug\net8.0\PokéDesc.Domain.pdb
+E:\Cours\ESEO\E5\Systeme_Information\Projet_FullStack\Depot_Git\Projet-Full-Stack\PokéDesc.Domain\obj\Debug\net8.0\ref\PokéDesc.Domain.dll
