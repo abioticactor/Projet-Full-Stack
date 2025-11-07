@@ -1,0 +1,120 @@
+@page "/pokedex"
+@using System.Net.Http.Json
+@inject HttpClient Http
+
+<h2>Pokédex</h2>
+
+@if (pokemons == null)
+{
+    <p><em>Chargement...</em></p>
+}
+else
+{
+    <div class="pokedex-grid">
+        @foreach (var pokemon in pokemons)
+        {
+            <div class="pokemon-card">
+                <img src="@pokemon.ImageUrl" alt="@pokemon.Name" />
+                <h3>#@pokemon.Id.ToString("D3") - @pokemon.Name</h3>
+                <div class="types">
+                    @foreach (var type in pokemon.Types)
+                    {
+                        <span class="type @type.ToLower()">@type</span>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private Pokemon[]? pokemons;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // À remplacer par l'URL de votre API backend
+            pokemons = await Http.GetFromJsonAsync<Pokemon[]>("api/pokemon");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur lors de la récupération des pokémons: {ex.Message}");
+            // Gérer l'erreur de manière appropriée
+        }
+    }
+
+    private class Pokemon
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string ImageUrl { get; set; } = string.Empty;
+        public string[] Types { get; set; } = Array.Empty<string>();
+        public string Description { get; set; } = string.Empty;
+        public double Height { get; set; }
+        public double Weight { get; set; }
+        public Dictionary<string, int> Stats { get; set; } = new();
+    }
+}
+
+<style>
+    .pokedex-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .pokemon-card {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+
+    .pokemon-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .pokemon-card img {
+        max-width: 120px;
+        height: auto;
+    }
+
+    .types {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-top: 0.5rem;
+    }
+
+    .type {
+        padding: 0.25rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.875rem;
+        color: white;
+    }
+
+    /* Types de Pokémon */
+    .normal { background-color: #A8A878; }
+    .fire { background-color: #F08030; }
+    .water { background-color: #6890F0; }
+    .electric { background-color: #F8D030; }
+    .grass { background-color: #78C850; }
+    .ice { background-color: #98D8D8; }
+    .fighting { background-color: #C03028; }
+    .poison { background-color: #A040A0; }
+    .ground { background-color: #E0C068; }
+    .flying { background-color: #A890F0; }
+    .psychic { background-color: #F85888; }
+    .bug { background-color: #A8B820; }
+    .rock { background-color: #B8A038; }
+    .ghost { background-color: #705898; }
+    .dragon { background-color: #7038F8; }
+    .dark { background-color: #705848; }
+    .steel { background-color: #B8B8D0; }
+    .fairy { background-color: #EE99AC; }
+</style>

@@ -1,0 +1,291 @@
+/* _content/Projet_FullStack_FrontEnd/Components/BackToMenu.razor.rz.scp.css */
+.back-menu[b-t5bm06yl40] {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.7rem;
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+
+.back-menu:hover[b-t5bm06yl40],
+.back-menu:focus[b-t5bm06yl40] {
+  background: rgba(0,0,0,0.65);
+  transform: translateY(-3px);
+}
+/* _content/Projet_FullStack_FrontEnd/Components/Layout/HomeLayout.razor.rz.scp.css */
+.home-layout[b-v6e95wvg7o] {
+  position: relative;
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url('https://www.pokebip.com/pages/general/images/centre-pokemon-lgpe-ext.png');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  padding: 0;
+}
+
+.home-layout .overlay[b-v6e95wvg7o] {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 0;
+}
+
+.home-layout-body[b-v6e95wvg7o] {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 980px;
+  text-align: center;
+  color: #fff;
+  padding: 2rem;
+}
+
+[b-v6e95wvg7o] h1, [b-v6e95wvg7o] h2 {
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  margin-bottom: 1.5rem;
+}
+/* _content/Projet_FullStack_FrontEnd/Components/Layout/MainLayout.razor.rz.scp.css */
+.page[b-h7l3mivmhy] {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    min-height: 100vh;
+    background-color: white;
+}
+
+.sidebar[b-h7l3mivmhy] {
+    background-color: #2a75bb;
+    width: 250px;
+    height: 100vh;
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+}
+
+.top-row[b-h7l3mivmhy] {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.home-button[b-h7l3mivmhy] {
+    color: white;
+    text-decoration: none;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.home-button:hover[b-h7l3mivmhy] {
+    background-color: rgba(255,255,255,0.1);
+    color: white;
+}
+
+.nav-menu[b-h7l3mivmhy] {
+    padding: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    overflow-y: auto;
+}
+
+.nav-link[b-h7l3mivmhy] {
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.2s;
+}
+
+.nav-link:hover[b-h7l3mivmhy] {
+    color: white;
+    background-color: rgba(255,255,255,0.1);
+}
+
+.nav-link.active[b-h7l3mivmhy] {
+    color: white;
+    background-color: rgba(255,255,255,0.15);
+    border-right: 3px solid #fbd743;
+}
+
+main[b-h7l3mivmhy] {
+    flex: 1;
+    padding-left: 250px;
+    display: flex;
+    flex-direction: column;
+}
+
+.content[b-h7l3mivmhy] {
+    flex: 1;
+    padding: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sidebar[b-h7l3mivmhy] {
+        width: 200px;
+    }
+
+    main[b-h7l3mivmhy] {
+        padding-left: 200px;
+    }
+}
+
+@media (max-width: 640px) {
+    .page[b-h7l3mivmhy] {
+        flex-direction: column;
+    }
+
+    .sidebar[b-h7l3mivmhy] {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+
+    .nav-menu[b-h7l3mivmhy] {
+        display: none;
+    }
+
+    .nav-menu.expanded[b-h7l3mivmhy] {
+        display: flex;
+    }
+
+    main[b-h7l3mivmhy] {
+        padding-left: 0;
+    }
+
+    .top-row[b-h7l3mivmhy] {
+        position: relative;
+    }
+}
+/* _content/Projet_FullStack_FrontEnd/Components/Pages/Home.razor.rz.scp.css */
+/* Scoped CSS for Home.razor - background moved to HomeLayout */
+
+.hero-content[b-vd29jetn8e] {
+  position: relative;
+  z-index: 2; /* above layout overlay */
+  width: 100%;
+  max-width: 980px;
+  text-align: center;
+  color: #fff;
+  padding: 2rem;
+}
+
+.hero-title[b-vd29jetn8e] {
+  margin-bottom: 1.5rem;
+  font-size: 2.2rem;
+  font-weight: 600;
+}
+
+.button-grid[b-vd29jetn8e] {
+  display: grid;
+  grid-template-columns: repeat(4, 180px);
+  gap: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  padding: 1rem;
+  position: relative;
+  z-index: 3;
+}
+
+.nav-button-wrapper[b-vd29jetn8e] {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+}
+
+[b-vd29jetn8e] a {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+}
+
+.square-button[b-vd29jetn8e] {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.14), 0 3px 6px rgba(0,0,0,0.08);
+  transform: translateY(0) scale(1);
+  position: relative;
+  cursor: pointer;
+  /* subtle visible border to ensure they appear on top of the dark overlay */
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.square-button:hover[b-vd29jetn8e],
+.square-button:focus[b-vd29jetn8e] {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 18px 30px rgba(0,0,0,0.2), 0 10px 12px rgba(0,0,0,0.12);
+  background: rgba(255,255,255,0.06);
+}
+
+.square-button:hover .btn-image[b-vd29jetn8e],
+.square-button:focus .btn-image[b-vd29jetn8e] {
+  transform: scale(1.08);
+  filter: brightness(1.05) contrast(1.05);
+}
+
+.btn-image[b-vd29jetn8e] {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 12px;
+  transition: transform 0.25s ease-out, filter 0.25s ease-out;
+  /* fallback color so we see the area even if external images fail */
+  background-color: rgba(0,0,0,0.2);
+}
+
+/* Specific button images (can be replaced by local assets later) */
+.btn-trainer-card[b-vd29jetn8e] { background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/trainer-card.png'); }
+.btn-battle[b-vd29jetn8e] { background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png'); }
+.btn-minigames[b-vd29jetn8e] { background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/game-card.png'); }
+.btn-pokedex[b-vd29jetn8e] { background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/pokedex.png'); }
+.btn-items[b-vd29jetn8e] { background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/bag.png'); }
+.btn-friends[b-vd29jetn8e] { background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/pal-pad.png'); }
+.btn-achievements[b-vd29jetn8e] { background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/medal-box.png'); }
+.btn-settings[b-vd29jetn8e] { background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png'); }
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .button-grid[b-vd29jetn8e] { grid-template-columns: repeat(4, 150px); gap: 1.2rem; }
+}
+
+@media (max-width: 992px) {
+  .button-grid[b-vd29jetn8e] { grid-template-columns: repeat(4, 130px); gap: 1rem; padding: 0.8rem; }
+  .hero-title[b-vd29jetn8e] { font-size: 1.8rem; }
+}
+
+@media (max-width: 768px) {
+  .button-grid[b-vd29jetn8e] { grid-template-columns: repeat(2, 160px); gap: 1.2rem; }
+  .hero-title[b-vd29jetn8e] { font-size: 1.6rem; }
+}
+
+@media (max-width: 420px) {
+  .button-grid[b-vd29jetn8e] { grid-template-columns: 1fr; justify-items: center; gap: 1rem; max-width: 180px; margin: 0 auto; }
+  .hero-title[b-vd29jetn8e] { font-size: 1.4rem; }
+}
