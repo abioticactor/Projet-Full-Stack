@@ -1,0 +1,118 @@
+.page[b-h7l3mivmhy] {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    min-height: 100vh;
+    background-color: white;
+}
+
+.sidebar[b-h7l3mivmhy] {
+    background-color: #2a75bb;
+    width: 250px;
+    height: 100vh;
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+}
+
+.top-row[b-h7l3mivmhy] {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.home-button[b-h7l3mivmhy] {
+    color: white;
+    text-decoration: none;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.home-button:hover[b-h7l3mivmhy] {
+    background-color: rgba(255,255,255,0.1);
+    color: white;
+}
+
+.nav-menu[b-h7l3mivmhy] {
+    padding: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    overflow-y: auto;
+}
+
+.nav-link[b-h7l3mivmhy] {
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.2s;
+}
+
+.nav-link:hover[b-h7l3mivmhy] {
+    color: white;
+    background-color: rgba(255,255,255,0.1);
+}
+
+.nav-link.active[b-h7l3mivmhy] {
+    color: white;
+    background-color: rgba(255,255,255,0.15);
+    border-right: 3px solid #fbd743;
+}
+
+main[b-h7l3mivmhy] {
+    flex: 1;
+    padding-left: 250px;
+    display: flex;
+    flex-direction: column;
+}
+
+.content[b-h7l3mivmhy] {
+    flex: 1;
+    padding: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sidebar[b-h7l3mivmhy] {
+        width: 200px;
+    }
+
+    main[b-h7l3mivmhy] {
+        padding-left: 200px;
+    }
+}
+
+@media (max-width: 640px) {
+    .page[b-h7l3mivmhy] {
+        flex-direction: column;
+    }
+
+    .sidebar[b-h7l3mivmhy] {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+
+    .nav-menu[b-h7l3mivmhy] {
+        display: none;
+    }
+
+    .nav-menu.expanded[b-h7l3mivmhy] {
+        display: flex;
+    }
+
+    main[b-h7l3mivmhy] {
+        padding-left: 0;
+    }
+
+    .top-row[b-h7l3mivmhy] {
+        position: relative;
+    }
+}

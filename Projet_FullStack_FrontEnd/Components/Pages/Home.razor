@@ -1,0 +1,73 @@
+﻿@page "/"
+
+@layout HomeLayout
+
+<PageTitle>PokeGuessr</PageTitle>
+
+<div class="hero-content">
+    <nav class="button-grid" aria-label="Navigation rapide">
+        <div class="nav-button-wrapper">
+            <NavLink href="/carte-dresseur" Match="NavLinkMatch.All">
+                <button type="button" class="square-button">
+                    <div class="btn-image btn-trainer-card" title="Carte de Dresseur" role="img" aria-label="Carte de Dresseur"></div>
+                </button>
+            </NavLink>
+        </div>
+
+        <div class="nav-button-wrapper">
+            <NavLink href="/combat" Match="NavLinkMatch.All">
+                <button type="button" class="square-button">
+                    <div class="btn-image btn-battle" title="Combat" role="img" aria-label="Combat"></div>
+                </button>
+            </NavLink>
+        </div>
+
+        <div class="nav-button-wrapper">
+            <NavLink href="/mini-jeux" Match="NavLinkMatch.All">
+                <button type="button" class="square-button">
+                    <div class="btn-image btn-minigames" title="Mini-Jeux" role="img" aria-label="Mini-Jeux"></div>
+                </button>
+            </NavLink>
+        </div>
+
+        <div class="nav-button-wrapper">
+            <NavLink href="/pokedex" Match="NavLinkMatch.All">
+                <button type="button" class="square-button">
+                    <div class="btn-image btn-pokedex" title="Pokédex" role="img" aria-label="Pokédex"></div>
+                </button>
+            </NavLink>
+        </div>
+
+        <div class="nav-button-wrapper">
+            <NavLink href="/objets" Match="NavLinkMatch.All">
+                <button type="button" class="square-button">
+                    <div class="btn-image btn-items" title="Objets" role="img" aria-label="Objets"></div>
+                </button>
+            </NavLink>
+        </div>
+
+        <div class="nav-button-wrapper">
+            <NavLink href="/amis" Match="NavLinkMatch.All">
+                <button type="button" class="square-button">
+                    <div class="btn-image btn-friends" title="Amis" role="img" aria-label="Amis"></div>
+                </button>
+            </NavLink>
+        </div>
+
+        <div class="nav-button-wrapper">
+            <NavLink href="/succes" Match="NavLinkMatch.All">
+                <button type="button" class="square-button">
+                    <div class="btn-image btn-achievements" title="Succès" role="img" aria-label="Succès"></div>
+                </button>
+            </NavLink>
+        </div>
+
+        <div class="nav-button-wrapper">
+            <NavLink href="/parametres" Match="NavLinkMatch.All">
+                <button type="button" class="square-button">
+                    <div class="btn-image btn-settings" title="Paramètres" role="img" aria-label="Paramètres"></div>
+                </button>
+            </NavLink>
+        </div>
+    </nav>
+</div>
