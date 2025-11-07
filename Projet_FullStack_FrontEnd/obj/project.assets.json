@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Projet_FullStack_FrontEnd\\Projet_FullStack_FrontEnd.csproj",
+      "projectUniqueName": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\Projet_FullStack_FrontEnd.csproj",
       "projectName": "Projet_FullStack_FrontEnd",
-      "projectPath": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Projet_FullStack_FrontEnd\\Projet_FullStack_FrontEnd.csproj",
+      "projectPath": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\Projet_FullStack_FrontEnd.csproj",
       "packagesPath": "C:\\Users\\coren\\.nuget\\packages\\",
-      "outputPath": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Projet_FullStack_FrontEnd\\obj\\",
+      "outputPath": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\coren\\AppData\\Roaming\\NuGet\\NuGet.Config"
