@@ -162,46 +162,4 @@ public class PokemonController : ControllerBase
             return StatusCode(500, new { message = "Erreur serveur", error = ex.Message });
         }
     }
-
-    /// <summary>
-    /// Met à jour un Pokémon existant
-    /// </summary>
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, [FromBody] Pokemon pokemon)
-    {
-        try
-        {
-            var updated = await _service.UpdatePokemonAsync(id, pokemon);
-            return Ok(updated);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "Erreur serveur", error = ex.Message });
-        }
-    }
-
-    /// <summary>
-    /// Supprime un Pokémon
-    /// </summary>
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(string id)
-    {
-        try
-        {
-            await _service.DeletePokemonAsync(id);
-            return NoContent();
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "Erreur serveur", error = ex.Message });
-        }
-    }
 }
