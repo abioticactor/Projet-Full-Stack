@@ -9,7 +9,7 @@ public class PokemonRepository
 
     public PokemonRepository(IMongoDatabase database)
     {
-        _collection = database.GetCollection<Pokemon>("pokemons");
+        _collection = database.GetCollection<Pokemon>("Pokemon_Collection");
     }
 
     public async Task<List<Pokemon>> GetAllAsync()

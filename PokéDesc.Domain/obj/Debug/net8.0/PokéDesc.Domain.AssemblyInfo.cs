@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PokéDesc.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d1eaa575ffec69560a16080ee01f0f8fff7dcc10")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ac4bee1d6c1488e1b399736fc4132eb885f18dcb")]
 [assembly: System.Reflection.AssemblyProductAttribute("PokéDesc.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PokéDesc.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
