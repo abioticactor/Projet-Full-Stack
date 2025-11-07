@@ -1,8 +1,15 @@
 {
   "version": 2,
-  "dgSpecHash": "YVmDC/PjClw=",
+  "dgSpecHash": "XhsylxJhBlw=",
   "success": true,
-  "projectFilePath": "/Users/corentinjozwiak/Projet-Full-Stack-1/PokéDesc.Domain/PokéDesc.Domain.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "C:\\Users\\DINH\\OneDrive\\Documents\\PokédescV2\\Projet-Full-Stack\\PokéDesc.Domain\\PokéDesc.Domain.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\DINH\\.nuget\\packages\\mongodb.bson\\3.5.0\\mongodb.bson.3.5.0.nupkg.sha512",
+    "C:\\Users\\DINH\\.nuget\\packages\\system.memory\\4.5.5\\system.memory.4.5.5.nupkg.sha512",
+    "C:\\Users\\DINH\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\5.0.0\\system.runtime.compilerservices.unsafe.5.0.0.nupkg.sha512",
+    "C:\\Users\\DINH\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.21\\microsoft.netcore.app.ref.8.0.21.nupkg.sha512",
+    "C:\\Users\\DINH\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.21\\microsoft.windowsdesktop.app.ref.8.0.21.nupkg.sha512",
+    "C:\\Users\\DINH\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.21\\microsoft.aspnetcore.app.ref.8.0.21.nupkg.sha512"
+  ],
   "logs": []
 }

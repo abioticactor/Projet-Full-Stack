@@ -1,4 +1,6 @@
 using MongoDB.Driver;
+using PokéDesc.Data.Repositories;
+using PokéDesc.Business.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +27,12 @@ builder.Services.AddScoped<IMongoDatabase>(serviceProvider =>
     return client.GetDatabase(databaseName);
 });
 
+// --- Configuration de l'architecture N-tiers ---
+// Enregistre le Repository (couche Data)
+builder.Services.AddScoped<PokemonRepository>();
+
+// Enregistre le Service (couche Business)
+builder.Services.AddScoped<PokemonService>();
 
 // --- Configuration des services de l'API ---
 // **Ajoute les services nécessaires pour faire fonctionner les contrôleurs**
