@@ -1,6 +1,9 @@
 using MongoDB.Driver;
+<<<<<<< HEAD
 using PokéDesc.Data.Repositories; // 👈 Ligne ajoutée
 using PokéDesc.Business.Services;
+=======
+>>>>>>> 0c921e0177c6ccf47b84379dd3bec8e28e7ff253
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,8 +36,11 @@ builder.Services.AddScoped<IMongoDatabase>(serviceProvider =>
 builder.Services.AddControllers(); 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+<<<<<<< HEAD
 builder.Services.AddScoped<DresseurRepository>();
 builder.Services.AddScoped<DresseurService>();
+=======
+>>>>>>> 0c921e0177c6ccf47b84379dd3bec8e28e7ff253
 
 
 // =================================================================
