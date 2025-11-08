@@ -69,6 +69,30 @@ public class DresseurService
         return GenerateJwtToken(dresseur!);
     }
 
+    public async Task AjouterAmiAsync(string monId, string pseudoAmi)
+    {
+        // 1. Trouver l'ami par son pseudo
+        var ami = await _dresseurRepository.GetByPseudoAsync(pseudoAmi);
+        if (ami == null)
+        {
+            throw new Exception("Dresseur introuvable.");
+        }
+
+        // 2. Trouver mon propre profil
+        var moi = await _dresseurRepository.GetByIdAsync(monId);
+        if (moi == null)
+        {
+            throw new Exception("Utilisateur courant introuvable.");
+        }
+
+        // 3. Ajouter l'ami (s'il n'y est pas déjà)
+        if (!moi.AmisIds.Contains(ami.Id))
+        {
+            moi.AmisIds.Add(ami.Id);
+            await _dresseurRepository.UpdateAsync(moi);
+        }
+    }
+
     // --- NOUVELLE MÉTHODE PRIVÉE POUR CRÉER LE TOKEN ---
     private string GenerateJwtToken(Dresseur dresseur)
     {

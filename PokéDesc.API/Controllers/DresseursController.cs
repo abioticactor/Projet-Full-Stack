@@ -1,6 +1,8 @@
 // Dans PokéDesc.API/Controllers/DresseursController.cs
 using Microsoft.AspNetCore.Mvc;
 using PokéDesc.Business.Services;
+using Microsoft.AspNetCore.Authorization; // 👈 AJOUTÉ
+using System.Security.Claims;           // 👈 AJOUTÉ
 
 namespace PokéDesc.API.Controllers;
 
@@ -30,7 +32,7 @@ public class DresseursController : ControllerBase
         }
     }
 
-    // --- NOUVEL ENDPOINT POUR LE LOGIN ---
+    // --- Endpoint de login (existant) ---
     [HttpPost("login")] // URL : POST /api/dresseurs/login
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
@@ -46,10 +48,55 @@ public class DresseursController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+
+    // --- NOUVEL ENDPOINT DE PROFIL (PROTÉGÉ) ---
+    [HttpGet("profil")]
+    [Authorize] // 👈 C'est le "videur" ! Seuls les utilisateurs connectés y ont accès.
+    public IActionResult GetProfil()
+    {
+        // "User" est un objet spécial qui contient les infos
+        // du token de l'utilisateur qui fait l'appel.
+        var dresseurId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var pseudo = User.FindFirst("pseudo")?.Value;
+
+        if (dresseurId == null)
+        {
+            return Unauthorized();
+        }
+
+        return Ok(new { id = dresseurId, pseudo = pseudo });
+    }
+
+    // --- NOUVEL ENDPOINT D'AJOUT D'AMI (PROTÉGÉ) ---
+    [HttpPost("amis/ajouter")]
+    [Authorize] // 👈 Cet endpoint est aussi protégé
+    public async Task<IActionResult> AjouterAmi([FromBody] AjouterAmiRequest request)
+    {
+        try
+        {
+            // On récupère l'ID du joueur qui fait l'appel (depuis son token)
+            // C'est plus sécurisé que de lui faire confiance
+            var monId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(monId))
+            {
+                return Unauthorized("Token invalide.");
+            }
+
+            await _dresseurService.AjouterAmiAsync(monId, request.PseudoAmi);
+            return Ok(new { message = "Ami ajouté avec succès." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
 }
 
 // Record pour la requête d'inscription (existant)
 public record RegisterRequest(string Pseudo, string Email, string Password);
 
-// NOUVEAU Record pour la requête de login
+// Record pour la requête de login (existant)
 public record LoginRequest(string Email, string Password);
+
+// NOUVEAU Record pour la requête d'ajout d'ami
+public record AjouterAmiRequest(string PseudoAmi);

@@ -29,4 +29,15 @@ public class DresseurRepository
     {
         await _dresseursCollection.InsertOneAsync(dresseur);
     }
+
+    public async Task UpdateAsync(Dresseur dresseur)
+    {
+        await _dresseursCollection.ReplaceOneAsync(d => d.Id == dresseur.Id, dresseur);
+    }
+
+    // On aura aussi besoin de trouver un dresseur par son ID
+    public async Task<Dresseur> GetByIdAsync(string id)
+    {
+        return await _dresseursCollection.Find(d => d.Id == id).FirstOrDefaultAsync();
+    }
 }

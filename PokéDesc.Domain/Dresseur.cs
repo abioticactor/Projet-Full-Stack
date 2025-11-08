@@ -11,5 +11,8 @@ public class Dresseur
     public string Pseudo { get; set; } = string.Empty; // On initialise à une chaîne vide
     public string Email { get; set; } = string.Empty;
     public string MotDePasseHash { get; set; } = string.Empty;
-    // On ajoutera les autres propriétés (niveau, pokemons...) plus tard
+
+    // --- AJOUT ---
+    // On va stocker les ID des dresseurs qui sont amis
+    public List<string> AmisIds { get; set; } = new List<string>();
 }
