@@ -1,9 +1,10 @@
 using PokéDesc.Data.Repositories;
 using PokéDesc.Domain.Models;
+using PokéDesc.Business.Interfaces;
 
 namespace PokéDesc.Business.Services;
 
-public class PokemonService
+public class PokemonService : IPokemonService
 {
     private readonly PokemonRepository _repository;
 

@@ -1,5 +1,6 @@
 using MongoDB.Driver;
 using PokéDesc.Data.Repositories;
+using PokéDesc.Business.Interfaces;
 using PokéDesc.Business.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,7 +33,8 @@ builder.Services.AddScoped<IMongoDatabase>(serviceProvider =>
 builder.Services.AddScoped<PokemonRepository>();
 
 // Enregistre le Service (couche Business)
-builder.Services.AddScoped<PokemonService>();
+builder.Services.AddScoped<IPokemonService, PokemonService>();
+builder.Services.AddScoped<IGuessGameService, GuessGameService>();
 
 // --- Configuration des services de l'API ---
 // **Ajoute les services nécessaires pour faire fonctionner les contrôleurs**
