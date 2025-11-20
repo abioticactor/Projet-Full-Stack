@@ -1,88 +1,122 @@
-🐲 PokéDesc
-Bienvenue sur le dépôt du projet PokéDesc ! Un jeu web où vous mettez vos connaissances Pokémon à l'épreuve pour deviner, collectionner et faire combattre vos créatures préférées.
+# 🐲 PokéDesc
 
-🎯 Le Concept
-PokéDesc est un jeu multijoueur en deux phases :
+> **Devinez. Collectionnez. Combattez.**
+> Un jeu web stratégique où votre connaissance des Pokémon détermine votre puissance au combat.
 
-La Devinette (PokéDesc) : Testez votre culture Pokémon ! Recevez les caractéristiques d'un Pokémon (types, description, etc.) et devinez de qui il s'agit. Moins vous utilisez d'indices, plus votre Pokémon sera puissant.
+![Status](https://img.shields.io/badge/Status-Development-orange)
+![Backend](https://img.shields.io/badge/Backend-ASP.NET%20Core-purple)
+![Frontend](https://img.shields.io/badge/Frontend-Razor%20Pages-blue)
+![Database](https://img.shields.io/badge/Database-MongoDB-green)
 
-Le Combat : Affrontez votre adversaire dans un combat stratégique en utilisant les Pokémon que vous venez de deviner.
+---
 
-Le but est de devenir le meilleur dresseur en enrichissant votre collection et en grimpant dans le classement.
+## 📖 À propos
 
-✨ Fonctionnalités Principales
-Gestion de Compte & Social
+**PokéDesc** est un jeu multijoueur qui teste votre culture Pokémon. Le concept est unique : **plus vous avez besoin d'indices pour identifier un Pokémon, plus ses statistiques seront faibles lors du combat qui suivra.**
 
-Inscription & Connexion : Créez votre compte de dresseur personnel.
+Le projet est construit sur une architecture **N-Tiers** robuste utilisant la stack .NET moderne et MongoDB.
 
-Liste d'amis : Ajoutez d'autres joueurs et invitez-les directement à jouer.
+---
 
-Profil Dresseur : Consultez votre historique de parties, vos succès et votre Pokédex personnel.
+## 🎮 Mécaniques de Jeu
 
-🧠 Phase de Devinette (PokéDesc)
+Le jeu se déroule en deux phases distinctes liées par un système de risque/récompense.
 
-6 Pokémon à deviner par joueur dans chaque partie.
+### Phase 1 : La Devinette (PokéDesc)
+Au début d'une manche, 6 Pokémon sont tirés au sort (1% de chance d'être Légendaire/Mythique).
+Le joueur doit identifier le Pokémon caché.
 
-Système d'indices pour vous aider en cas de difficulté.
+* **Score de départ :** 100 Points.
+* **Indices :** Le joueur peut acheter des indices, ce qui réduit son score potentiel.
+    * *Exemples :* Type (-15 pts), Silhouette (-15 pts), Cri (-10 pts), Talents (-10 pts), etc.
+* **Impact sur le combat :** Le score final détermine un coefficient de puissance ($K$).
+    * Score 100 (Parfait) = 100% des statistiques.
+    * Score 0 (Tout révélé) = 50% des statistiques.
 
-Rareté partagée : La rareté des Pokémon à deviner (commun, légendaire...) est définie pour la partie et commune aux deux joueurs.
+$$K = 0.5 + \frac{Score}{200}$$
 
-Objets de devinette : Utilisez des objets à usage unique pour obtenir des avantages.
+### Phase 2 : Le Combat
+Affrontez l'adversaire (ou l'IA) avec le Pokémon que vous venez de deviner.
 
-Pokémon Chromatiques (Shiny) : Une chance (1/100) de tomber sur un Pokémon d'une couleur alternative !
+* **Système :** Tour par tour classique.
+* **Stats :** Calculées ainsi : $Stat_{Combat} = Stat_{Base} \times K$.
+* **Modes :**
+    * *Équitable :* Tous les Pokémon sont ramenés au Niveau 50.
+    * *Classique :* Utilise le niveau réel de votre collection.
+* **Récompenses :** Objets de devinette (Loupe, Joker de type...).
 
-⚔️ Phase de Combat
+### 📈 Progression
+* **XP Dresseur :** Augmente à chaque bonne réponse et victoire.
+* **Collection (Pokédex) :** Chaque Pokémon deviné rejoint votre Pokédex personnel.
+* **Évolution :** Un Pokémon évolue s'il est présent dans votre Pokédex au **Niveau > 10**.
 
-Constitution d'équipe : Combattez avec les Pokémon que vous avez réussi à deviner.
+---
 
-Malus stratégique : Les statistiques d'un Pokémon sont réduites en fonction du nombre d'indices utilisés pour le deviner.
+## 🛠️ Architecture Technique
 
-Modes de jeu variés : Combattez en mode "équitable" (niveaux égaux) ou avec les niveaux réels de vos Pokémon.
+Ce projet respecte une séparation stricte des responsabilités (Architecture N-Tiers).
 
-Événements : Des événements périodiques (ex: "Semaine Pluie") viendront pimenter les combats avec des bonus thématiques.
+### Stack Technologique
+* **Frontend :** ASP.NET Core Razor Pages (HTML/CSS/JS).
+* **Backend :** ASP.NET Core Web API (.NET 8+).
+* **Base de données :** MongoDB (NoSQL).
+* **DevOps :** Azure DevOps (CI/CD).
 
-📈 Progression & Collection
+### Modèle de Données (Aperçu)
+* **Pokémons :** Données statiques (Stats base, Sprites, Cris...).
+* **Players :** Données dynamiques (Inventaire, Pokédex avec niveaux individuels, Historique).
 
-Gain d'expérience : Le niveau de votre dresseur et de vos Pokémon augmente après chaque partie.
+---
 
-Évolution : Vos Pokémon peuvent évoluer après un certain nombre de rencontres.
+## 🚀 Installation & Démarrage
 
-Pokédex personnel : Tous les Pokémon que vous devinez sont ajoutés à votre Pokédex avec leur niveau actuel.
+### Prérequis
+* [.NET SDK](https://dotnet.microsoft.com/download) (Version 8.0 ou supérieure)
+* [MongoDB](https://www.mongodb.com/try/download/community) (Local ou Atlas)
 
-Système de Succès : Débloquez des hauts-faits pour vos accomplissements.
+### Étapes
+1.  **Cloner le dépôt :**
+    ```bash
+    git clone [https://github.com/votre-pseudo/pokedesc.git](https://github.com/votre-pseudo/pokedesc.git)
+    ```
+2.  **Configurer la Base de Données :**
+    Mettez à jour la chaîne de connexion dans `appsettings.json` :
+    ```json
+    "ConnectionStrings": {
+      "MongoDbConnection": "mongodb://localhost:27017/PokeDescDB"
+    }
+    ```
+3.  **Lancer l'application :**
+    ```bash
+    dotnet run
+    ```
+4.  Accédez à `https://localhost:5001` dans votre navigateur.
 
-Récompenses : Gagnez une monnaie virtuelle et des objets cosmétiques en jouant.
+---
 
-🛠️ Architecture Technique
-Ce projet est construit sur une stack moderne et robuste, en respectant une architecture N-Tiers.
+## 🗺️ Roadmap
 
-Backend : C# ASP.NET Core Web API
+### Phase 1 (Actuelle)
+- [ ] Moteur de devinette et calcul de pénalités.
+- [ ] Système de combat basique (Dégâts directs).
+- [ ] Gestion des comptes et persistance MongoDB.
 
-Architecture N-Tiers pour une séparation claire des responsabilités (API, Business, Data, Domain).
+### Phase 2 (Prochainement)
+- [ ] Implémentation des Status (Poison, Paralysie, Sommeil).
+- [ ] Boosts de statistiques en combat (Buffs/Debuffs).
+- [ ] Talents passifs des Pokémon.
 
-Base de Données : [Précisez votre choix, ex: MongoDB ou SQL Server]
+### Phase 3 (Futur)
+- [ ] Modes de jeu alternatifs (Draft, Coop).
+- [ ] Système de Guildes.
 
-Frontend : [Précisez votre choix, ex: ASP.NET Razor Pages ou React/Vue/Angular]
+---
 
-Déploiement & CI/CD : Azure / Azure DevOps
+## 🤝 Contribuer
+Les contributions sont les bienvenues ! Veuillez consulter le fichier `CONTRIBUTING.md` pour les directives.
 
-🗺️ Roadmap (Fonctionnalités Futures)
-Nous avons de grandes ambitions pour PokéDesc ! Voici les prochaines étapes prévues :
+## 📄 Licence
+Distribué sous la licence MIT. Voir `LICENSE` pour plus d'informations.
 
-Phase 1 (Moins loin)
-
-Implémentation des boosts de statistiques en combat.
-
-Gestion des statuts (Poison, Paralysie, etc.).
-
-Phase 2 (Loin)
-
-Implémentation des talents des Pokémon.
-
-Gestion de la précision et de l'échec des attaques.
-
-Phase 3 (Très loin)
-
-Ajout de modes de jeu (Draft, Coop...).
-
-Système de guildes.
+---
+*PokéDesc est un projet fan-made à but non lucratif. Pokémon est une marque déposée de Nintendo, Creatures Inc. et Game Freak.*
