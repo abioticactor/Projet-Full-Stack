@@ -98,8 +98,6 @@ builder.Services.AddSwaggerGen(options =>
 // Enregistre les dépôts et services personnalisés
 builder.Services.AddScoped<DresseurRepository>();
 builder.Services.AddScoped<DresseurService>();
-builder.Services.AddScoped<PartieRepository>();
-builder.Services.AddScoped<PartieService>();
 
 // =================================================================
 // 2. Construction de l'application
