@@ -60,7 +60,7 @@ builder.Services.AddScoped<PokemonRepository>();
 
 // Enregistre le Service (couche Business)
 builder.Services.AddScoped<IPokemonService, PokemonService>();
-builder.Services.AddScoped<IGuessGameService, GuessGameService>();
+builder.Services.AddScoped<IPartieService, PartieService>();
 
 // --- Configuration des services de l'API ---
 builder.Services.AddControllers();

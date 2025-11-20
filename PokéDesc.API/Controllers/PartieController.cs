@@ -6,19 +6,19 @@ namespace PokéDesc.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class GuessGameController : ControllerBase
+public class PartieController : ControllerBase
 {
-    private readonly IGuessGameService _gameService;
+    private readonly IPartieService _partieService;
 
-    public GuessGameController(IGuessGameService gameService)
+    public PartieController(IPartieService partieService)
     {
-        _gameService = gameService;
+        _partieService = partieService;
     }
 
     [HttpPost("create")]
     public async Task<IActionResult> CreateGame([FromBody] CreateGameRequest request)
     {
-        var partie = await _gameService.CreateGameAsync(request.DresseurId);
+        var partie = await _partieService.CreateGameAsync(request.DresseurId);
         return Ok(partie);
     }
 
@@ -27,7 +27,7 @@ public class GuessGameController : ControllerBase
     {
         try
         {
-            var partie = await _gameService.JoinGameAsync(request.CodeSession, request.DresseurId);
+            var partie = await _partieService.JoinGameAsync(request.CodeSession, request.DresseurId);
             return Ok(partie);
         }
         catch (KeyNotFoundException ex)
@@ -41,7 +41,7 @@ public class GuessGameController : ControllerBase
     {
         try
         {
-            var partie = await _gameService.GetGameAsync(partieId);
+            var partie = await _partieService.GetGameAsync(partieId);
             return Ok(partie);
         }
         catch (KeyNotFoundException ex)
@@ -55,7 +55,7 @@ public class GuessGameController : ControllerBase
     {
         try
         {
-            var result = await _gameService.SubmitGuessAsync(partieId, request.DresseurId, request.PokemonName);
+            var result = await _partieService.SubmitGuessAsync(partieId, request.DresseurId, request.PokemonName);
             return Ok(result);
         }
         catch (KeyNotFoundException ex)
@@ -69,7 +69,7 @@ public class GuessGameController : ControllerBase
     {
         try
         {
-            var partie = await _gameService.UseHintAsync(partieId, request.DresseurId, request.HintType);
+            var partie = await _partieService.UseHintAsync(partieId, request.DresseurId, request.HintType);
             return Ok(partie);
         }
         catch (KeyNotFoundException ex)

@@ -4,7 +4,7 @@ using PokéDesc.Business.Models;
 
 namespace PokéDesc.Business.Interfaces;
 
-public interface IGuessGameService
+public interface IPartieService
 {
     /// <summary>
     /// Crée une nouvelle partie et génère les Pokémon à deviner.

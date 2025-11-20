@@ -5,7 +5,7 @@ using PokéDesc.Domain.Models;
 
 namespace PokéDesc.Business.Services;
 
-public class GuessGameService : IGuessGameService
+public class PartieService : IPartieService
 {
     private readonly IPokemonService _pokemonService;
     // TODO: Injecter un Repository pour sauvegarder la Partie (ex: IPartieRepository)
@@ -24,7 +24,7 @@ public class GuessGameService : IGuessGameService
     private const int BaseScore = 100;
     private const int PokemonsPerGame = 6;
 
-    public GuessGameService(IPokemonService pokemonService)
+    public PartieService(IPokemonService pokemonService)
     {
         _pokemonService = pokemonService;
     }
