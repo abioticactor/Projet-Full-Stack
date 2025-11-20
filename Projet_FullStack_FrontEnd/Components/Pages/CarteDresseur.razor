@@ -1,4 +1,277 @@
 @page "/carte-dresseur"
 
-<h2>Carte de Dresseur</h2>
-<p>Page en construction — contenu à définir.</p>
+<!-- 1. LE STYLE (CSS) -->
+<style>
+    :root {
+        --poke-red: #83f264ff;
+        --poke-dark: #333;
+        --poke-yellow: #ffcb05;
+        --poke-blue: #3b4cca;
+        --bg-color: #f4f4f4;
+    }
+
+    .page-container {
+        display: flex;
+        justify-content: center;
+        padding: 20px;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .dresseur-card {
+        width: 100%;
+        max-width: 700px;
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        border: 1px solid #ddd;
+    }
+
+    /* Header Rouge style Pokédex */
+    .card-header {
+        background: linear-gradient(135deg, var(--poke-red) 0%, #cc0000 100%);
+        padding: 30px;
+        display: flex;
+        align-items: center;
+        color: white;
+        position: relative;
+    }
+
+    /* Cercle Avatar */
+    .avatar-container {
+        width: 100px;
+        height: 100px;
+        background: white;
+        border-radius: 50%;
+        border: 4px solid var(--poke-dark);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        flex-shrink: 0;
+    }
+
+    .avatar-img {
+        width: 90%;
+        height: 90%;
+        object-fit: contain;
+    }
+
+    .info-text {
+        margin-left: 20px;
+        flex-grow: 1;
+    }
+
+    .pseudo {
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .niveau-badge {
+        background: var(--poke-yellow);
+        color: var(--poke-dark);
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-weight: bold;
+        font-size: 0.9rem;
+        display: inline-block;
+        margin-bottom: 5px;
+        box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+    }
+
+    /* Barre d'Expérience */
+    .xp-wrapper {
+        margin-top: 10px;
+    }
+    .xp-label {
+        font-size: 0.75rem;
+        margin-bottom: 2px;
+        text-align: right;
+        opacity: 0.9;
+    }
+    .xp-track {
+        background: rgba(0,0,0,0.3);
+        height: 8px;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    .xp-fill {
+        background: var(--poke-yellow);
+        height: 100%;
+        transition: width 0.5s ease-in-out;
+    }
+
+    /* Statistiques */
+    .stats-section {
+        padding: 25px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        text-align: center;
+    }
+
+    .stat-box {
+        background: #f9f9f9;
+        border: 2px solid #eee;
+        border-radius: 12px;
+        padding: 15px;
+        transition: transform 0.2s;
+    }
+
+    .stat-box:hover {
+        transform: translateY(-5px);
+        border-color: var(--poke-blue);
+    }
+
+    .stat-number {
+        display: block;
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: var(--poke-dark);
+    }
+
+    .stat-title {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: #777;
+        font-weight: 600;
+    }
+
+    /* Footer / Boutons */
+    .card-footer {
+        padding: 0 25px 25px 25px;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .btn-action {
+        background: var(--poke-blue);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 30px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn-action:hover {
+        background: #2a3a9e;
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+    }
+
+</style>
+
+<!-- 2. LE HTML (L'AFFICHAGE) -->
+<div class="page-container">
+    
+    @if (Dresseur == null)
+    {
+        <p>Chargement des données du dresseur...</p>
+    }
+    else
+    {
+        <div class="dresseur-card">
+            <!-- En-tête -->
+            <div class="card-header">
+                <div class="avatar-container">
+                    <img src="@Dresseur.AvatarUrl" alt="Avatar" class="avatar-img" />
+                </div>
+                <div class="info-text">
+                    <div class="niveau-badge">Niv. @Dresseur.Niveau</div>
+                    <h1 class="pseudo">@Dresseur.Pseudo</h1>
+                    
+                    <!-- Barre XP -->
+                    <div class="xp-wrapper">
+                        <div class="xp-label">@Dresseur.XpActuel / @Dresseur.XpRequis XP</div>
+                        <div class="xp-track">
+                            <!-- Calcul du pourcentage en C# direct -->
+                            <div class="xp-fill" style="width: @(CalculerPourcentage())%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-section">
+                <div class="stat-box">
+                    <span class="stat-number" style="color: var(--poke-blue)">@Dresseur.PokemonDecouverts</span>
+                    <span class="stat-title">Pokédex</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number" style="color: #28a745">@Dresseur.Victoires</span>
+                    <span class="stat-title">Victoires</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number" style="color: #dc3545">@Dresseur.Defaites</span>
+                    <span class="stat-title">Défaites</span>
+                </div>
+            </div>
+
+            <!-- Boutons -->
+            <div class="card-footer">
+                <button class="btn-action" @onclick="ModifierProfil">Modifier Profil</button>
+                <button class="btn-action btn-secondary">Historique</button>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- 3. LE C# (LA LOGIQUE) -->
+@code {
+    // Définition d'une petite classe interne pour stocker les infos (Modèle)
+    public class DresseurInfo
+    {
+        public string Pseudo { get; set; } = "";
+        public int Niveau { get; set; }
+        public int XpActuel { get; set; }
+        public int XpRequis { get; set; }
+        public string AvatarUrl { get; set; } = "";
+        public int Victoires { get; set; }
+        public int Defaites { get; set; }
+        public int PokemonDecouverts { get; set; }
+    }
+
+    // Variable qui contient les données à afficher
+    private DresseurInfo? Dresseur;
+
+    // Cette fonction se lance automatiquement au chargement de la page
+    protected override void OnInitialized()
+    {
+        // SIMULATION DES DONNÉES (MOCK)
+        // Plus tard, tu remplaceras ça par un appel API vers la BDD
+        Dresseur = new DresseurInfo
+        {
+            Pseudo = "SachaDu01",
+            Niveau = 5,
+            XpActuel = 450,
+            XpRequis = 1000,
+            // Image officielle de Red (héros Pokémon) pour l'exemple
+            AvatarUrl = "https://archives.bulbagarden.net/media/upload/5/53/Red_Green_Red.png", 
+            Victoires = 12,
+            Defaites = 4,
+            PokemonDecouverts = 23
+        };
+    }
+
+    // Petite méthode utilitaire pour la barre de chargement
+    private int CalculerPourcentage()
+    {
+        if (Dresseur == null || Dresseur.XpRequis == 0) return 0;
+        return (int)((double)Dresseur.XpActuel / Dresseur.XpRequis * 100);
+    }
+
+    private void ModifierProfil()
+    {
+        // Logique future pour ouvrir un formulaire d'édition
+        Console.WriteLine("Clic sur modifier profil");
+    }
+}
