@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PokéDesc.Business")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+264811f7aa201a1d8806e200c9797cd001577969")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fed36b8abe6aa5724ee391e30c6d3a6f8e5b8a62")]
 [assembly: System.Reflection.AssemblyProductAttribute("PokéDesc.Business")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PokéDesc.Business")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
