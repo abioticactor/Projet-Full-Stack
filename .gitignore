@@ -33,4 +33,4 @@ secrets.json
 *.dll
 *.pdb
 *.exe
-*.cs
+
