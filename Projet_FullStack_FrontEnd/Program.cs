@@ -2,28 +2,32 @@ using Projet_FullStack_FrontEnd.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+// Add services to the container for Blazor Server (.NET 8)
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
+// Register HttpClient for components that expect it (e.g. Pokedex)
+// Point HttpClient to the backend API base address. Adjust port if your API runs on a different port.
+builder.Services.AddScoped(sp => new System.Net.Http.HttpClient
+{
+    BaseAddress = new System.Uri("http://localhost:5122/")
+});
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
 
-
-app.UseAntiforgery();
-
-app.MapStaticAssets();
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+app.MapBlazorHub();
+app.MapFallbackToPage("/_Host");
 
 app.Run();
     

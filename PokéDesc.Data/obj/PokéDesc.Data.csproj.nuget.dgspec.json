@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Data\\PokéDesc.Data.csproj": {}
+    "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Data\\PokéDesc.Data.csproj": {}
   },
   "projects": {
-    "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Data\\PokéDesc.Data.csproj": {
+    "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Data\\PokéDesc.Data.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Data\\PokéDesc.Data.csproj",
+        "projectUniqueName": "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Data\\PokéDesc.Data.csproj",
         "projectName": "PokéDesc.Data",
-        "projectPath": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Data\\PokéDesc.Data.csproj",
+        "projectPath": "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Data\\PokéDesc.Data.csproj",
         "packagesPath": "C:\\Users\\coren\\.nuget\\packages\\",
-        "outputPath": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Data\\obj\\",
+        "outputPath": "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Data\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\coren\\AppData\\Roaming\\NuGet\\NuGet.Config"

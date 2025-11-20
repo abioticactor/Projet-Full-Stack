@@ -1,0 +1,19 @@
+.back-menu[b-t5bm06yl40] {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.7rem;
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+
+.back-menu:hover[b-t5bm06yl40],
+.back-menu:focus[b-t5bm06yl40] {
+  background: rgba(0,0,0,0.65);
+  transform: translateY(-3px);
+}

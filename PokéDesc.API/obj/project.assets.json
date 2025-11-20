@@ -1131,11 +1131,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.API\\PokéDesc.API.csproj",
+      "projectUniqueName": "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.API\\PokéDesc.API.csproj",
       "projectName": "PokéDesc.API",
-      "projectPath": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.API\\PokéDesc.API.csproj",
+      "projectPath": "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.API\\PokéDesc.API.csproj",
       "packagesPath": "C:\\Users\\coren\\.nuget\\packages\\",
-      "outputPath": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.API\\obj\\",
+      "outputPath": "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.API\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\coren\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -1150,8 +1150,8 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Business\\PokéDesc.Business.csproj": {
-              "projectPath": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Business\\PokéDesc.Business.csproj"
+            "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Business\\PokéDesc.Business.csproj": {
+              "projectPath": "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Business\\PokéDesc.Business.csproj"
             }
           }
         }

@@ -1,0 +1,19 @@
+@inject NavigationManager NavigationManager
+@inject Microsoft.Extensions.Logging.ILogger<Components.NavigationLogger> Logger
+
+@code {
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        Logger.LogInformation("NavigationLogger: Location changed to {Location}, IsNavigationIntercepted={IsIntercepted}", e.Location, e.IsNavigationIntercepted);
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

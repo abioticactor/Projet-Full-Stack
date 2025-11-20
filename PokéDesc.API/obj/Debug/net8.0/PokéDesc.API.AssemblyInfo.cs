@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PokéDesc.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d0e96ed7d1c4577b2fa09a363e02790d8fcfad48")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+264811f7aa201a1d8806e200c9797cd001577969")]
 [assembly: System.Reflection.AssemblyProductAttribute("PokéDesc.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PokéDesc.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

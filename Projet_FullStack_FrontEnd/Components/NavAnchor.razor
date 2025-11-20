@@ -1,0 +1,25 @@
+@using Microsoft.AspNetCore.Components
+@inject NavigationManager NavigationManager
+
+<a href="@Href" class="@Class" @onclick="OnClick" @onclick:preventDefault="true" role="link" aria-label="@AriaLabel">
+    @ChildContent
+</a>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Href { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public string? AriaLabel { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private void OnClick(MouseEventArgs e)
+    {
+        NavigationManager.NavigateTo(Href);
+    }
+}

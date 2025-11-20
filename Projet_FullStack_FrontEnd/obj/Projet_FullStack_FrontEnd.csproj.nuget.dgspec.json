@@ -1,30 +1,30 @@
 {
   "format": 1,
   "restore": {
-    "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\Projet_FullStack_FrontEnd.csproj": {}
+    "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\Projet_FullStack_FrontEnd.csproj": {}
   },
   "projects": {
-    "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\Projet_FullStack_FrontEnd.csproj": {
+    "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\Projet_FullStack_FrontEnd.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\Projet_FullStack_FrontEnd.csproj",
+        "projectUniqueName": "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\Projet_FullStack_FrontEnd.csproj",
         "projectName": "Projet_FullStack_FrontEnd",
-        "projectPath": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\Projet_FullStack_FrontEnd.csproj",
+        "projectPath": "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\Projet_FullStack_FrontEnd.csproj",
         "packagesPath": "C:\\Users\\coren\\.nuget\\packages\\",
-        "outputPath": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\obj\\",
+        "outputPath": "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\coren\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
-          "net9.0"
+          "net8.0"
         ],
         "sources": {
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net9.0": {
-            "targetAlias": "net9.0",
+          "net8.0": {
+            "targetAlias": "net8.0",
             "projectReferences": {}
           }
         },
@@ -41,8 +41,8 @@
         "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
-        "net9.0": {
-          "targetAlias": "net9.0",
+        "net8.0": {
+          "targetAlias": "net8.0",
           "imports": [
             "net461",
             "net462",
@@ -54,6 +54,24 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.21, 8.0.21]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.win-x64",
+              "version": "[8.0.21, 8.0.21]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.21, 8.0.21]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[8.0.21, 8.0.21]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"

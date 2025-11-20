@@ -642,11 +642,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Business\\PokéDesc.Business.csproj",
+      "projectUniqueName": "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Business\\PokéDesc.Business.csproj",
       "projectName": "PokéDesc.Business",
-      "projectPath": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Business\\PokéDesc.Business.csproj",
+      "projectPath": "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Business\\PokéDesc.Business.csproj",
       "packagesPath": "C:\\Users\\coren\\.nuget\\packages\\",
-      "outputPath": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Business\\obj\\",
+      "outputPath": "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Business\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\coren\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -661,8 +661,8 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Data\\PokéDesc.Data.csproj": {
-              "projectPath": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Data\\PokéDesc.Data.csproj"
+            "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Data\\PokéDesc.Data.csproj": {
+              "projectPath": "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Data\\PokéDesc.Data.csproj"
             },
             "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Domain\\PokéDesc.Domain.csproj": {
               "projectPath": "E:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\PokéDesc.Domain\\PokéDesc.Domain.csproj"

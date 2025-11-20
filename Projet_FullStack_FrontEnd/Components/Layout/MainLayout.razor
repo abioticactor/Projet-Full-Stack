@@ -10,34 +10,37 @@
         </div>
 
         <div class="nav-menu">
-            <NavLink class="nav-link" href="/carte-dresseur" Match="NavLinkMatch.All">
+            <NavAnchor Href="/carte-dresseur" Class="nav-link" AriaLabel="Carte Dresseur">
                 <i class="fas fa-id-card"></i> Carte Dresseur
-            </NavLink>
-            <NavLink class="nav-link" href="/combat" Match="NavLinkMatch.All">
+            </NavAnchor>
+            <NavAnchor Href="/combat" Class="nav-link" AriaLabel="Combat">
                 <i class="fas fa-fist-raised"></i> Combat
-            </NavLink>
-            <NavLink class="nav-link" href="/mini-jeux" Match="NavLinkMatch.All">
+            </NavAnchor>
+            <NavAnchor Href="/mini-jeux" Class="nav-link" AriaLabel="Mini-Jeux">
                 <i class="fas fa-gamepad"></i> Mini-Jeux
-            </NavLink>
-            <NavLink class="nav-link" href="/pokedex" Match="NavLinkMatch.All">
+            </NavAnchor>
+            <NavAnchor Href="/pokedex" Class="nav-link" AriaLabel="Pokédex">
                 <i class="fas fa-book"></i> Pokédex
-            </NavLink>
-            <NavLink class="nav-link" href="/objets" Match="NavLinkMatch.All">
+            </NavAnchor>
+            <NavAnchor Href="/objets" Class="nav-link" AriaLabel="Objets">
                 <i class="fas fa-briefcase"></i> Objets
-            </NavLink>
-            <NavLink class="nav-link" href="/amis" Match="NavLinkMatch.All">
+            </NavAnchor>
+            <NavAnchor Href="/amis" Class="nav-link" AriaLabel="Amis">
                 <i class="fas fa-users"></i> Amis
-            </NavLink>
-            <NavLink class="nav-link" href="/succes" Match="NavLinkMatch.All">
+            </NavAnchor>
+            <NavAnchor Href="/succes" Class="nav-link" AriaLabel="Succès">
                 <i class="fas fa-trophy"></i> Succès
-            </NavLink>
-            <NavLink class="nav-link" href="/parametres" Match="NavLinkMatch.All">
+            </NavAnchor>
+            <NavAnchor Href="/parametres" Class="nav-link" AriaLabel="Paramètres">
                 <i class="fas fa-cog"></i> Paramètres
-            </NavLink>
+            </NavAnchor>
         </div>
     </nav>
 
     <main>
+        <div style="padding:0.5rem 1rem;">
+            <!-- NavigationIndicator removed for production UI -->
+        </div>
         <article class="content px-4">
             @Body
         </article>
