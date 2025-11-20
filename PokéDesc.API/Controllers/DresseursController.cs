@@ -90,6 +90,43 @@ public class DresseursController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+    // 1. AJOUTER UN POKÉMON (Simule une capture ou une victoire)
+    [HttpPost("pokedex/ajouter")]
+    [Authorize]
+    public async Task<IActionResult> AjouterPokemon([FromBody] AjoutPokemonRequest request)
+    {
+        var monId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (monId == null) return Unauthorized();
+
+        try
+        {
+            await _dresseurService.CapturerPokemonAsync(monId, request.PokemonId, request.Niveau);
+            return Ok(new { message = "Pokémon ajouté au Pokédex !" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    // 2. AFFICHER LE POKÉDEX
+    [HttpGet("pokedex")]
+    [Authorize]
+    public async Task<IActionResult> GetMyPokedex()
+    {
+        var monId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (monId == null) return Unauthorized();
+
+        try
+        {
+            var pokedex = await _dresseurService.GetPokedexAsync(monId);
+            return Ok(pokedex);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
 }
 
 // Record pour la requête d'inscription (existant)
@@ -100,3 +137,5 @@ public record LoginRequest(string Email, string Password);
 
 // NOUVEAU Record pour la requête d'ajout d'ami
 public record AjouterAmiRequest(string PseudoAmi);
+
+ public record AjoutPokemonRequest(int PokemonId, int Niveau);

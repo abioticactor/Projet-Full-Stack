@@ -123,4 +123,40 @@ public class DresseurService
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+    public async Task CapturerPokemonAsync(string dresseurId, int pokemonId, int niveau)
+    {
+        var dresseur = await _dresseurRepository.GetByIdAsync(dresseurId);
+        if (dresseur == null) throw new Exception("Dresseur introuvable.");
+
+        // Vérifier si le dresseur a déjà ce Pokémon
+        var captureExistante = dresseur.Pokedex.FirstOrDefault(p => p.PokemonId == pokemonId);
+
+        if (captureExistante != null)
+        {
+            // Si oui, on pourrait imaginer augmenter son niveau ou juste ne rien faire
+            // Pour l'instant, on ne fait rien s'il l'a déjà.
+            return;
+        }
+
+        // Sinon, on crée la nouvelle capture
+        var nouvelleCapture = new PokemonCapture
+        {
+            PokemonId = pokemonId,
+            Niveau = niveau
+        };
+
+        dresseur.Pokedex.Add(nouvelleCapture);
+        
+        // On sauvegarde le dresseur mis à jour
+        await _dresseurRepository.UpdateAsync(dresseur);
+    }
+
+    // Récupérer le Pokédex complet
+    public async Task<List<PokemonCapture>> GetPokedexAsync(string dresseurId)
+    {
+        var dresseur = await _dresseurRepository.GetByIdAsync(dresseurId);
+        if (dresseur == null) throw new Exception("Dresseur introuvable.");
+
+        return dresseur.Pokedex;
+    }
 }

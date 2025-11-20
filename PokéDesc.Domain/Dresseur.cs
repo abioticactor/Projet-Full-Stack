@@ -1,6 +1,7 @@
 // Dans PokéDesc.Domain/Dresseur.cs
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+namespace PokéDesc.Domain;
 
 public class Dresseur
 {
@@ -15,4 +16,7 @@ public class Dresseur
     // --- AJOUT ---
     // On va stocker les ID des dresseurs qui sont amis
     public List<string> AmisIds { get; set; } = new List<string>();
+
+    // On stocke aussi les Pokémon capturés par le dresseur
+    public List<PokemonCapture> Pokedex { get; set; } = new List<PokemonCapture>();
 }
