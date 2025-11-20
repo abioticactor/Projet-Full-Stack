@@ -1,4 +1,5 @@
 using PokéDesc.Domain.Models;
+using PokéDesc.Business.Models;
 
 namespace PokéDesc.Business.Interfaces;
 
@@ -11,6 +12,11 @@ public interface IPokemonService
     Task<List<Pokemon>> GetPokemonsByGenerationAsync(string generationName);
     Task<List<Pokemon>> GetLegendaryPokemonsAsync();
     Task<List<Pokemon>> GetMythicalPokemonsAsync();
+    Task<List<Pokemon>> GetLegendaryOrMythicalPokemonsAsync();
+    Task<List<Pokemon>> GetBaseEvolutionPokemonsAsync();
+    Task<string> GetCensoredDescriptionAsync(string id);
+    Task<string> GetPokemonNameFrAsync(string id);
+    Task<PokemonHints> GetPokemonHintsAsync(string id);
     Task<Pokemon> CreatePokemonAsync(Pokemon pokemon);
     Task<Pokemon> UpdatePokemonAsync(string id, Pokemon pokemon);
     Task<bool> DeletePokemonAsync(string id);
