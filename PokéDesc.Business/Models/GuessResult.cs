@@ -1,3 +1,4 @@
+using PokéDesc.Domain;
 using PokéDesc.Domain.Models;
 
 namespace PokéDesc.Business.Models;

@@ -1,6 +1,10 @@
-// Dans PokéDesc.Domain/Partie.cs
+#nullable enable
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System.Collections.Generic;
+using PokéDesc.Domain.Models;
+
+namespace PokéDesc.Domain;
 
 public class Partie
 {
@@ -19,6 +23,25 @@ public class Partie
 
     // Statut : "EnAttente", "EnCours", "Termine"
     public string Statut { get; set; } = "EnAttente";
+
+    // --- Logique du Jeu ---
+
+    // La liste des 6 Pokémon à deviner (commune aux deux joueurs)
+    public List<Pokemon> PokemonsToGuess { get; set; } = new List<Pokemon>();
+
+    // Progression Joueur 1
+    public int CurrentIndexJ1 { get; set; } = 0;
+    public int ScoreJ1 { get; set; } = 0;
     
-    // On ajoutera les listes de Pokémon à deviner, etc. plus tard
+    // État du tour actuel (Joueur 1)
+    public int AttemptsUsedJ1 { get; set; } = 0;
+    public List<string> UsedHintsJ1 { get; set; } = new List<string>();
+
+    // Progression Joueur 2
+    public int CurrentIndexJ2 { get; set; } = 0;
+    public int ScoreJ2 { get; set; } = 0;
+    
+    // État du tour actuel (Joueur 2)
+    public int AttemptsUsedJ2 { get; set; } = 0;
+    public List<string> UsedHintsJ2 { get; set; } = new List<string>();
 }

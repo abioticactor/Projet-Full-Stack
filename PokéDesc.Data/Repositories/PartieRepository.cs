@@ -1,6 +1,7 @@
 // Dans PokéDesc.Data/Repositories/PartieRepository.cs
 using MongoDB.Driver;
 using PokéDesc.Domain;
+using PokéDesc.Domain.Models;
 
 namespace PokéDesc.Data.Repositories;
 

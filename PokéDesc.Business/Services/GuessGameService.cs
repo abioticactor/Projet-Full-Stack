@@ -1,5 +1,6 @@
 using PokéDesc.Business.Interfaces;
 using PokéDesc.Business.Models;
+using PokéDesc.Domain;
 using PokéDesc.Domain.Models;
 
 namespace PokéDesc.Business.Services;

@@ -2,8 +2,6 @@ using MongoDB.Driver;
 using PokéDesc.Data.Repositories;
 using PokéDesc.Business.Interfaces;
 using PokéDesc.Business.Services;
-using PokéDesc.Data.Repositories;
-using PokéDesc.Business.Services;
 // --- AJOUT ---
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -32,8 +30,8 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        // On récupère la clé secrète (via le Secret Manager)
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        // On récupère la clé secrète (via le Secret Manager ou appsettings)
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("La clé JWT 'Jwt:Key' est manquante dans la configuration.")))
     };
 });
 // --- FIN AJOUT ---
