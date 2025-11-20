@@ -1,6 +1,6 @@
 // Dans PokéDesc.Business/Services/PartieService.cs
 using PokéDesc.Data.Repositories;
-using PokéDesc.Domain;
+using PokéDesc.Domain.Models;
 
 namespace PokéDesc.Business.Services;
 

@@ -1,15 +1,15 @@
 using PokéDesc.Business.Interfaces;
 using PokéDesc.Business.Models;
 using PokéDesc.Domain.Models;
+using PokéDesc.Data.Repositories;
+using MongoDB.Bson;
 
 namespace PokéDesc.Business.Services;
 
 public class GuessGameService : IGuessGameService
 {
     private readonly IPokemonService _pokemonService;
-    // TODO: Injecter un Repository pour sauvegarder la Partie (ex: IPartieRepository)
-    // Pour l'instant, on va simuler le stockage en mémoire ou supposer qu'il existe.
-    private static readonly List<Partie> _fakeGameStore = new(); 
+    private readonly PartieRepository _partieRepository;
 
     // Configuration des coûts des indices
     private static readonly Dictionary<string, int> HintCosts = new()
@@ -23,9 +23,10 @@ public class GuessGameService : IGuessGameService
     private const int BaseScore = 100;
     private const int PokemonsPerGame = 6;
 
-    public GuessGameService(IPokemonService pokemonService)
+    public GuessGameService(IPokemonService pokemonService, PartieRepository partieRepository)
     {
         _pokemonService = pokemonService;
+        _partieRepository = partieRepository;
     }
 
     public async Task<Partie> CreateGameAsync(string dresseurId)
@@ -38,33 +39,34 @@ public class GuessGameService : IGuessGameService
 
         var partie = new Partie
         {
-            Id = Guid.NewGuid().ToString(), // Simulé, MongoDB le ferait auto
+            Id = ObjectId.GenerateNewId().ToString(),
             CodeSession = GenerateSessionCode(),
             Dresseur1Id = dresseurId,
             PokemonsToGuess = selectedPokemons,
             Statut = "EnCours" // Ou EnAttente si multi
         };
 
-        _fakeGameStore.Add(partie);
+        await _partieRepository.CreateAsync(partie);
         return partie;
     }
 
     public async Task<Partie> JoinGameAsync(string codeSession, string dresseurId)
     {
-        var partie = _fakeGameStore.FirstOrDefault(p => p.CodeSession == codeSession);
+        var partie = await _partieRepository.GetByCodeAsync(codeSession);
         if (partie == null) throw new KeyNotFoundException("Partie introuvable.");
         
         partie.Dresseur2Id = dresseurId;
         partie.Statut = "EnCours";
         
-        return await Task.FromResult(partie);
+        await _partieRepository.UpdateAsync(partie);
+        return partie;
     }
 
     public async Task<Partie> GetGameAsync(string partieId)
     {
-        var partie = _fakeGameStore.FirstOrDefault(p => p.Id == partieId);
+        var partie = await _partieRepository.GetByIdAsync(partieId);
         if (partie == null) throw new KeyNotFoundException("Partie introuvable.");
-        return await Task.FromResult(partie);
+        return partie;
     }
 
     public async Task<Partie> UseHintAsync(string partieId, string dresseurId, string hintType)
@@ -83,6 +85,7 @@ public class GuessGameService : IGuessGameService
         if (!usedHints.Contains(hintType))
         {
             usedHints.Add(hintType);
+            await _partieRepository.UpdateAsync(partie);
         }
 
         return partie;
@@ -106,6 +109,8 @@ public class GuessGameService : IGuessGameService
         // Normalisation pour la comparaison (minuscule, trim)
         bool isCorrect = string.Equals(targetPokemon.NameFr, pokemonName, StringComparison.OrdinalIgnoreCase);
 
+        GuessResult result;
+
         if (isCorrect)
         {
             // Calcul du score
@@ -116,7 +121,7 @@ public class GuessGameService : IGuessGameService
 
             AdvanceToNextPokemon(partie, isJ1);
 
-            return new GuessResult
+            result = new GuessResult
             {
                 IsCorrect = true,
                 IsTurnFinished = true,
@@ -139,7 +144,7 @@ public class GuessGameService : IGuessGameService
                 // Perdu pour ce Pokémon
                 AdvanceToNextPokemon(partie, isJ1);
                 
-                return new GuessResult
+                result = new GuessResult
                 {
                     IsCorrect = false,
                     IsTurnFinished = true,
@@ -152,7 +157,7 @@ public class GuessGameService : IGuessGameService
             else
             {
                 // Encore des essais
-                return new GuessResult
+                result = new GuessResult
                 {
                     IsCorrect = false,
                     IsTurnFinished = false,
@@ -162,6 +167,10 @@ public class GuessGameService : IGuessGameService
                 };
             }
         }
+
+        // Sauvegarder les changements
+        await _partieRepository.UpdateAsync(partie);
+        return result;
     }
 
     private void AdvanceToNextPokemon(Partie partie, bool isJ1)

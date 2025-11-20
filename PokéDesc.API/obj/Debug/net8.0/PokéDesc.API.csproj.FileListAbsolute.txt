@@ -52,8 +52,18 @@ C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin
 C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\PokéDesc.API.runtimeconfig.json
 C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\PokéDesc.API.dll
 C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\PokéDesc.API.pdb
+C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\BCrypt.Net-Next.dll
 C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\DnsClient.dll
+C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\Microsoft.AspNetCore.OpenApi.dll
+C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\Microsoft.Extensions.Primitives.dll
+C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
 C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\Microsoft.OpenApi.dll
 C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\MongoDB.Bson.dll
 C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\MongoDB.Driver.dll
@@ -62,6 +72,7 @@ C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin
 C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
 C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
 C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\ZstdSharp.dll
 C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\PokéDesc.Business.dll
 C:\Users\DINH\OneDrive\Documents\PokédescV2\Projet-Full-Stack\PokéDesc.API\bin\Debug\net8.0\PokéDesc.Data.dll

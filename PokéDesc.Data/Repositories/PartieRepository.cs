@@ -1,6 +1,6 @@
 // Dans PokéDesc.Data/Repositories/PartieRepository.cs
 using MongoDB.Driver;
-using PokéDesc.Domain;
+using PokéDesc.Domain.Models;
 
 namespace PokéDesc.Data.Repositories;
 
@@ -25,6 +25,12 @@ public class PartieRepository
     {
         // On cherche une partie qui a ce code ET qui est en attente
         return await _partiesCollection.Find(p => p.CodeSession == code && p.Statut == "EnAttente").FirstOrDefaultAsync();
+    }
+
+    // Trouver une partie par son ID
+    public async Task<Partie> GetByIdAsync(string id)
+    {
+        return await _partiesCollection.Find(p => p.Id == id).FirstOrDefaultAsync();
     }
 
     // Mettre à jour une partie (ex: pour ajouter le joueur 2)
