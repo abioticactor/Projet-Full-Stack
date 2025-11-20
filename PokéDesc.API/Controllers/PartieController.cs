@@ -81,4 +81,22 @@ public class PartieController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+    [HttpPost("{partieId}/start")]
+    public async Task<IActionResult> StartGame(string partieId, [FromBody] StartGameRequest request)
+    {
+        try
+        {
+            var partie = await _partieService.StartGameAsync(partieId, request.Mode);
+            return Ok(partie);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
 }

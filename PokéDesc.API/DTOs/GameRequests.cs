@@ -34,3 +34,9 @@ public class UseHintRequest
     [Required]
     public string HintType { get; set; } = string.Empty; // "Type", "Stats", "Talent"
 }
+
+public class StartGameRequest
+{
+    [Required]
+    public string Mode { get; set; } = string.Empty; // "Standard"
+}

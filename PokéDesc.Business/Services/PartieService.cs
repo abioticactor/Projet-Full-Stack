@@ -31,23 +31,48 @@ public class PartieService : IPartieService
 
     public async Task<Partie> CreateGameAsync(string dresseurId)
     {
-        var allPokemons = await _pokemonService.GetAllPokemonsAsync();
-        var random = new Random();
-        
-        // Sélectionner 6 Pokémon aléatoires
-        var selectedPokemons = allPokemons.OrderBy(x => random.Next()).Take(PokemonsPerGame).ToList();
-
         var partie = new Partie
         {
             Id = Guid.NewGuid().ToString(), // Simulé, MongoDB le ferait auto
             CodeSession = GenerateSessionCode(),
             Dresseur1Id = dresseurId,
-            PokemonsToGuess = selectedPokemons,
-            Statut = "EnCours" // Ou EnAttente si multi
+            PokemonsToGuess = new List<Pokemon>(),
+            Statut = "EnAttente" 
         };
 
         _fakeGameStore.Add(partie);
+        return await Task.FromResult(partie);
+    }
+
+    public async Task<Partie> StartGameAsync(string partieId, string mode)
+    {
+        var partie = await GetGameAsync(partieId);
+
+        if (mode == "Standard")
+        {
+            int numberOfPokemons = 6;
+            partie.PokemonsToGuess = await SelectRandomPokemonsAsync(numberOfPokemons);
+            partie.Statut = "EnCours";
+        }
+        else
+        {
+            throw new ArgumentException($"Mode de jeu '{mode}' inconnu.");
+        }
+
         return partie;
+    }
+
+    private async Task<List<Pokemon>> SelectRandomPokemonsAsync(int count)
+    {
+        if (count < 1 || count > 6)
+        {
+            throw new ArgumentException("Le nombre de Pokémon doit être compris entre 1 et 6.");
+        }
+
+        var allPokemons = await _pokemonService.GetAllPokemonsAsync();
+        var random = new Random();
+
+        return allPokemons.OrderBy(x => random.Next()).Take(count).ToList();
     }
 
     public async Task<Partie> JoinGameAsync(string codeSession, string dresseurId)
