@@ -25,11 +25,10 @@
                 <div class="card-body">
                     <h2 class="detail-name">#@GetString(new[] { "numericId" }).PadLeft(3, '0') - @GetString(new[] { "nameFr", "name" })</h2>
                     <div class="types">
-                            @foreach (var type in (pokemon?.types ?? Array.Empty<TypeEntry>()))
+                            @foreach (var t in GetTypes())
                             {
-                                var display = type?.name ?? type?.nameFr ?? type?.name_fr ?? type?.nameEn ?? type?.name_en ?? string.Empty;
-                                var cssRaw = type?.nameEn ?? type?.name_en ?? type?.name ?? display ?? string.Empty;
-                                var css = (cssRaw ?? string.Empty).ToLowerInvariant().Replace(' ', '-').Replace('é','e').Replace('è','e');
+                                var display = t ?? string.Empty;
+                                var css = (display ?? string.Empty).ToLowerInvariant().Replace(' ', '-').Replace('é','e').Replace('è','e');
                                 <span class="type @css">@display</span>
                             }
                     </div>
