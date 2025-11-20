@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\Projet_FullStack_FrontEnd.csproj": {}
+    "C:\\Users\\jules\\Desktop\\COURS ESEO\\E4\\DEEP Learning\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\Projet_FullStack_FrontEnd.csproj": {}
   },
   "projects": {
-    "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\Projet_FullStack_FrontEnd.csproj": {
+    "C:\\Users\\jules\\Desktop\\COURS ESEO\\E4\\DEEP Learning\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\Projet_FullStack_FrontEnd.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\Projet_FullStack_FrontEnd.csproj",
+        "projectUniqueName": "C:\\Users\\jules\\Desktop\\COURS ESEO\\E4\\DEEP Learning\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\Projet_FullStack_FrontEnd.csproj",
         "projectName": "Projet_FullStack_FrontEnd",
-        "projectPath": "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\Projet_FullStack_FrontEnd.csproj",
-        "packagesPath": "C:\\Users\\coren\\.nuget\\packages\\",
-        "outputPath": "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\obj\\",
+        "projectPath": "C:\\Users\\jules\\Desktop\\COURS ESEO\\E4\\DEEP Learning\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\Projet_FullStack_FrontEnd.csproj",
+        "packagesPath": "C:\\Users\\jules\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\jules\\Desktop\\COURS ESEO\\E4\\DEEP Learning\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\coren\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\jules\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -37,8 +37,7 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.300"
+        }
       },
       "frameworks": {
         "net8.0": {
@@ -54,24 +53,6 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.21, 8.0.21]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Host.win-x64",
-              "version": "[8.0.21, 8.0.21]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.21, 8.0.21]"
-            },
-            {
-              "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[8.0.21, 8.0.21]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
@@ -80,7 +61,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.416/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

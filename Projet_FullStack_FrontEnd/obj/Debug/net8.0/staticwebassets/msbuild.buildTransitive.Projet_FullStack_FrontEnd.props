@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\buildMultiTargeting\Projet_FullStack_FrontEnd.props" />
+</Project>

@@ -1,13 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "yybTUovMTj4=",
+  "dgSpecHash": "0K/3rNPVCUY=",
   "success": true,
-  "projectFilePath": "e:\\Cours\\ESEO\\E5\\Systeme_Information\\Projet_FullStack\\Depot_Git\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\Projet_FullStack_FrontEnd.csproj",
-  "expectedPackageFiles": [
-    "C:\\Users\\coren\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.21\\microsoft.netcore.app.ref.8.0.21.nupkg.sha512",
-    "C:\\Users\\coren\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.21\\microsoft.windowsdesktop.app.ref.8.0.21.nupkg.sha512",
-    "C:\\Users\\coren\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.21\\microsoft.aspnetcore.app.ref.8.0.21.nupkg.sha512",
-    "C:\\Users\\coren\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\8.0.21\\microsoft.netcore.app.host.win-x64.8.0.21.nupkg.sha512"
-  ],
+  "projectFilePath": "C:\\Users\\jules\\Desktop\\COURS ESEO\\E4\\DEEP Learning\\Projet-Full-Stack\\Projet_FullStack_FrontEnd\\Projet_FullStack_FrontEnd.csproj",
+  "expectedPackageFiles": [],
   "logs": []
 }

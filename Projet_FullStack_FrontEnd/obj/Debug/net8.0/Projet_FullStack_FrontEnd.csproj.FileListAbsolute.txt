@@ -34,3 +34,37 @@ E:\Cours\ESEO\E5\Systeme_Information\Projet_FullStack\Depot_Git\Projet-Full-Stac
 E:\Cours\ESEO\E5\Systeme_Information\Projet_FullStack\Depot_Git\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\Projet_FullStack_FrontEnd.pdb
 E:\Cours\ESEO\E5\Systeme_Information\Projet_FullStack\Depot_Git\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\Projet_FullStack_FrontEnd.genruntimeconfig.cache
 E:\Cours\ESEO\E5\Systeme_Information\Projet_FullStack\Depot_Git\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\ref\Projet_FullStack_FrontEnd.dll
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\bin\Debug\net8.0\appsettings.Development.json
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\bin\Debug\net8.0\appsettings.json
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\bin\Debug\net8.0\Projet_FullStack_FrontEnd.staticwebassets.runtime.json
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\bin\Debug\net8.0\Projet_FullStack_FrontEnd.exe
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\bin\Debug\net8.0\Projet_FullStack_FrontEnd.deps.json
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\bin\Debug\net8.0\Projet_FullStack_FrontEnd.runtimeconfig.json
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\bin\Debug\net8.0\Projet_FullStack_FrontEnd.dll
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\bin\Debug\net8.0\Projet_FullStack_FrontEnd.pdb
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\Projet_FullStack_FrontEnd.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\Projet_FullStack_FrontEnd.AssemblyInfoInputs.cache
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\Projet_FullStack_FrontEnd.AssemblyInfo.cs
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\Projet_FullStack_FrontEnd.csproj.CoreCompileInputs.cache
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\Projet_FullStack_FrontEnd.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\Projet_FullStack_FrontEnd.RazorAssemblyInfo.cache
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\Projet_FullStack_FrontEnd.RazorAssemblyInfo.cs
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\Projet_FullStack_FrontEnd.sourcelink.json
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\staticwebassets.build.json
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\staticwebassets.development.json
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\staticwebassets\msbuild.Projet_FullStack_FrontEnd.Microsoft.AspNetCore.StaticWebAssets.props
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\staticwebassets\msbuild.build.Projet_FullStack_FrontEnd.props
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.Projet_FullStack_FrontEnd.props
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.Projet_FullStack_FrontEnd.props
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\staticwebassets.pack.json
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\scopedcss\Components\BackToMenu.razor.rz.scp.css
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\scopedcss\Components\Layout\HomeLayout.razor.rz.scp.css
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\scopedcss\Components\Layout\MainLayout.razor.rz.scp.css
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\scopedcss\Components\Pages\Home.razor.rz.scp.css
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\scopedcss\bundle\Projet_FullStack_FrontEnd.styles.css
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\scopedcss\projectbundle\Projet_FullStack_FrontEnd.bundle.scp.css
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\Projet_FullStack_FrontEnd.dll
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\refint\Projet_FullStack_FrontEnd.dll
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\Projet_FullStack_FrontEnd.pdb
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\Projet_FullStack_FrontEnd.genruntimeconfig.cache
+C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\obj\Debug\net8.0\ref\Projet_FullStack_FrontEnd.dll

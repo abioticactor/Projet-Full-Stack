@@ -9,89 +9,87 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = Projet_FullStack_FrontEnd
 build_property.RootNamespace = Projet_FullStack_FrontEnd
-build_property.ProjectDir = e:\Cours\ESEO\E5\Systeme_Information\Projet_FullStack\Depot_Git\Projet-Full-Stack\Projet_FullStack_FrontEnd\
+build_property.ProjectDir = C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 8.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = e:\Cours\ESEO\E5\Systeme_Information\Projet_FullStack\Depot_Git\Projet-Full-Stack\Projet_FullStack_FrontEnd
+build_property.MSBuildProjectDirectory = C:\Users\jules\Desktop\COURS ESEO\E4\DEEP Learning\Projet-Full-Stack\Projet_FullStack_FrontEnd
 build_property._RazorSourceGeneratorDebug = 
-build_property.EffectiveAnalysisLevelStyle = 8.0
-build_property.EnableCodeStyleSeverity = 
 
-[e:/Cours/ESEO/E5/Systeme_Information/Projet_FullStack/Depot_Git/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/App.razor]
+[C:/Users/jules/Desktop/COURS ESEO/E4/DEEP Learning/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/App.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBcHAucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[e:/Cours/ESEO/E5/Systeme_Information/Projet_FullStack/Depot_Git/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/NavAnchor.razor]
+[C:/Users/jules/Desktop/COURS ESEO/E4/DEEP Learning/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/NavAnchor.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xOYXZBbmNob3IucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[e:/Cours/ESEO/E5/Systeme_Information/Projet_FullStack/Depot_Git/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/NavigationIndicator.razor]
+[C:/Users/jules/Desktop/COURS ESEO/E4/DEEP Learning/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/NavigationIndicator.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xOYXZpZ2F0aW9uSW5kaWNhdG9yLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[e:/Cours/ESEO/E5/Systeme_Information/Projet_FullStack/Depot_Git/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/NavigationLogger.razor]
+[C:/Users/jules/Desktop/COURS ESEO/E4/DEEP Learning/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/NavigationLogger.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xOYXZpZ2F0aW9uTG9nZ2VyLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[e:/Cours/ESEO/E5/Systeme_Information/Projet_FullStack/Depot_Git/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/Pages/Amis.razor]
+[C:/Users/jules/Desktop/COURS ESEO/E4/DEEP Learning/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/Pages/Amis.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBbWlzLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[e:/Cours/ESEO/E5/Systeme_Information/Projet_FullStack/Depot_Git/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/Pages/CarteDresseur.razor]
+[C:/Users/jules/Desktop/COURS ESEO/E4/DEEP Learning/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/Pages/CarteDresseur.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDYXJ0ZURyZXNzZXVyLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[e:/Cours/ESEO/E5/Systeme_Information/Projet_FullStack/Depot_Git/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/Pages/Combat.razor]
+[C:/Users/jules/Desktop/COURS ESEO/E4/DEEP Learning/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/Pages/Combat.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDb21iYXQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[e:/Cours/ESEO/E5/Systeme_Information/Projet_FullStack/Depot_Git/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/Pages/MiniJeux.razor]
+[C:/Users/jules/Desktop/COURS ESEO/E4/DEEP Learning/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/Pages/MiniJeux.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xNaW5pSmV1eC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[e:/Cours/ESEO/E5/Systeme_Information/Projet_FullStack/Depot_Git/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/Pages/Objets.razor]
+[C:/Users/jules/Desktop/COURS ESEO/E4/DEEP Learning/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/Pages/Objets.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xPYmpldHMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[e:/Cours/ESEO/E5/Systeme_Information/Projet_FullStack/Depot_Git/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/Pages/Parametres.razor]
+[C:/Users/jules/Desktop/COURS ESEO/E4/DEEP Learning/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/Pages/Parametres.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQYXJhbWV0cmVzLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[e:/Cours/ESEO/E5/Systeme_Information/Projet_FullStack/Depot_Git/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/Pages/Pokedex.razor]
+[C:/Users/jules/Desktop/COURS ESEO/E4/DEEP Learning/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/Pages/Pokedex.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQb2tlZGV4LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[e:/Cours/ESEO/E5/Systeme_Information/Projet_FullStack/Depot_Git/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/Pages/Succes.razor]
+[C:/Users/jules/Desktop/COURS ESEO/E4/DEEP Learning/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/Pages/Succes.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xTdWNjZXMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[e:/Cours/ESEO/E5/Systeme_Information/Projet_FullStack/Depot_Git/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/Routes.razor]
+[C:/Users/jules/Desktop/COURS ESEO/E4/DEEP Learning/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/Routes.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xSb3V0ZXMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[e:/Cours/ESEO/E5/Systeme_Information/Projet_FullStack/Depot_Git/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/_Imports.razor]
+[C:/Users/jules/Desktop/COURS ESEO/E4/DEEP Learning/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/_Imports.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xfSW1wb3J0cy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[e:/Cours/ESEO/E5/Systeme_Information/Projet_FullStack/Depot_Git/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/BackToMenu.razor]
+[C:/Users/jules/Desktop/COURS ESEO/E4/DEEP Learning/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/BackToMenu.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xCYWNrVG9NZW51LnJhem9y
 build_metadata.AdditionalFiles.CssScope = b-t5bm06yl40
 
-[e:/Cours/ESEO/E5/Systeme_Information/Projet_FullStack/Depot_Git/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/Layout/HomeLayout.razor]
+[C:/Users/jules/Desktop/COURS ESEO/E4/DEEP Learning/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/Layout/HomeLayout.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcSG9tZUxheW91dC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = b-v6e95wvg7o
 
-[e:/Cours/ESEO/E5/Systeme_Information/Projet_FullStack/Depot_Git/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/Layout/MainLayout.razor]
+[C:/Users/jules/Desktop/COURS ESEO/E4/DEEP Learning/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/Layout/MainLayout.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcTWFpbkxheW91dC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = b-h7l3mivmhy
 
-[e:/Cours/ESEO/E5/Systeme_Information/Projet_FullStack/Depot_Git/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/Pages/Home.razor]
+[C:/Users/jules/Desktop/COURS ESEO/E4/DEEP Learning/Projet-Full-Stack/Projet_FullStack_FrontEnd/Components/Pages/Home.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xIb21lLnJhem9y
 build_metadata.AdditionalFiles.CssScope = b-vd29jetn8e
 
-[e:/Cours/ESEO/E5/Systeme_Information/Projet_FullStack/Depot_Git/Projet-Full-Stack/Projet_FullStack_FrontEnd/Pages/_Host.cshtml]
+[C:/Users/jules/Desktop/COURS ESEO/E4/DEEP Learning/Projet-Full-Stack/Projet_FullStack_FrontEnd/Pages/_Host.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX0hvc3QuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
