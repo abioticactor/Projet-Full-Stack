@@ -25,10 +25,13 @@
                 <div class="card-body">
                     <h2 class="detail-name">#@GetString(new[] { "numericId" }).PadLeft(3, '0') - @GetString(new[] { "nameFr", "name" })</h2>
                     <div class="types">
-                        @foreach (var t in GetTypes())
-                        {
-                            <span class="type @GetCssFromType(t)">@t</span>
-                        }
+                            @foreach (var type in (pokemon?.types ?? Array.Empty<TypeEntry>()))
+                            {
+                                var display = type?.name ?? type?.nameFr ?? type?.name_fr ?? type?.nameEn ?? type?.name_en ?? string.Empty;
+                                var cssRaw = type?.nameEn ?? type?.name_en ?? type?.name ?? display ?? string.Empty;
+                                var css = (cssRaw ?? string.Empty).ToLowerInvariant().Replace(' ', '-').Replace('é','e').Replace('è','e');
+                                <span class="type @css">@display</span>
+                            }
                     </div>
                 </div>
             </div>
@@ -177,26 +180,6 @@
         return list;
     }
 
-    string GetCssFromType(string frenchOrAnyName)
-    {
-        try
-        {
-            if (pokemon.ValueKind == System.Text.Json.JsonValueKind.Object && pokemon.TryGetProperty("types", out var typesEl) && typesEl.ValueKind == System.Text.Json.JsonValueKind.Array)
-            {
-                foreach (var item in typesEl.EnumerateArray())
-                {
-                    if (item.ValueKind != System.Text.Json.JsonValueKind.Object) continue;
-                    string? nameEn = null;
-                    if (item.TryGetProperty("nameEn", out var ne) && ne.ValueKind == System.Text.Json.JsonValueKind.String) nameEn = ne.GetString();
-                    if (item.TryGetProperty("name_en", out var ne2) && ne2.ValueKind == System.Text.Json.JsonValueKind.String) nameEn ??= ne2.GetString();
-                    if (!string.IsNullOrEmpty(nameEn)) return nameEn.ToLowerInvariant().Replace(' ', '-');
-                }
-            }
-        }
-        catch { }
-
-        return frenchOrAnyName.ToLowerInvariant().Replace('é', 'e').Replace('è','e').Replace(' ','-');
-    }
 
     IDictionary<string,int> GetStats()
     {
@@ -256,24 +239,24 @@
 .type { padding:0.25rem 0.65rem; border-radius:999px; font-size:0.85rem; color:white; box-shadow: inset 0 -2px rgba(0,0,0,0.12); }
 
 /* Types colors */
-.normal, .normal- { background-color: #A8A878; }
-.fire, .feu { background-color: #F08030; }
-.water, .eau { background-color: #6890F0; }
-.electric, .electrik, .electrique { background-color: #F8D030; color:#222; }
-.grass, .plante { background-color: #78C850; }
-.ice, .glace { background-color: #98D8D8; color:#222; }
-.fighting, .combat { background-color: #C03028; }
+.normal { background-color: #A8A878; }
+.fire { background-color: #F08030; }
+.water { background-color: #6890F0; }
+.electric { background-color: #F8D030; color:#222; }
+.grass { background-color: #78C850; }
+.ice { background-color: #98D8D8; color:#222; }
+.fighting { background-color: #C03028; }
 .poison { background-color: #A040A0; }
-.ground, .sol { background-color: #E0C068; color:#222; }
-.flying, .vol { background-color: #A890F0; }
-.psychic, .psy { background-color: #F85888; }
-.bug, .insecte { background-color: #A8B820; color:#222; }
-.rock, .roche { background-color: #B8A038; }
-.ghost, .spectre { background-color: #705898; }
+.ground { background-color: #E0C068; color:#222; }
+.flying { background-color: #A890F0; }
+.psychic { background-color: #F85888; }
+.bug { background-color: #A8B820; color:#222; }
+.rock { background-color: #B8A038; }
+.ghost { background-color: #705898; }
 .dragon { background-color: #7038F8; }
-.dark, .tenebres, .ténèbres { background-color: #705848; }
-.steel, .acier { background-color: #B8B8D0; color:#222; }
-.fairy, .fee, .fée { background-color: #EE99AC; color:#222; }
+.dark { background-color: #705848; }
+.steel { background-color: #B8B8D0; color:#222; }
+.fairy { background-color: #EE99AC; color:#222; }
 
 @@media (max-width: 720px) { .detail-header { flex-direction:column; align-items:center; text-align:center; } }
 </style>
