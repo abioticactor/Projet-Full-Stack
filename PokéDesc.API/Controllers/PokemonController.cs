@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using PokéDesc.Business.Services;
+using PokéDesc.Business.Interfaces;
 using PokéDesc.Domain.Models;
 
 namespace PokéDesc.API.Controllers;
@@ -8,9 +8,9 @@ namespace PokéDesc.API.Controllers;
 [Route("api/[controller]")]
 public class PokemonController : ControllerBase
 {
-    private readonly PokemonService _service;
+    private readonly IPokemonService _service;
 
-    public PokemonController(PokemonService service)
+    public PokemonController(IPokemonService service)
     {
         _service = service;
     }
