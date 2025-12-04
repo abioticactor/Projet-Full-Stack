@@ -1,0 +1,29 @@
+.welcome-message {
+    text-align: center;
+    color: #f7faf4;
+    animation: fadeIn 0.6s ease-in;
+}
+
+.welcome-message h1 {
+    font-size: 2.5rem;
+    margin: 0 0 1rem 0;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.welcome-message p {
+    font-size: 1.2rem;
+    margin: 0;
+    opacity: 0.9;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
