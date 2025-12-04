@@ -1,4 +1,444 @@
 @page "/amis"
 
-<h2>Amis</h2>
-<p>Page en construction — contenu à définir.</p>
+<!-- ========================================== -->
+<!-- 1. LE STYLE (CSS) -->
+<!-- ========================================== -->
+<style>
+    :root {
+        --poke-red: #ff3e3e;
+        --poke-dark: #333;
+        --poke-yellow: #ffcb05;
+        --poke-blue: #3b4cca;
+        --poke-green: #4dad5b;
+        --poke-gray: #f0f0f0;
+    }
+
+    .friends-container {
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* --- Barre d'Ajout d'Ami --- */
+    .add-friend-section {
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        margin-bottom: 30px;
+        border-left: 5px solid var(--poke-blue);
+    }
+
+    .search-input {
+        flex-grow: 1;
+        padding: 12px 20px;
+        border: 2px solid #eee;
+        border-radius: 25px;
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.3s;
+    }
+
+    .search-input:focus {
+        border-color: var(--poke-blue);
+    }
+
+    .btn-add {
+        background: var(--poke-blue);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.2s, background 0.2s;
+    }
+
+    .btn-add:hover {
+        background: #2a3a9e;
+        transform: translateY(-2px);
+    }
+
+    /* --- Grille des Amis --- */
+    .friends-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+    }
+
+    /* --- Carte Ami --- */
+    .friend-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: transform 0.2s;
+        border: 1px solid #eee;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .friend-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        border-color: var(--poke-yellow);
+    }
+
+    .friend-header {
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        background: linear-gradient(to right, #f9f9f9, white);
+        border-bottom: 1px solid #eee;
+    }
+
+    .friend-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 3px solid var(--poke-dark);
+        object-fit: contain;
+        background: white;
+    }
+
+    .friend-info {
+        margin-left: 15px;
+    }
+
+    .friend-name {
+        font-weight: 800;
+        font-size: 1.2rem;
+        color: var(--poke-dark);
+        margin: 0;
+    }
+
+    .friend-level {
+        background: var(--poke-yellow);
+        color: var(--poke-dark);
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+
+    .status-dot {
+        height: 10px;
+        width: 10px;
+        background-color: #ccc;
+        border-radius: 50%;
+        display: inline-block;
+        margin-left: 5px;
+    }
+    .online { background-color: var(--poke-green); box-shadow: 0 0 5px var(--poke-green); }
+    .offline { background-color: #ccc; }
+    .ingame { background-color: var(--poke-red); }
+
+    /* --- Section Pokémon Signature --- */
+    .friend-team {
+        padding: 15px;
+        background: #fafafa;
+        text-align: center;
+    }
+    .team-label {
+        font-size: 0.75rem;
+        color: #777;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+        display: block;
+    }
+    .pokemon-sprites {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+    .mini-sprite {
+        width: 40px;
+        height: 40px;
+        image-rendering: pixelated; /* Pour garder le style pixel art net */
+    }
+
+    /* --- Actions --- */
+    .friend-actions {
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: auto; /* Pousse les boutons vers le bas */
+    }
+
+    .btn-action {
+        flex: 1;
+        padding: 8px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: background 0.2s;
+    }
+
+    .btn-fight { background: rgba(255, 62, 62, 0.1); color: var(--poke-red); }
+    .btn-fight:hover { background: var(--poke-red); color: white; }
+
+    .btn-msg { background: rgba(59, 76, 202, 0.1); color: var(--poke-blue); }
+    .btn-msg:hover { background: var(--poke-blue); color: white; }
+
+    .btn-delete { background: transparent; color: #999; font-size: 1.2rem; padding: 0 10px;}
+    .btn-delete:hover { color: var(--poke-red); }
+
+    /* --- MODALE MESSAGE (Pop-up) --- */
+    .modal-overlay {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+    .modal-box {
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        width: 400px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        border-top: 5px solid var(--poke-blue);
+    }
+    .modal-textarea {
+        width: 100%;
+        height: 100px;
+        margin: 15px 0;
+        padding: 10px;
+        border: 2px solid #eee;
+        border-radius: 10px;
+        resize: none;
+    }
+    .modal-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+</style>
+
+<!-- ========================================== -->
+<!-- 2. LE HTML (L'INTERFACE) -->
+<!-- ========================================== -->
+<div class="friends-container">
+
+    <h2 style="color: var(--poke-dark); margin-bottom: 20px;">Liste d'Amis</h2>
+
+    <!-- Section Ajouter un ami -->
+    <div class="add-friend-section">
+        <span style="font-size: 1.5rem;">👥</span>
+        <input type="text" class="search-input" placeholder="Entrez le pseudo d'un dresseur..." @bind="NouveauPseudo" />
+        <button class="btn-add" @onclick="AjouterAmi">Ajouter</button>
+    </div>
+    
+    <!-- Messages d'info (Feedback) -->
+    @if (!string.IsNullOrEmpty(MessageFeedback))
+    {
+        <div style="padding: 10px; margin-bottom: 15px; background: #eef; color: var(--poke-blue); border-radius: 8px;">
+            @MessageFeedback
+        </div>
+    }
+
+    <!-- Grille des amis -->
+    <div class="friends-grid">
+        @foreach (var ami in ListeAmis)
+        {
+            <div class="friend-card">
+                <!-- Header Carte -->
+                <div class="friend-header">
+                    <img src="@ami.AvatarUrl" class="friend-avatar" alt="Avatar" />
+                    <div class="friend-info">
+                        <div class="friend-name">
+                            @ami.Pseudo
+                            <!-- Indicateur de statut (boule de couleur) -->
+                            <span class="status-dot @(GetStatusClass(ami.Statut))" title="@ami.Statut"></span>
+                        </div>
+                        <span class="friend-level">Niv. @ami.Niveau</span>
+                    </div>
+                    <!-- Bouton Supprimer discret -->
+                    <button class="btn-action btn-delete" title="Retirer des amis" @onclick="() => SupprimerAmi(ami)">✖</button>
+                </div>
+
+                <!-- Équipe Pokémon Signature -->
+                <div class="friend-team">
+                    <span class="team-label">Pokémons Signature</span>
+                    <div class="pokemon-sprites">
+                        @foreach (var pokeImg in ami.PokemonsSignature)
+                        {
+                            <img src="@pokeImg" class="mini-sprite" alt="Pokemon" />
+                        }
+                    </div>
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="friend-actions">
+                    <button class="btn-action btn-msg" @onclick="() => OuvrirModalMessage(ami)">✉ Message</button>
+                    <button class="btn-action btn-fight" @onclick="() => LancerDuel(ami)">⚔ Duel</button>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Si aucun ami -->
+    @if (ListeAmis.Count == 0)
+    {
+        <p style="text-align: center; color: #999; margin-top: 50px;">Vous n'avez pas encore d'amis. Ajoutez-en un ci-dessus !</p>
+    }
+
+</div>
+
+<!-- FENÊTRE MODALE POUR ENVOYER UN MESSAGE -->
+@if (AmiSelectionnePourMessage != null)
+{
+    <div class="modal-overlay" @onclick="FermerModal">
+        <!-- @onclick:stopPropagation empêche le clic sur la boîte de fermer la modale -->
+        <div class="modal-box" @onclick:stopPropagation="true">
+            <h3 style="margin-top:0">Message à @AmiSelectionnePourMessage.Pseudo</h3>
+            <p style="font-size:0.9rem; color:#666;">Envoyez un message rapide ou une invitation.</p>
+            
+            <textarea class="modal-textarea" placeholder="Écrivez votre message ici..." @bind="ContenuMessage"></textarea>
+            
+            <div class="modal-buttons">
+                <button class="btn-action" style="background:#ccc; color:#333;" @onclick="FermerModal">Annuler</button>
+                <button class="btn-action btn-msg" @onclick="EnvoyerMessage">Envoyer ✈</button>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- ========================================== -->
+<!-- 3. LE C# (LA LOGIQUE) -->
+<!-- ========================================== -->
+@code {
+    // --- 1. Modèles de données ---
+    public class Ami
+    {
+        public int Id { get; set; }
+        public string Pseudo { get; set; } = "";
+        public int Niveau { get; set; }
+        public string AvatarUrl { get; set; } = "";
+        public string Statut { get; set; } = "Offline"; // Online, Offline, InGame
+        public List<string> PokemonsSignature { get; set; } = new List<string>();
+    }
+
+    // --- 2. Variables d'état ---
+    private List<Ami> ListeAmis = new List<Ami>();
+    private string NouveauPseudo { get; set; } = "";
+    private string MessageFeedback { get; set; } = "";
+    
+    // Variables pour la Modale Message
+    private Ami? AmiSelectionnePourMessage;
+    private string ContenuMessage { get; set; } = "";
+
+    // --- 3. Initialisation (Fausses Données) ---
+    protected override void OnInitialized()
+    {
+        // On remplit la liste avec des faux amis pour tester l'affichage
+        ListeAmis = new List<Ami>
+        {
+            new Ami 
+            { 
+                Id = 1, Pseudo = "BlueRival", Niveau = 18, Statut = "Online",
+                AvatarUrl = "https://archives.bulbagarden.net/media/upload/6/60/HGSS_Blue.png",
+                PokemonsSignature = new List<string> { 
+                    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png", // Carapuce
+                    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/64.png", // Alakazam
+                    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/18.png"  // Roucarnage
+                }
+            },
+            new Ami 
+            { 
+                Id = 2, Pseudo = "Ondine_Water", Niveau = 12, Statut = "InGame",
+                AvatarUrl = "https://archives.bulbagarden.net/media/upload/3/37/HGSS_Misty.png",
+                PokemonsSignature = new List<string> { 
+                    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/120.png", // Stari
+                    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/54.png"   // Psykokwak
+                }
+            },
+            new Ami 
+            { 
+                Id = 3, Pseudo = "Pierre_Rock", Niveau = 15, Statut = "Offline",
+                AvatarUrl = "https://archives.bulbagarden.net/media/upload/7/73/HGSS_Brock.png",
+                PokemonsSignature = new List<string> { 
+                    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/95.png", // Onix
+                    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/74.png"  // Racaillou
+                }
+            }
+        };
+    }
+
+    // --- 4. Méthodes d'Action ---
+
+    private void AjouterAmi()
+    {
+        if (string.IsNullOrWhiteSpace(NouveauPseudo)) return;
+
+        // Simulation d'ajout
+        ListeAmis.Add(new Ami
+        {
+            Id = new Random().Next(100, 999),
+            Pseudo = NouveauPseudo,
+            Niveau = 1,
+            Statut = "Offline",
+            AvatarUrl = "https://archives.bulbagarden.net/media/upload/a/a9/Spr_B2W2_Red.png", // Avatar par défaut
+            PokemonsSignature = new List<string> { "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/129.png" } // Magicarpe par défaut
+        });
+
+        MessageFeedback = $"✅ {NouveauPseudo} a été ajouté à votre liste d'amis !";
+        NouveauPseudo = ""; // Vider le champ
+    }
+
+    private void SupprimerAmi(Ami ami)
+    {
+        ListeAmis.Remove(ami);
+        MessageFeedback = $"🗑 {ami.Pseudo} a été retiré.";
+    }
+
+    private void LancerDuel(Ami ami)
+    {
+        // Ici, plus tard, tu redirigeras vers la page de jeu avec l'ID de l'ami
+        MessageFeedback = $"⚔ Défi envoyé à {ami.Pseudo} ! En attente de réponse...";
+    }
+
+    // --- Gestion de la Modale Message ---
+    private void OuvrirModalMessage(Ami ami)
+    {
+        AmiSelectionnePourMessage = ami;
+        ContenuMessage = "";
+    }
+
+    private void FermerModal()
+    {
+        AmiSelectionnePourMessage = null;
+    }
+
+    private void EnvoyerMessage()
+    {
+        if (AmiSelectionnePourMessage != null)
+        {
+            // Simulation d'envoi API
+            Console.WriteLine($"Message envoyé à {AmiSelectionnePourMessage.Pseudo} : {ContenuMessage}");
+            MessageFeedback = $"✉ Message envoyé à {AmiSelectionnePourMessage.Pseudo}.";
+            FermerModal();
+        }
+    }
+
+    // Petite astuce pour changer la couleur de la boule de statut
+    private string GetStatusClass(string statut)
+    {
+        return statut switch
+        {
+            "Online" => "online",
+            "InGame" => "ingame",
+            _ => "offline"
+        };
+    }
+}
