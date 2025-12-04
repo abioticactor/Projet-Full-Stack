@@ -22,7 +22,8 @@ public class PartieService : IPartieService
         { "Stats", 20 },
         { "Height", 5 },
         { "Weight", 5 },
-        { "Abilities", 25 }
+        { "Abilities", 25 },
+        { "Sprite", 30 }
     };
 
     private const int MaxAttempts = 3;

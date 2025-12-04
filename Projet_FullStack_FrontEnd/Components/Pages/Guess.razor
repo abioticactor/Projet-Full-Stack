@@ -100,6 +100,17 @@
                         @guessResultMessage
                     </div>
                 }
+
+                @if (lastGuessCorrect && !string.IsNullOrEmpty(revealedPokemonSprite))
+                {
+                    <div class="success-reveal">
+                        <h4>🎉 Bravo ! C'était bien :</h4>
+                        <div class="pokemon-reveal">
+                            <img src="@revealedPokemonSprite" alt="Pokémon trouvé" class="revealed-sprite" />
+                            <p class="pokemon-name-reveal">@selectedPokemonName</p>
+                        </div>
+                    </div>
+                }
             </div>
 
             <!-- Section des indices -->
@@ -203,11 +214,32 @@
                             <span class="used-badge">✓</span>
                         }
                     </button>
+
+                    <button 
+                        @onclick="@(() => RequestHint("Sprite"))" 
+                        disabled="@(usedHints.Contains("Sprite") || isRequestingHint)"
+                        class="hint-button">
+                        <span class="hint-icon">👤</span>
+                        <span>Silhouette</span>
+                        @if (usedHints.Contains("Sprite"))
+                        {
+                            <span class="used-badge">✓</span>
+                        }
+                    </button>
                 </div>
 
                 <!-- Affichage des indices révélés -->
                 <div class="revealed-hints-container">
                     <h4>Indices disponibles : @revealedHints.Count</h4>
+                    
+                    @if (usedHints.Contains("Sprite") && !string.IsNullOrEmpty(currentPokemonSprite))
+                    {
+                        <div class="sprite-hint">
+                            <h4>Silhouette :</h4>
+                            <img src="@currentPokemonSprite" alt="Silhouette du Pokémon" class="silhouette-sprite" />
+                        </div>
+                    }
+                    
                     @if (revealedHints.Any())
                     {
                         <div class="revealed-hints">
@@ -248,6 +280,7 @@
     // Données du jeu
     private string censoredDescription = string.Empty;
     private string currentPokemonId = string.Empty;
+    private string currentPokemonSprite = string.Empty;
     private int currentScore = 0;
     private int attemptsUsed = 0;
     private List<string> usedHints = new();
@@ -262,6 +295,7 @@
     // Résultat de la devinette
     private string guessResultMessage = string.Empty;
     private bool lastGuessCorrect = false;
+    private string revealedPokemonSprite = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -311,6 +345,7 @@
             usedHints = partie.Dresseur1Id == DresseurId ? partie.UsedHintsJ1 : partie.UsedHintsJ2;
 
             await LoadCensoredDescription();
+            await LoadPokemonSprite();
             await LoadRevealedHints();
         }
         catch (Exception ex)
@@ -337,6 +372,25 @@
         {
             Logger.LogError(ex, "Erreur lors du chargement de la description");
             censoredDescription = "Erreur lors du chargement de la description";
+        }
+    }
+
+    private async Task LoadPokemonSprite()
+    {
+        try
+        {
+            var response = await Http.GetAsync($"api/pokemon/{currentPokemonId}/hints");
+            response.EnsureSuccessStatusCode();
+            var hints = await response.Content.ReadFromJsonAsync<PokemonHintsDto>();
+            
+            if (hints?.Sprites != null)
+            {
+                currentPokemonSprite = hints.Sprites.FrontDefault ?? string.Empty;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors du chargement du sprite");
         }
     }
 
@@ -476,6 +530,8 @@
 
                 if (result.IsCorrect)
                 {
+                    revealedPokemonSprite = currentPokemonSprite;
+                    
                     await Task.Delay(2000);
                     
                     if (result.IsGameFinished)
@@ -544,10 +600,15 @@
             // Forcer le rafraîchissement de l'interface
             StateHasChanged();
         }
+        catch (HttpRequestException ex)
+        {
+            Logger.LogError(ex, $"Erreur lors de la demande d'indice '{hintType}'");
+            errorMessage = $"Erreur lors de la demande d'indice '{hintType}'. Assurez-vous que le backend est à jour et redémarré.";
+        }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Erreur lors de la demande d'indice");
-            errorMessage = "Erreur lors de la demande d'indice";
+            Logger.LogError(ex, $"Erreur inattendue lors de la demande d'indice '{hintType}'");
+            errorMessage = $"Erreur inattendue: {ex.Message}";
         }
         finally
         {
@@ -622,6 +683,7 @@
         public StatsDto? Stats { get; set; }
         public PhysicalDto? Physical { get; set; }
         public List<AbilityDto>? Abilities { get; set; }
+        public SpritesDto? Sprites { get; set; }
     }
 
     public class GenerationDto
@@ -665,6 +727,14 @@
         public string NameEn { get; set; } = string.Empty;
         public bool IsHidden { get; set; }
         public int Slot { get; set; }
+    }
+
+    public class SpritesDto
+    {
+        public string FrontDefault { get; set; } = string.Empty;
+        public string? FrontShiny { get; set; }
+        public string? BackDefault { get; set; }
+        public string? BackShiny { get; set; }
     }
 
     public class SubmitGuessRequest
@@ -984,6 +1054,61 @@
 
     .hint-item:last-child {
         border-bottom: none;
+    }
+
+    .success-reveal {
+        margin-top: 2rem;
+        padding: 2rem;
+        background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(76, 175, 80, 0.1));
+        border: 2px solid #4caf50;
+        border-radius: 12px;
+        text-align: center;
+        animation: fadeInScale 0.5s ease-out;
+    }
+
+    .revealed-sprite {
+        max-width: 300px;
+        height: auto;
+        margin: 1rem auto;
+        display: block;
+        image-rendering: pixelated;
+        animation: spriteReveal 0.8s ease-out;
+    }
+
+    .sprite-hint {
+        max-width: 200px;
+        height: auto;
+        display: block;
+        margin: 0.5rem 0;
+        image-rendering: pixelated;
+    }
+
+    .silhouette-sprite {
+        filter: brightness(0);
+    }
+
+    @@keyframes fadeInScale {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @@keyframes spriteReveal {
+        from {
+            opacity: 0;
+            filter: brightness(0);
+            transform: scale(0.8);
+        }
+        to {
+            opacity: 1;
+            filter: brightness(1);
+            transform: scale(1);
+        }
     }
 
     .hint-item strong {
