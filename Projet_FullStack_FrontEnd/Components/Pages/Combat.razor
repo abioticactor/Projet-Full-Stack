@@ -1,4 +1,182 @@
 @page "/combat"
+@using System.Net.Http.Json
+@using System.Text.Json.Serialization
+@inject HttpClient Http
+@inject Microsoft.Extensions.Logging.ILogger<Projet_FullStack_FrontEnd.Components.Pages.Combat> Logger
+@inject NavigationManager NavigationManager
 
-<h2>Combat</h2>
-<p>Page en construction — contenu à définir.</p>
+<div class="hero-content">
+    <div class="hero-title">Débuter une Partie</div>
+
+    @if (isLoading)
+    {
+        <p><em>Chargement…</em></p>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <p class="text-danger">Erreur : @errorMessage</p>
+    }
+    else
+    {
+        <div class="game-options">
+            <!-- Option 1: Créer une partie -->
+            <div class="option-card">
+                <h3>Créer une partie</h3>
+                <button @onclick="CreateGame" disabled="@isLoading">Créer</button>
+            </div>
+
+            <!-- Option 2: Rejoindre une partie -->
+            <div class="option-card">
+                <h3>Rejoindre une partie</h3>
+                <input type="text" @bind="codeSession" placeholder="Code de session" />
+                <button @onclick="JoinGame" disabled="@isLoading">Rejoindre</button>
+            </div>
+
+            <!-- Option 3: Démarrer la partie -->
+            @if (!string.IsNullOrEmpty(currentPartieId))
+            {
+                <div class="option-card">
+                    <h3>Démarrer la partie</h3>
+                    <p>Partie: @currentPartieId</p>
+                    <button @onclick="StartGame" disabled="@isLoading">Démarrer (Mode Standard)</button>
+                </div>
+            }
+        </div>
+
+        @if (partie != null)
+        {
+            <div class="partie-info">
+                <p><strong>ID Partie:</strong> @partie.Id</p>
+                <p><strong>Code:</strong> @partie.CodeSession</p>
+                <p><strong>Statut:</strong> @partie.Status</p>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private string dresseurId = "user123"; // À récupérer de la session/contexte
+    private string codeSession = string.Empty;
+    private string currentPartieId = string.Empty;
+    private bool isLoading = false;
+    private string? errorMessage;
+    private PartieDto? partie;
+
+    // API: Créer une partie
+    private async Task CreateGame()
+    {
+        isLoading = true;
+        errorMessage = null;
+        try
+        {
+            var request = new CreateGameRequest { DresseurId = dresseurId };
+            var response = await Http.PostAsJsonAsync("api/partie/create", request);
+            response.EnsureSuccessStatusCode();
+            partie = await response.Content.ReadFromJsonAsync<PartieDto>();
+            
+            currentPartieId = partie?.Id ?? string.Empty;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors de la création");
+            errorMessage = $"Erreur: {ex.Message}";
+        }
+        finally { isLoading = false; }
+    }
+
+    // API: Rejoindre une partie
+    private async Task JoinGame()
+    {
+        if (string.IsNullOrEmpty(codeSession))
+        {
+            errorMessage = "Veuillez entrer un code de session";
+            return;
+        }
+
+        isLoading = true;
+        errorMessage = null;
+        try
+        {
+            var request = new JoinGameRequest 
+            { 
+                CodeSession = codeSession, 
+                DresseurId = dresseurId 
+            };
+            var response = await Http.PostAsJsonAsync("api/partie/join", request);
+            response.EnsureSuccessStatusCode();
+            partie = await response.Content.ReadFromJsonAsync<PartieDto>();
+            
+            currentPartieId = partie?.Id ?? string.Empty;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors de la connexion");
+            errorMessage = $"Erreur: {ex.Message}";
+        }
+        finally { isLoading = false; }
+    }
+
+    // API: Démarrer la partie
+    private async Task StartGame()
+    {
+        if (string.IsNullOrEmpty(currentPartieId))
+        {
+            errorMessage = "Aucune partie sélectionnée";
+            return;
+        }
+
+        isLoading = true;
+        errorMessage = null;
+        try
+        {
+            var request = new StartGameRequest { Mode = "Standard" };
+            var response = await Http.PostAsJsonAsync(
+                $"api/partie/{currentPartieId}/start", 
+                request
+            );
+            response.EnsureSuccessStatusCode();
+            partie = await response.Content.ReadFromJsonAsync<PartieDto>();
+            
+            // Redirection vers la page de jeu
+            // NavigationManager.NavigateTo("/jeu");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors du démarrage");
+            errorMessage = $"Erreur: {ex.Message}";
+        }
+        finally { isLoading = false; }
+    }
+
+    // DTOs locaux (ou à partager)
+    private class CreateGameRequest { public string DresseurId { get; set; } = string.Empty; }
+    private class JoinGameRequest 
+    { 
+        public string CodeSession { get; set; } = string.Empty;
+        public string DresseurId { get; set; } = string.Empty;
+    }
+    private class StartGameRequest { public string Mode { get; set; } = string.Empty; }
+    
+    private class PartieDto
+    {
+        public string? Id { get; set; }
+        public string? CodeSession { get; set; }
+        public string? Status { get; set; }
+    }
+}
+
+<style>
+    .hero-content { max-width: 800px; margin: 0 auto; padding: 2rem; color: #fff; }
+    .hero-title { font-size: 2rem; margin-bottom: 2rem; }
+    
+    .game-options { display: grid; gap: 2rem; }
+    .option-card { background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
+    .option-card h3 { margin-top: 0; }
+    .option-card input { padding: 0.5rem; width: 100%; margin-bottom: 0.5rem; }
+    .option-card button { padding: 0.75rem 1.5rem; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    .option-card button:hover:not(:disabled) { background: #0056b3; }
+    .option-card button:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    .partie-info { margin-top: 2rem; padding: 1rem; background: #0056b3; border-radius: 8px; }
+</style>
+
