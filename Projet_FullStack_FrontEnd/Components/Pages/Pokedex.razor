@@ -64,6 +64,11 @@
             {
                 errorMessage = "Aucune donnée reçue du serveur.";
             }
+            else
+            {
+                // Trier les pokémons par ID numérique
+                pokemons = pokemons.OrderBy(p => p.numericId).ToArray();
+            }
         }
         catch (Exception ex)
         {

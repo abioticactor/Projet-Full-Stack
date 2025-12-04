@@ -80,18 +80,18 @@
   border-radius: 12px;
   transition: transform 0.25s ease-out, filter 0.25s ease-out;
   /* fallback color so we see the area even if external images fail */
-  background-color: rgba(0,0,0,0.2);
+  background-color: rgba(255, 255, 255);
 }
 
-/* Specific button images (can be replaced by local assets later) */
-.btn-trainer-card { background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/trainer-card.png'); }
-.btn-battle { background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/vs-seeker.png'); }
-.btn-minigames { background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/game-card.png'); }
-.btn-pokedex { background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/pokedex.png'); }
-.btn-items { background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/bag.png'); }
-.btn-friends { background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/pal-pad.png'); }
-.btn-achievements { background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/medal-box.png'); }
-.btn-settings { background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/town-map.png'); }
+/* Specific button images */
+.btn-trainer-card { background-image: url('/images_menu/Carte_Dresseur.png'); }
+.btn-battle { background-image: url('/images_menu/Combat.png'); }
+.btn-minigames { background-image: url('/images_menu/Mini-jeux.png'); }
+.btn-pokedex { background-image: url('/images_menu/Pokedex.png'); }
+.btn-items { background-image: url('/images_menu/Objets.png'); }
+.btn-friends { background-image: url('/images_menu/Amis.png'); }
+.btn-achievements { background-image: url('/images_menu/Succes.png'); }
+.btn-settings { background-image: url('/images_menu/Parametres.png'); }
 
 /* Responsive adjustments */
 @media (max-width: 1200px) {
