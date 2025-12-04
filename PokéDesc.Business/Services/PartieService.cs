@@ -78,10 +78,12 @@ public class PartieService : IPartieService
             throw new ArgumentException("Le nombre de Pokémon doit être compris entre 1 et 6.");
         }
 
-        var allPokemons = await _pokemonService.GetAllPokemonsAsync();
+        // Essayer d'abord d'obtenir les Pokémons de base d'évolution
+        var baseEvolutionPokemons = await _pokemonService.GetBaseEvolutionPokemonsAsync();
+        
         var random = new Random();
 
-        return allPokemons.OrderBy(x => random.Next()).Take(count).ToList();
+        return baseEvolutionPokemons.OrderBy(x => random.Next()).Take(count).ToList();
     }
 
     public async Task<Partie> JoinGameAsync(string codeSession, string dresseurId)
