@@ -109,12 +109,24 @@
                 
                 <div class="hints-grid">
                     <button 
-                        @onclick="@(() => RequestHint("Type"))" 
-                        disabled="@(usedHints.Contains("Type") || isRequestingHint)"
+                        @onclick="@(() => RequestHint("Type1"))" 
+                        disabled="@(usedHints.Contains("Type1") || isRequestingHint)"
                         class="hint-button">
                         <span class="hint-icon">🔷</span>
-                        <span>Type</span>
-                        @if (usedHints.Contains("Type"))
+                        <span>Type 1</span>
+                        @if (usedHints.Contains("Type1"))
+                        {
+                            <span class="used-badge">✓</span>
+                        }
+                    </button>
+
+                    <button 
+                        @onclick="@(() => RequestHint("Type2"))" 
+                        disabled="@(usedHints.Contains("Type2") || isRequestingHint)"
+                        class="hint-button">
+                        <span class="hint-icon">🔶</span>
+                        <span>Type 2</span>
+                        @if (usedHints.Contains("Type2"))
                         {
                             <span class="used-badge">✓</span>
                         }
@@ -157,12 +169,24 @@
                     </button>
 
                     <button 
-                        @onclick="@(() => RequestHint("Physical"))" 
-                        disabled="@(usedHints.Contains("Physical") || isRequestingHint)"
+                        @onclick="@(() => RequestHint("Height"))" 
+                        disabled="@(usedHints.Contains("Height") || isRequestingHint)"
                         class="hint-button">
                         <span class="hint-icon">📏</span>
-                        <span>Physique</span>
-                        @if (usedHints.Contains("Physical"))
+                        <span>Taille</span>
+                        @if (usedHints.Contains("Height"))
+                        {
+                            <span class="used-badge">✓</span>
+                        }
+                    </button>
+
+                    <button 
+                        @onclick="@(() => RequestHint("Weight"))" 
+                        disabled="@(usedHints.Contains("Weight") || isRequestingHint)"
+                        class="hint-button">
+                        <span class="hint-icon">⚖️</span>
+                        <span>Poids</span>
+                        @if (usedHints.Contains("Weight"))
                         {
                             <span class="used-badge">✓</span>
                         }
@@ -345,11 +369,28 @@
             {
                 revealedHints.Clear();
                 
-                if (usedHints.Contains("Type") && hints.Types != null && hints.Types.Any())
+                if (usedHints.Contains("Type1") && hints.Types != null && hints.Types.Any())
                 {
-                    var typeNames = string.Join(", ", hints.Types.Select(t => t.Name));
-                    revealedHints["Type"] = typeNames;
-                    Logger.LogInformation($"Indice Type ajouté: {typeNames}");
+                    var type1 = hints.Types.FirstOrDefault(t => t.Slot == 1);
+                    if (type1 != null)
+                    {
+                        revealedHints["Type 1"] = type1.Name;
+                        Logger.LogInformation($"Indice Type 1 ajouté: {type1.Name}");
+                    }
+                }
+                if (usedHints.Contains("Type2") && hints.Types != null)
+                {
+                    var type2 = hints.Types.FirstOrDefault(t => t.Slot == 2);
+                    if (type2 != null)
+                    {
+                        revealedHints["Type 2"] = type2.Name;
+                        Logger.LogInformation($"Indice Type 2 ajouté: {type2.Name}");
+                    }
+                    else
+                    {
+                        revealedHints["Type 2"] = "Pas de second type";
+                        Logger.LogInformation("Indice Type 2 ajouté: Pas de second type");
+                    }
                 }
                 if (usedHints.Contains("Generation") && hints.Generation != null)
                 {
@@ -363,15 +404,21 @@
                 }
                 if (usedHints.Contains("Stats") && hints.Stats != null)
                 {
-                    var statsText = $"PV: {hints.Stats.PV.Value}, Att: {hints.Stats.Attaque.Value}, Def: {hints.Stats.Defense.Value}";
+                    var statsText = $"PV: {hints.Stats.PV.Value}, Att: {hints.Stats.Attaque.Value}, Def: {hints.Stats.Defense.Value}, Att Spé: {hints.Stats.AttaqueSpe.Value}, Def Spé: {hints.Stats.DefenseSpe.Value}, Vitesse: {hints.Stats.Vitesse.Value}";
                     revealedHints["Statistiques"] = statsText;
                     Logger.LogInformation($"Indice Stats ajouté: {statsText}");
                 }
-                if (usedHints.Contains("Physical") && hints.Physical != null)
+                if (usedHints.Contains("Height") && hints.Physical != null)
                 {
-                    var physicalText = $"{hints.Physical.HeightM}m, {hints.Physical.WeightKg}kg";
-                    revealedHints["Physique"] = physicalText;
-                    Logger.LogInformation($"Indice Physique ajouté: {physicalText}");
+                    var heightText = $"{hints.Physical.HeightM}m";
+                    revealedHints["Taille"] = heightText;
+                    Logger.LogInformation($"Indice Taille ajouté: {heightText}");
+                }
+                if (usedHints.Contains("Weight") && hints.Physical != null)
+                {
+                    var weightText = $"{hints.Physical.WeightKg}kg";
+                    revealedHints["Poids"] = weightText;
+                    Logger.LogInformation($"Indice Poids ajouté: {weightText}");
                 }
                 if (usedHints.Contains("Abilities") && hints.Abilities != null && hints.Abilities.Any())
                 {

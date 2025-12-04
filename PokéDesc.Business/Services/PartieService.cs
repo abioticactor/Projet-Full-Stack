@@ -15,11 +15,13 @@ public class PartieService : IPartieService
     // Configuration des coûts des indices
     private static readonly Dictionary<string, int> HintCosts = new()
     {
-        { "Type", 20 },
-        { "Generation", 15 },
+        { "Type1", 15 },
+        { "Type2", 15 },
+        { "Generation", 10 },
         { "Category", 10 },
-        { "Stats", 15 },
-        { "Physical", 10 },
+        { "Stats", 20 },
+        { "Height", 5 },
+        { "Weight", 5 },
         { "Abilities", 25 }
     };
 
