@@ -1,0 +1,886 @@
+@page "/guess/{PartieId}/{DresseurId}"
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject Microsoft.Extensions.Logging.ILogger<Guess> Logger
+@inject NavigationManager NavigationManager
+
+<div class="guess-container">
+    @if (isLoading)
+    {
+        <div class="loading">
+            <p>Chargement...</p>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="error-message">
+            <p>❌ Erreur : @errorMessage</p>
+            <button @onclick="BackToMenu">Retour au menu</button>
+        </div>
+    }
+    else if (gameFinished)
+    {
+        <div class="game-finished">
+            <h2>🎉 Partie terminée !</h2>
+            <p><strong>Score final :</strong> @currentScore points</p>
+            <p>@resultMessage</p>
+            <button @onclick="BackToMenu">Nouvelle partie</button>
+        </div>
+    }
+    else
+    {
+        <div class="game-header">
+            <h1>Devinez le Pokémon !</h1>
+            <div class="game-stats">
+                <span class="score">Score : @currentScore</span>
+                <span class="attempts">Tentatives : @attemptsUsed / 3</span>
+            </div>
+        </div>
+
+        <div class="game-content">
+            <!-- Description censurée -->
+            <div class="description-section">
+                <h2>Description du Pokédex</h2>
+                <div class="censored-description">
+                    @if (!string.IsNullOrEmpty(censoredDescription))
+                    {
+                        <p>@censoredDescription</p>
+                    }
+                    else
+                    {
+                        <p class="loading-text">Chargement de la description...</p>
+                    }
+                </div>
+            </div>
+
+            <!-- Section de devinette -->
+            <div class="guess-section">
+                <h3>Votre réponse</h3>
+                <div class="search-container">
+                    <input 
+                        type="text" 
+                        @bind="searchTerm" 
+                        @bind:event="oninput"
+                        @onfocus="ShowDropdown"
+                        placeholder="Rechercher un Pokémon..."
+                        class="pokemon-search"
+                        disabled="@isSubmitting" />
+                    
+                    @if (showDropdown && filteredPokemons.Any())
+                    {
+                        <div class="dropdown-list">
+                            @foreach (var pokemon in filteredPokemons.Take(10))
+                            {
+                                <div class="dropdown-item" @onclick="@(() => SelectPokemon(pokemon))">
+                                    <span class="pokemon-number">#@pokemon.PokedexNumber</span>
+                                    <span class="pokemon-name">@pokemon.NameFr</span>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+                
+                @if (!string.IsNullOrEmpty(selectedPokemonName))
+                {
+                    <div class="selected-pokemon">
+                        <strong>Pokémon sélectionné :</strong> @selectedPokemonName
+                    </div>
+                }
+
+                <button 
+                    @onclick="SubmitGuess" 
+                    disabled="@(string.IsNullOrEmpty(selectedPokemonName) || isSubmitting)"
+                    class="submit-button">
+                    @(isSubmitting ? "Envoi..." : "Valider la réponse")
+                </button>
+
+                @if (!string.IsNullOrEmpty(guessResultMessage))
+                {
+                    <div class="result-message @(lastGuessCorrect ? "correct" : "incorrect")">
+                        @guessResultMessage
+                    </div>
+                }
+            </div>
+
+            <!-- Section des indices -->
+            <div class="hints-section">
+                <h3>Indices disponibles</h3>
+                <p class="hints-info">Chaque indice coûte des points !</p>
+                
+                <div class="hints-grid">
+                    <button 
+                        @onclick="@(() => RequestHint("Type"))" 
+                        disabled="@(usedHints.Contains("Type") || isRequestingHint)"
+                        class="hint-button">
+                        <span class="hint-icon">🔷</span>
+                        <span>Type</span>
+                        @if (usedHints.Contains("Type"))
+                        {
+                            <span class="used-badge">✓</span>
+                        }
+                    </button>
+
+                    <button 
+                        @onclick="@(() => RequestHint("Generation"))" 
+                        disabled="@(usedHints.Contains("Generation") || isRequestingHint)"
+                        class="hint-button">
+                        <span class="hint-icon">📅</span>
+                        <span>Génération</span>
+                        @if (usedHints.Contains("Generation"))
+                        {
+                            <span class="used-badge">✓</span>
+                        }
+                    </button>
+
+                    <button 
+                        @onclick="@(() => RequestHint("Category"))" 
+                        disabled="@(usedHints.Contains("Category") || isRequestingHint)"
+                        class="hint-button">
+                        <span class="hint-icon">🏷️</span>
+                        <span>Catégorie</span>
+                        @if (usedHints.Contains("Category"))
+                        {
+                            <span class="used-badge">✓</span>
+                        }
+                    </button>
+
+                    <button 
+                        @onclick="@(() => RequestHint("Stats"))" 
+                        disabled="@(usedHints.Contains("Stats") || isRequestingHint)"
+                        class="hint-button">
+                        <span class="hint-icon">📊</span>
+                        <span>Statistiques</span>
+                        @if (usedHints.Contains("Stats"))
+                        {
+                            <span class="used-badge">✓</span>
+                        }
+                    </button>
+
+                    <button 
+                        @onclick="@(() => RequestHint("Physical"))" 
+                        disabled="@(usedHints.Contains("Physical") || isRequestingHint)"
+                        class="hint-button">
+                        <span class="hint-icon">📏</span>
+                        <span>Physique</span>
+                        @if (usedHints.Contains("Physical"))
+                        {
+                            <span class="used-badge">✓</span>
+                        }
+                    </button>
+
+                    <button 
+                        @onclick="@(() => RequestHint("Abilities"))" 
+                        disabled="@(usedHints.Contains("Abilities") || isRequestingHint)"
+                        class="hint-button">
+                        <span class="hint-icon">⚡</span>
+                        <span>Talents</span>
+                        @if (usedHints.Contains("Abilities"))
+                        {
+                            <span class="used-badge">✓</span>
+                        }
+                    </button>
+                </div>
+
+                <!-- Affichage des indices révélés -->
+                @if (revealedHints.Any())
+                {
+                    <div class="revealed-hints">
+                        <h4>Indices révélés :</h4>
+                        @foreach (var hint in revealedHints)
+                        {
+                            <div class="hint-item">
+                                <strong>@hint.Key :</strong> @hint.Value
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string PartieId { get; set; } = string.Empty;
+
+    [Parameter]
+    public string DresseurId { get; set; } = string.Empty;
+
+    // États
+    private bool isLoading = true;
+    private bool isSubmitting = false;
+    private bool isRequestingHint = false;
+    private bool gameFinished = false;
+    private string? errorMessage;
+    private string? resultMessage;
+
+    // Données du jeu
+    private string censoredDescription = string.Empty;
+    private string currentPokemonId = string.Empty;
+    private int currentScore = 0;
+    private int attemptsUsed = 0;
+    private List<string> usedHints = new();
+    private Dictionary<string, string> revealedHints = new();
+
+    // Recherche et sélection
+    private string searchTerm = string.Empty;
+    private string selectedPokemonName = string.Empty;
+    private bool showDropdown = false;
+    private List<PokemonDto> allPokemons = new();
+
+    // Résultat de la devinette
+    private string guessResultMessage = string.Empty;
+    private bool lastGuessCorrect = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadGameData();
+        await LoadAllPokemons();
+    }
+
+    private void BackToMenu()
+    {
+        NavigationManager.NavigateTo("/partie");
+    }
+
+    private void ShowDropdown()
+    {
+        showDropdown = true;
+    }
+
+    private async Task LoadGameData()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var partieResponse = await Http.GetAsync($"api/partie/{PartieId}");
+            partieResponse.EnsureSuccessStatusCode();
+            var partie = await partieResponse.Content.ReadFromJsonAsync<PartieDto>();
+
+            if (partie == null)
+            {
+                errorMessage = "Impossible de charger les données de la partie";
+                return;
+            }
+
+            currentPokemonId = partie.Dresseur1Id == DresseurId 
+                ? partie.PokemonsToGuessJ1?.ElementAtOrDefault(partie.CurrentIndexJ1)?.Id ?? string.Empty
+                : partie.PokemonsToGuessJ2?.ElementAtOrDefault(partie.CurrentIndexJ2)?.Id ?? string.Empty;
+
+            if (string.IsNullOrEmpty(currentPokemonId))
+            {
+                errorMessage = "Aucun Pokémon à deviner";
+                return;
+            }
+
+            currentScore = partie.Dresseur1Id == DresseurId ? partie.ScoreJ1 : partie.ScoreJ2;
+            attemptsUsed = partie.Dresseur1Id == DresseurId ? partie.AttemptsUsedJ1 : partie.AttemptsUsedJ2;
+            usedHints = partie.Dresseur1Id == DresseurId ? partie.UsedHintsJ1 : partie.UsedHintsJ2;
+
+            await LoadCensoredDescription();
+            await LoadRevealedHints();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors du chargement des données");
+            errorMessage = $"Erreur : {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadCensoredDescription()
+    {
+        try
+        {
+            var response = await Http.GetAsync($"api/pokemon/{currentPokemonId}/censored-description");
+            response.EnsureSuccessStatusCode();
+            var result = await response.Content.ReadFromJsonAsync<CensoredDescriptionDto>();
+            censoredDescription = result?.Description ?? "Description non disponible";
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors du chargement de la description");
+            censoredDescription = "Erreur lors du chargement de la description";
+        }
+    }
+
+    private async Task LoadAllPokemons()
+    {
+        try
+        {
+            var response = await Http.GetAsync("api/pokemon");
+            response.EnsureSuccessStatusCode();
+            allPokemons = await response.Content.ReadFromJsonAsync<List<PokemonDto>>() ?? new();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors du chargement des Pokémon");
+        }
+    }
+
+    private async Task LoadRevealedHints()
+    {
+        try
+        {
+            var response = await Http.GetAsync($"api/pokemon/{currentPokemonId}/hints");
+            response.EnsureSuccessStatusCode();
+            var hints = await response.Content.ReadFromJsonAsync<PokemonHintsDto>();
+
+            if (hints != null)
+            {
+                revealedHints.Clear();
+                
+                if (usedHints.Contains("Type") && hints.Types != null)
+                {
+                    revealedHints["Type"] = string.Join(", ", hints.Types.Select(t => t.Name));
+                }
+                if (usedHints.Contains("Generation") && hints.Generation != null)
+                {
+                    revealedHints["Génération"] = hints.Generation.Name;
+                }
+                if (usedHints.Contains("Category") && !string.IsNullOrEmpty(hints.Category))
+                {
+                    revealedHints["Catégorie"] = hints.Category;
+                }
+                if (usedHints.Contains("Stats") && hints.Stats != null)
+                {
+                    revealedHints["Statistiques"] = $"PV: {hints.Stats.Hp}, Att: {hints.Stats.Attack}, Def: {hints.Stats.Defense}";
+                }
+                if (usedHints.Contains("Physical") && hints.Physical != null)
+                {
+                    revealedHints["Physique"] = $"{hints.Physical.Height}m, {hints.Physical.Weight}kg";
+                }
+                if (usedHints.Contains("Abilities") && hints.Abilities != null)
+                {
+                    revealedHints["Talents"] = string.Join(", ", hints.Abilities.Select(a => a.Name));
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors du chargement des indices");
+        }
+    }
+
+    private void SelectPokemon(PokemonDto pokemon)
+    {
+        selectedPokemonName = pokemon.NameFr;
+        searchTerm = pokemon.NameFr;
+        showDropdown = false;
+    }
+
+    private async Task SubmitGuess()
+    {
+        if (string.IsNullOrEmpty(selectedPokemonName))
+            return;
+
+        isSubmitting = true;
+        guessResultMessage = string.Empty;
+
+        try
+        {
+            var request = new SubmitGuessRequest
+            {
+                DresseurId = DresseurId,
+                PokemonName = selectedPokemonName
+            };
+
+            var response = await Http.PostAsJsonAsync($"api/partie/{PartieId}/guess", request);
+            response.EnsureSuccessStatusCode();
+            
+            var result = await response.Content.ReadFromJsonAsync<GuessResultDto>();
+
+            if (result != null)
+            {
+                lastGuessCorrect = result.IsCorrect;
+                guessResultMessage = result.Message;
+                currentScore = result.PointsEarned;
+
+                if (result.IsCorrect)
+                {
+                    await Task.Delay(2000);
+                    
+                    if (result.IsGameFinished)
+                    {
+                        gameFinished = true;
+                        resultMessage = "Félicitations ! Vous avez terminé tous les Pokémon !";
+                    }
+                    else
+                    {
+                        await LoadGameData();
+                        ResetGuessState();
+                    }
+                }
+                else
+                {
+                    attemptsUsed++;
+                    
+                    if (result.IsTurnFinished)
+                    {
+                        await Task.Delay(2000);
+                        await LoadGameData();
+                        ResetGuessState();
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors de l'envoi de la réponse");
+            guessResultMessage = "Erreur lors de l'envoi de la réponse";
+            lastGuessCorrect = false;
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private async Task RequestHint(string hintType)
+    {
+        if (usedHints.Contains(hintType))
+            return;
+
+        isRequestingHint = true;
+
+        try
+        {
+            var request = new UseHintRequest
+            {
+                DresseurId = DresseurId,
+                HintType = hintType
+            };
+
+            var response = await Http.PostAsJsonAsync($"api/partie/{PartieId}/hint", request);
+            response.EnsureSuccessStatusCode();
+
+            usedHints.Add(hintType);
+            await LoadRevealedHints();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors de la demande d'indice");
+            errorMessage = "Erreur lors de la demande d'indice";
+        }
+        finally
+        {
+            isRequestingHint = false;
+        }
+    }
+
+    private void ResetGuessState()
+    {
+        searchTerm = string.Empty;
+        selectedPokemonName = string.Empty;
+        guessResultMessage = string.Empty;
+        showDropdown = false;
+    }
+
+    private List<PokemonDto> filteredPokemons
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+                return new List<PokemonDto>();
+
+            return allPokemons
+                .Where(p => p.NameFr.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                           p.PokedexNumber.ToString().Contains(searchTerm))
+                .OrderBy(p => p.PokedexNumber)
+                .ToList();
+        }
+    }
+
+    public class PartieDto
+    {
+        public string? Id { get; set; }
+        public string? CodeSession { get; set; }
+        public string? Statut { get; set; }
+        public string? Dresseur1Id { get; set; }
+        public string? Dresseur2Id { get; set; }
+        public List<PokemonSimpleDto>? PokemonsToGuessJ1 { get; set; }
+        public List<PokemonSimpleDto>? PokemonsToGuessJ2 { get; set; }
+        public int CurrentIndexJ1 { get; set; }
+        public int CurrentIndexJ2 { get; set; }
+        public int ScoreJ1 { get; set; }
+        public int ScoreJ2 { get; set; }
+        public int AttemptsUsedJ1 { get; set; }
+        public int AttemptsUsedJ2 { get; set; }
+        public List<string> UsedHintsJ1 { get; set; } = new();
+        public List<string> UsedHintsJ2 { get; set; } = new();
+    }
+
+    public class PokemonSimpleDto
+    {
+        public string? Id { get; set; }
+    }
+
+    public class PokemonDto
+    {
+        public string Id { get; set; } = string.Empty;
+        public string NameFr { get; set; } = string.Empty;
+        public int PokedexNumber { get; set; }
+    }
+
+    public class CensoredDescriptionDto
+    {
+        public string Description { get; set; } = string.Empty;
+    }
+
+    public class PokemonHintsDto
+    {
+        public string? Category { get; set; }
+        public GenerationDto? Generation { get; set; }
+        public List<TypeDto>? Types { get; set; }
+        public StatsDto? Stats { get; set; }
+        public PhysicalDto? Physical { get; set; }
+        public List<AbilityDto>? Abilities { get; set; }
+    }
+
+    public class GenerationDto
+    {
+        public string Name { get; set; } = string.Empty;
+    }
+
+    public class TypeDto
+    {
+        public string Name { get; set; } = string.Empty;
+    }
+
+    public class StatsDto
+    {
+        public int Hp { get; set; }
+        public int Attack { get; set; }
+        public int Defense { get; set; }
+    }
+
+    public class PhysicalDto
+    {
+        public double Height { get; set; }
+        public double Weight { get; set; }
+    }
+
+    public class AbilityDto
+    {
+        public string Name { get; set; } = string.Empty;
+    }
+
+    public class SubmitGuessRequest
+    {
+        public string DresseurId { get; set; } = string.Empty;
+        public string PokemonName { get; set; } = string.Empty;
+    }
+
+    public class UseHintRequest
+    {
+        public string DresseurId { get; set; } = string.Empty;
+        public string HintType { get; set; } = string.Empty;
+    }
+
+    public class GuessResultDto
+    {
+        public bool IsCorrect { get; set; }
+        public bool IsTurnFinished { get; set; }
+        public bool IsGameFinished { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public int PointsEarned { get; set; }
+    }
+}
+
+<style>
+    .guess-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+        color: #fff;
+    }
+
+    .loading, .error-message, .game-finished {
+        text-align: center;
+        padding: 3rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+    }
+
+    .error-message p {
+        color: #ff6b6b;
+        margin-bottom: 1rem;
+    }
+
+    .game-finished h2 {
+        color: #4ecdc4;
+        margin-bottom: 1rem;
+    }
+
+    .game-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .game-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(45deg, #4ecdc4, #44a3d5);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .game-stats {
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .game-stats .score {
+        color: #4ecdc4;
+        font-weight: bold;
+    }
+
+    .game-stats .attempts {
+        color: #ffa500;
+    }
+
+    .game-content {
+        display: grid;
+        gap: 2rem;
+    }
+
+    .description-section,
+    .guess-section,
+    .hints-section {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 2rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .description-section h2,
+    .guess-section h3,
+    .hints-section h3 {
+        margin-top: 0;
+        color: #4ecdc4;
+    }
+
+    .censored-description {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 1.5rem;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        line-height: 1.6;
+        border-left: 4px solid #4ecdc4;
+    }
+
+    .loading-text {
+        color: #888;
+        font-style: italic;
+    }
+
+    .search-container {
+        position: relative;
+        margin-bottom: 1rem;
+    }
+
+    .pokemon-search {
+        width: 100%;
+        padding: 0.75rem;
+        font-size: 1rem;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.3);
+        color: #fff;
+        transition: border-color 0.3s;
+    }
+
+    .pokemon-search:focus {
+        outline: none;
+        border-color: #4ecdc4;
+    }
+
+    .pokemon-search:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .dropdown-list {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        max-height: 300px;
+        overflow-y: auto;
+        background: rgba(20, 20, 40, 0.98);
+        border: 2px solid #4ecdc4;
+        border-radius: 8px;
+        margin-top: 0.5rem;
+        z-index: 1000;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .dropdown-item {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .dropdown-item:hover {
+        background: rgba(78, 205, 196, 0.2);
+    }
+
+    .pokemon-number {
+        color: #888;
+        font-size: 0.9rem;
+        min-width: 50px;
+    }
+
+    .pokemon-name {
+        font-weight: 500;
+    }
+
+    .selected-pokemon {
+        padding: 0.75rem;
+        background: rgba(78, 205, 196, 0.2);
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        color: #4ecdc4;
+    }
+
+    .submit-button {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1.1rem;
+        font-weight: bold;
+        background: linear-gradient(45deg, #4ecdc4, #44a3d5);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .submit-button:hover:not(:disabled) {
+        transform: translateY(-2px);
+    }
+
+    .submit-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .result-message {
+        margin-top: 1rem;
+        padding: 1rem;
+        border-radius: 8px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .result-message.correct {
+        background: rgba(76, 175, 80, 0.3);
+        color: #4caf50;
+        border: 2px solid #4caf50;
+    }
+
+    .result-message.incorrect {
+        background: rgba(244, 67, 54, 0.3);
+        color: #f44336;
+        border: 2px solid #f44336;
+    }
+
+    .hints-info {
+        color: #ffa500;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .hints-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .hint-button {
+        position: relative;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: #fff;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .hint-button:hover:not(:disabled) {
+        background: rgba(78, 205, 196, 0.2);
+        border-color: #4ecdc4;
+        transform: translateY(-2px);
+    }
+
+    .hint-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .hint-icon {
+        font-size: 1.5rem;
+    }
+
+    .used-badge {
+        position: absolute;
+        top: 0.25rem;
+        right: 0.25rem;
+        background: #4caf50;
+        color: #fff;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+    }
+
+    .revealed-hints {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 1.5rem;
+        border-radius: 8px;
+        border-left: 4px solid #4ecdc4;
+    }
+
+    .revealed-hints h4 {
+        margin-top: 0;
+        color: #4ecdc4;
+    }
+
+    .hint-item {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .hint-item:last-child {
+        border-bottom: none;
+    }
+
+    .hint-item strong {
+        color: #ffa500;
+    }
+
+    button {
+        font-family: inherit;
+    }
+</style>

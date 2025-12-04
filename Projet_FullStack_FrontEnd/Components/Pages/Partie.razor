@@ -1,8 +1,8 @@
-@page "/combat"
+@page "/partie"
 @using System.Net.Http.Json
 @using System.Text.Json.Serialization
 @inject HttpClient Http
-@inject Microsoft.Extensions.Logging.ILogger<Projet_FullStack_FrontEnd.Components.Pages.Combat> Logger
+@inject Microsoft.Extensions.Logging.ILogger<Projet_FullStack_FrontEnd.Components.Pages.Partie> Logger
 @inject NavigationManager NavigationManager
 
 <div class="hero-content">
@@ -138,7 +138,7 @@
             partie = await response.Content.ReadFromJsonAsync<PartieDto>();
             
             // Redirection vers la page de jeu
-            // NavigationManager.NavigateTo("/jeu");
+            NavigationManager.NavigateTo($"/guess/{currentPartieId}/{dresseurId}");
         }
         catch (Exception ex)
         {
@@ -179,4 +179,3 @@
     
     .partie-info { margin-top: 2rem; padding: 1rem; background: #0056b3; border-radius: 8px; }
 </style>
-
