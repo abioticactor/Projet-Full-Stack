@@ -36,6 +36,10 @@
                     <input type="password" id="login-password" @bind="LoginPassword" required />
                 </div>
                 <button type="submit" class="btn-primary">Se connecter</button>
+                @if (!string.IsNullOrEmpty(LoginError))
+                {
+                    <div class="form-error">@LoginError</div>
+                }
             </form>
         </div>
     </div>
@@ -66,6 +70,10 @@
                     <input type="password" id="register-confirm-password" @bind="RegisterConfirmPassword" required />
                 </div>
                 <button type="submit" class="btn-primary">S'inscrire</button>
+                @if (!string.IsNullOrEmpty(RegisterError))
+                {
+                    <div class="form-error">@RegisterError</div>
+                }
             </form>
         </div>
     </div>
@@ -101,23 +109,54 @@
         IsRegisterModalOpen = false;
     }
 
-    private void HandleLogin()
-    {
-        // TODO: Implement login logic with backend
-        Console.WriteLine($"Login: {LoginEmail}");
-        CloseModals();
-    }
+    [Inject]
+    private Projet_FullStack_FrontEnd.Services.AuthService AuthService { get; set; } = default!;
 
-    private void HandleRegister()
+    private string LoginError = string.Empty;
+
+    private async Task HandleLogin()
     {
-        // TODO: Implement register logic with backend
-        if (RegisterPassword != RegisterConfirmPassword)
+        LoginError = string.Empty;
+        var (ok, error) = await AuthService.LoginAsync(LoginEmail, LoginPassword);
+        if (!ok)
         {
-            Console.WriteLine("Passwords do not match");
+            LoginError = error ?? "Erreur inconnue";
             return;
         }
-        Console.WriteLine($"Register: {RegisterUsername}, {RegisterEmail}");
+        // Succès : fermer la modale et naviguer vers /home
         CloseModals();
+        NavigationManager.NavigateTo("/home", forceLoad: false);
+    }
+
+    private string RegisterError = string.Empty;
+
+    private async Task HandleRegister()
+    {
+        RegisterError = string.Empty;
+        if (RegisterPassword != RegisterConfirmPassword)
+        {
+            RegisterError = "Les mots de passe ne correspondent pas.";
+            return;
+        }
+
+        var (ok, error) = await AuthService.RegisterAsync(RegisterUsername, RegisterEmail, RegisterPassword);
+        if (!ok)
+        {
+            RegisterError = error ?? "Erreur inconnue";
+            return;
+        }
+
+        // Après inscription, on peut automatiquement logguer l'utilisateur
+        var (loginOk, loginError) = await AuthService.LoginAsync(RegisterEmail, RegisterPassword);
+        if (!loginOk)
+        {
+            // Inscription OK mais login automatique a échoué — afficher message
+            RegisterError = loginError ?? "Inscription réussie, mais connexion automatique a échoué.";
+            return;
+        }
+
+        CloseModals();
+        NavigationManager.NavigateTo("/home", forceLoad: false);
     }
 
     [Inject]

@@ -12,6 +12,9 @@ builder.Services.AddScoped(sp => new System.Net.Http.HttpClient
     BaseAddress = new System.Uri("http://localhost:5122/")
 });
 
+// Auth service to handle login/register and token management
+builder.Services.AddScoped<Projet_FullStack_FrontEnd.Services.AuthService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

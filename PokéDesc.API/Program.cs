@@ -2,7 +2,8 @@ using MongoDB.Driver;
 using PokéDesc.Data.Repositories;
 using PokéDesc.Business.Services;
 using PokéDesc.Business.Interfaces;
-using PokéDesc.Business.Services;
+//using PokéDesc.Business.Services;
+
 // --- AJOUT ---
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -100,6 +101,18 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddScoped<DresseurRepository>();
 builder.Services.AddScoped<DresseurService>();
 
+// --- CORS pour autoriser le frontend local (développement) ---
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocal", policy =>
+    {
+        policy.WithOrigins("http://localhost:5058", "https://localhost:7217")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 // =================================================================
 // 2. Construction de l'application
 // =================================================================
@@ -117,6 +130,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Autoriser CORS avant l'authentification/autorisation
+app.UseCors("AllowLocal");
 
 // --- AJOUT : Activation de l'authentification ---
 // Doit être AVANT MapControllers

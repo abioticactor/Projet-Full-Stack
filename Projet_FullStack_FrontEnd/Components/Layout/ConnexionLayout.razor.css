@@ -112,3 +112,12 @@
 .modal-content .btn-primary:hover {
     filter: brightness(0.95);
 }
+
+.form-error {
+    margin-top: 0.6rem;
+    color: #ffb4b4;
+    background: rgba(255, 0, 0, 0.06);
+    padding: 0.5rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
