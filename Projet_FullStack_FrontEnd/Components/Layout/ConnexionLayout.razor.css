@@ -1,0 +1,114 @@
+.home-layout { display:flex; flex-direction:column; min-height:100vh; 
+	background-image: url('/images_menu/connexion-background.png');
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-size: cover;
+}
+.home-header { display:flex; align-items:center; justify-content:flex-end; padding:1rem 2rem; background: rgba(198,230,242,0.25); }
+.home-header .actions { display:flex; gap:0.5rem; }
+.home-header .actions button { min-width:200px; min-height:50px; font-size:1.5rem; border-radius: 8px; cursor: pointer; }
+.home-header .actions .btn-primary { background-color: #134a94; color: #f7faf4; border: none; }
+.home-header .actions .btn-outline-primary { background-color: rgba(19,74,148,0.50); color: #f7faf4; border: none; }
+.home-main { flex:1; padding:2rem; display:flex; align-items:center; justify-content:center; }
+.home-image { max-width:100%; height:auto; display:block; margin:0 auto; border-radius:6px; box-shadow:0 6px 18px rgba(0,0,0,0.08); }
+
+/* Modal Styles */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 999;
+}
+
+.modal-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+}
+
+.modal-content {
+    background: linear-gradient(180deg, #0b2545, #071632);
+    color: #fff;
+    padding: 2rem 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    min-width: 400px;
+    max-width: 500px;
+    position: relative;
+}
+
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-close:hover {
+    color: #ffcb05;
+}
+
+.modal-content h2 {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #f7faf4;
+}
+
+.form-group input {
+    padding: 0.75rem;
+    border: 2px solid #134a94;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 1rem;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #ffcb05;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.modal-content .btn-primary {
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 1rem;
+    background: #ffcb05;
+    color: #0b2545;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.modal-content .btn-primary:hover {
+    filter: brightness(0.95);
+}
