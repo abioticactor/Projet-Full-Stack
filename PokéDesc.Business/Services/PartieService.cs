@@ -58,9 +58,23 @@ public class PartieService : IPartieService
         if (mode == "Standard")
         {
             int numberOfPokemons = 6;
-            // Génération de 6 Pokémons uniques pour chaque joueur
-            partie.PokemonsToGuessJ1 = await SelectRandomPokemonsAsync(numberOfPokemons);
-            partie.PokemonsToGuessJ2 = await SelectRandomPokemonsAsync(numberOfPokemons);
+            
+            // Récupérer les listes de Pokémons
+            var basePokemons = await _pokemonService.GetBaseEvolutionPokemonsAsync();
+            var legendaryMythicalPokemons = await _pokemonService.GetLegendaryOrMythicalPokemonsAsync();
+            
+            // Générer les tirages communs pour déterminer le type de chaque position
+            var random = new Random();
+            var rarityDraws = new bool[numberOfPokemons];
+            for (int i = 0; i < numberOfPokemons; i++)
+            {
+                // 1% de chance d'avoir un légendaire/mythique
+                rarityDraws[i] = random.Next(100) == 0;
+            }
+            
+            // Génération des Pokémons pour chaque joueur selon les tirages
+            partie.PokemonsToGuessJ1 = SelectPokemonsBasedOnDraws(rarityDraws, basePokemons, legendaryMythicalPokemons, random);
+            partie.PokemonsToGuessJ2 = SelectPokemonsBasedOnDraws(rarityDraws, basePokemons, legendaryMythicalPokemons, random);
             partie.Statut = "EnCours";
         }
         else
@@ -71,19 +85,22 @@ public class PartieService : IPartieService
         return partie;
     }
 
-    private async Task<List<Pokemon>> SelectRandomPokemonsAsync(int count)
+    private List<Pokemon> SelectPokemonsBasedOnDraws(
+        bool[] rarityDraws, 
+        List<Pokemon> basePokemons, 
+        List<Pokemon> legendaryMythicalPokemons,
+        Random random)
     {
-        if (count < 1 || count > 6)
-        {
-            throw new ArgumentException("Le nombre de Pokémon doit être compris entre 1 et 6.");
-        }
-
-        // Essayer d'abord d'obtenir les Pokémons de base d'évolution
-        var baseEvolutionPokemons = await _pokemonService.GetBaseEvolutionPokemonsAsync();
+        var selectedPokemons = new List<Pokemon>();
         
-        var random = new Random();
-
-        return baseEvolutionPokemons.OrderBy(x => random.Next()).Take(count).ToList();
+        foreach (var isRare in rarityDraws)
+        {
+            var sourceList = isRare ? legendaryMythicalPokemons : basePokemons;
+            var selectedPokemon = sourceList[random.Next(sourceList.Count)];
+            selectedPokemons.Add(selectedPokemon);
+        }
+        
+        return selectedPokemons;
     }
 
     public async Task<Partie> JoinGameAsync(string codeSession, string dresseurId)
