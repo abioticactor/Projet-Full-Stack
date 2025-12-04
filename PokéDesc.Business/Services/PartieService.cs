@@ -36,7 +36,8 @@ public class PartieService : IPartieService
             Id = Guid.NewGuid().ToString(), // Simulé, MongoDB le ferait auto
             CodeSession = GenerateSessionCode(),
             Dresseur1Id = dresseurId,
-            PokemonsToGuess = new List<Pokemon>(),
+            PokemonsToGuessJ1 = new List<Pokemon>(),
+            PokemonsToGuessJ2 = new List<Pokemon>(),
             Statut = "EnAttente" 
         };
 
@@ -51,7 +52,9 @@ public class PartieService : IPartieService
         if (mode == "Standard")
         {
             int numberOfPokemons = 6;
-            partie.PokemonsToGuess = await SelectRandomPokemonsAsync(numberOfPokemons);
+            // Génération de 6 Pokémons uniques pour chaque joueur
+            partie.PokemonsToGuessJ1 = await SelectRandomPokemonsAsync(numberOfPokemons);
+            partie.PokemonsToGuessJ2 = await SelectRandomPokemonsAsync(numberOfPokemons);
             partie.Statut = "EnCours";
         }
         else
@@ -120,14 +123,15 @@ public class PartieService : IPartieService
         bool isJ1 = dresseurId == partie.Dresseur1Id;
         
         int currentIndex = isJ1 ? partie.CurrentIndexJ1 : partie.CurrentIndexJ2;
+        var pokemonsList = isJ1 ? partie.PokemonsToGuessJ1 : partie.PokemonsToGuessJ2;
         
         // Vérifier si la partie est finie pour ce joueur
-        if (currentIndex >= partie.PokemonsToGuess.Count)
+        if (currentIndex >= pokemonsList.Count)
         {
             return new GuessResult { IsGameFinished = true, Message = "Partie déjà terminée.", UpdatedGame = partie };
         }
 
-        var targetPokemon = partie.PokemonsToGuess[currentIndex];
+        var targetPokemon = pokemonsList[currentIndex];
         
         // Normalisation pour la comparaison (minuscule, trim)
         bool isCorrect = string.Equals(targetPokemon.NameFr, pokemonName, StringComparison.OrdinalIgnoreCase);
@@ -222,7 +226,8 @@ public class PartieService : IPartieService
     private bool CheckIfGameFinished(Partie partie, bool isJ1)
     {
         int index = isJ1 ? partie.CurrentIndexJ1 : partie.CurrentIndexJ2;
-        return index >= partie.PokemonsToGuess.Count;
+        var pokemonsList = isJ1 ? partie.PokemonsToGuessJ1 : partie.PokemonsToGuessJ2;
+        return index >= pokemonsList.Count;
     }
 
     private string GenerateSessionCode()

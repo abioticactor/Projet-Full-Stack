@@ -26,8 +26,11 @@ public class Partie
 
     // --- Logique du Jeu ---
 
-    // La liste des 6 Pokémon à deviner (commune aux deux joueurs)
-    public List<Pokemon> PokemonsToGuess { get; set; } = new List<Pokemon>();
+    // La liste des 6 Pokémon à deviner pour le Joueur 1
+    public List<Pokemon> PokemonsToGuessJ1 { get; set; } = new List<Pokemon>();
+
+    // La liste des 6 Pokémon à deviner pour le Joueur 2
+    public List<Pokemon> PokemonsToGuessJ2 { get; set; } = new List<Pokemon>();
 
     // Progression Joueur 1
     public int CurrentIndexJ1 { get; set; } = 0;

@@ -83,8 +83,19 @@ public class PokemonService : IPokemonService
     public async Task<List<Pokemon>> GetBaseEvolutionPokemonsAsync()
     {
         var allPokemons = await _repository.GetAllAsync();
-        // On suppose que BasePokemon contient le nom français du Pokémon de base
-        return allPokemons.Where(p => p.NameFr == p.EvolutionChain.BasePokemon).ToList();
+        // Filtrer les Pokémons dont le level est 0 dans leur chaîne d'évolution
+        return allPokemons.Where(p => 
+        {
+            if (p.EvolutionChain?.Chain == null || !p.EvolutionChain.Chain.Any())
+                return false;
+            
+            // Chercher l'entrée correspondant au Pokémon actuel dans la chaîne
+            var evolutionEntry = p.EvolutionChain.Chain
+                .FirstOrDefault(e => string.Equals(e.Name, p.NameEn, StringComparison.OrdinalIgnoreCase));
+            
+            // Vérifier si le level est 0
+            return evolutionEntry?.Level == 0;
+        }).ToList();
     }
 
     public async Task<string> GetCensoredDescriptionAsync(string id)
