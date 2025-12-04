@@ -182,18 +182,25 @@
                 </div>
 
                 <!-- Affichage des indices révélés -->
-                @if (revealedHints.Any())
-                {
-                    <div class="revealed-hints">
-                        <h4>Indices révélés :</h4>
-                        @foreach (var hint in revealedHints)
-                        {
-                            <div class="hint-item">
-                                <strong>@hint.Key :</strong> @hint.Value
-                            </div>
-                        }
-                    </div>
-                }
+                <div class="revealed-hints-container">
+                    <h4>Indices disponibles : @revealedHints.Count</h4>
+                    @if (revealedHints.Any())
+                    {
+                        <div class="revealed-hints">
+                            <h4>Indices révélés :</h4>
+                            @foreach (var hint in revealedHints)
+                            {
+                                <div class="hint-item">
+                                    <strong>@hint.Key :</strong> @hint.Value
+                                </div>
+                            }
+                        </div>
+                    }
+                    else if (usedHints.Any())
+                    {
+                        <p class="no-hints-message">Indices utilisés (@usedHints.Count) mais non chargés. Vérifiez la console.</p>
+                    }
+                </div>
             </div>
         </div>
     }
@@ -327,6 +334,9 @@
     {
         try
         {
+            Logger.LogInformation($"Chargement des indices pour le Pokémon {currentPokemonId}");
+            Logger.LogInformation($"Indices utilisés: {string.Join(", ", usedHints)}");
+            
             var response = await Http.GetAsync($"api/pokemon/{currentPokemonId}/hints");
             response.EnsureSuccessStatusCode();
             var hints = await response.Content.ReadFromJsonAsync<PokemonHintsDto>();
@@ -335,30 +345,46 @@
             {
                 revealedHints.Clear();
                 
-                if (usedHints.Contains("Type") && hints.Types != null)
+                if (usedHints.Contains("Type") && hints.Types != null && hints.Types.Any())
                 {
-                    revealedHints["Type"] = string.Join(", ", hints.Types.Select(t => t.Name));
+                    var typeNames = string.Join(", ", hints.Types.Select(t => t.Name));
+                    revealedHints["Type"] = typeNames;
+                    Logger.LogInformation($"Indice Type ajouté: {typeNames}");
                 }
                 if (usedHints.Contains("Generation") && hints.Generation != null)
                 {
-                    revealedHints["Génération"] = hints.Generation.Name;
+                    revealedHints["Génération"] = hints.Generation.NameFr;
+                    Logger.LogInformation($"Indice Génération ajouté: {hints.Generation.NameFr}");
                 }
                 if (usedHints.Contains("Category") && !string.IsNullOrEmpty(hints.Category))
                 {
                     revealedHints["Catégorie"] = hints.Category;
+                    Logger.LogInformation($"Indice Catégorie ajouté: {hints.Category}");
                 }
                 if (usedHints.Contains("Stats") && hints.Stats != null)
                 {
-                    revealedHints["Statistiques"] = $"PV: {hints.Stats.Hp}, Att: {hints.Stats.Attack}, Def: {hints.Stats.Defense}";
+                    var statsText = $"PV: {hints.Stats.PV.Value}, Att: {hints.Stats.Attaque.Value}, Def: {hints.Stats.Defense.Value}";
+                    revealedHints["Statistiques"] = statsText;
+                    Logger.LogInformation($"Indice Stats ajouté: {statsText}");
                 }
                 if (usedHints.Contains("Physical") && hints.Physical != null)
                 {
-                    revealedHints["Physique"] = $"{hints.Physical.Height}m, {hints.Physical.Weight}kg";
+                    var physicalText = $"{hints.Physical.HeightM}m, {hints.Physical.WeightKg}kg";
+                    revealedHints["Physique"] = physicalText;
+                    Logger.LogInformation($"Indice Physique ajouté: {physicalText}");
                 }
-                if (usedHints.Contains("Abilities") && hints.Abilities != null)
+                if (usedHints.Contains("Abilities") && hints.Abilities != null && hints.Abilities.Any())
                 {
-                    revealedHints["Talents"] = string.Join(", ", hints.Abilities.Select(a => a.Name));
+                    var abilitiesText = string.Join(", ", hints.Abilities.Select(a => a.Name));
+                    revealedHints["Talents"] = abilitiesText;
+                    Logger.LogInformation($"Indice Talents ajouté: {abilitiesText}");
                 }
+                
+                Logger.LogInformation($"Total indices révélés: {revealedHints.Count}");
+            }
+            else
+            {
+                Logger.LogWarning("Les hints reçus de l'API sont null");
             }
         }
         catch (Exception ex)
@@ -459,8 +485,17 @@
             var response = await Http.PostAsJsonAsync($"api/partie/{PartieId}/hint", request);
             response.EnsureSuccessStatusCode();
 
-            usedHints.Add(hintType);
+            // Ajouter l'indice à la liste locale
+            if (!usedHints.Contains(hintType))
+            {
+                usedHints.Add(hintType);
+            }
+
+            // Charger et afficher l'indice révélé
             await LoadRevealedHints();
+            
+            // Forcer le rafraîchissement de l'interface
+            StateHasChanged();
         }
         catch (Exception ex)
         {
@@ -544,30 +579,45 @@
 
     public class GenerationDto
     {
-        public string Name { get; set; } = string.Empty;
+        public string NameFr { get; set; } = string.Empty;
+        public string NameEn { get; set; } = string.Empty;
     }
 
     public class TypeDto
     {
         public string Name { get; set; } = string.Empty;
+        public string NameEn { get; set; } = string.Empty;
+        public int Slot { get; set; }
     }
 
     public class StatsDto
     {
-        public int Hp { get; set; }
-        public int Attack { get; set; }
-        public int Defense { get; set; }
+        public StatDto PV { get; set; } = new();
+        public StatDto Attaque { get; set; } = new();
+        public StatDto Defense { get; set; } = new();
+        public StatDto AttaqueSpe { get; set; } = new();
+        public StatDto DefenseSpe { get; set; } = new();
+        public StatDto Vitesse { get; set; } = new();
+    }
+
+    public class StatDto
+    {
+        public int Value { get; set; }
+        public string NameEn { get; set; } = string.Empty;
     }
 
     public class PhysicalDto
     {
-        public double Height { get; set; }
-        public double Weight { get; set; }
+        public double HeightM { get; set; }
+        public double WeightKg { get; set; }
     }
 
     public class AbilityDto
     {
         public string Name { get; set; } = string.Empty;
+        public string NameEn { get; set; } = string.Empty;
+        public bool IsHidden { get; set; }
+        public int Slot { get; set; }
     }
 
     public class SubmitGuessRequest
@@ -860,6 +910,19 @@
         padding: 1.5rem;
         border-radius: 8px;
         border-left: 4px solid #4ecdc4;
+    }
+
+    .revealed-hints-container h4 {
+        color: #4ecdc4;
+        margin-bottom: 1rem;
+    }
+
+    .no-hints-message {
+        color: #ffa500;
+        font-style: italic;
+        padding: 1rem;
+        background: rgba(255, 165, 0, 0.1);
+        border-radius: 6px;
     }
 
     .revealed-hints h4 {

@@ -16,8 +16,11 @@ public class PartieService : IPartieService
     private static readonly Dictionary<string, int> HintCosts = new()
     {
         { "Type", 20 },
+        { "Generation", 15 },
+        { "Category", 10 },
         { "Stats", 15 },
-        { "Talent", 25 }
+        { "Physical", 10 },
+        { "Abilities", 25 }
     };
 
     private const int MaxAttempts = 3;
