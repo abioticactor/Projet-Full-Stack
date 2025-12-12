@@ -33,6 +33,10 @@
     {
         <div class="game-header">
             <h1>Devinez le Pokémon !</h1>
+            <div class="session-info">
+                <span class="session-code">Code session : @sessionCode</span>
+                <span class="players">@player1Pseudo VS @player2Pseudo</span>
+            </div>
             <div class="game-stats">
                 <span class="score">Score : @currentScore</span>
                 <span class="attempts">Tentatives : @attemptsUsed / 3</span>
@@ -298,6 +302,11 @@
     private int attemptsUsed = 0;
     private List<string> usedHints = new();
     private Dictionary<string, string> revealedHints = new();
+    
+    // Informations de session
+    private string sessionCode = string.Empty;
+    private string player1Pseudo = string.Empty;
+    private string player2Pseudo = string.Empty;
 
     // Recherche et sélection
     private string searchTerm = string.Empty;
@@ -356,6 +365,10 @@
             currentScore = partie.Dresseur1Id == DresseurId ? partie.ScoreJ1 : partie.ScoreJ2;
             attemptsUsed = partie.Dresseur1Id == DresseurId ? partie.AttemptsUsedJ1 : partie.AttemptsUsedJ2;
             usedHints = partie.Dresseur1Id == DresseurId ? partie.UsedHintsJ1 : partie.UsedHintsJ2;
+            
+            // Charger les infos de session
+            sessionCode = partie.CodeSession ?? "N/A";
+            await LoadPlayersPseudos(partie.Dresseur1Id, partie.Dresseur2Id);
 
             await LoadCensoredDescription();
             await LoadPokemonSprite();
@@ -418,6 +431,73 @@
         catch (Exception ex)
         {
             Logger.LogError(ex, "Erreur lors du chargement des Pokémon");
+        }
+    }
+
+    private async Task LoadPlayersPseudos(string? dresseur1Id, string? dresseur2Id)
+    {
+        try
+        {
+            // Pour le joueur connecté, utiliser le pseudo du token
+            string currentUserPseudo = AuthService.CurrentPseudo ?? "N/A";
+            
+            // Déterminer qui est le joueur 1 et le joueur 2
+            bool isPlayer1 = dresseur1Id == DresseurId;
+            
+            if (isPlayer1)
+            {
+                // Le joueur connecté est le joueur 1
+                player1Pseudo = currentUserPseudo;
+                
+                // Charger le pseudo du joueur 2 via l'API
+                if (!string.IsNullOrEmpty(dresseur2Id))
+                {
+                    var response2 = await Http.GetAsync($"api/dresseurs/{dresseur2Id}");
+                    if (response2.IsSuccessStatusCode)
+                    {
+                        var dresseur2 = await response2.Content.ReadFromJsonAsync<DresseurDto>();
+                        player2Pseudo = dresseur2?.Pseudo ?? "N/A";
+                    }
+                    else
+                    {
+                        player2Pseudo = "N/A";
+                    }
+                }
+                else
+                {
+                    player2Pseudo = "N/A";
+                }
+            }
+            else
+            {
+                // Le joueur connecté est le joueur 2
+                player2Pseudo = currentUserPseudo;
+                
+                // Charger le pseudo du joueur 1 via l'API
+                if (!string.IsNullOrEmpty(dresseur1Id))
+                {
+                    var response1 = await Http.GetAsync($"api/dresseurs/{dresseur1Id}");
+                    if (response1.IsSuccessStatusCode)
+                    {
+                        var dresseur1 = await response1.Content.ReadFromJsonAsync<DresseurDto>();
+                        player1Pseudo = dresseur1?.Pseudo ?? "N/A";
+                    }
+                    else
+                    {
+                        player1Pseudo = "N/A";
+                    }
+                }
+                else
+                {
+                    player1Pseudo = "N/A";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors du chargement des pseudos");
+            player1Pseudo = "N/A";
+            player2Pseudo = "N/A";
         }
     }
 
@@ -794,6 +874,12 @@
         public string Message { get; set; } = string.Empty;
         public int PointsEarned { get; set; }
     }
+
+    public class DresseurDto
+    {
+        public string? Id { get; set; }
+        public string? Pseudo { get; set; }
+    }
 }
 
 <style>
@@ -832,6 +918,24 @@
         background: linear-gradient(45deg, #4ecdc4, #44a3d5);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+    }
+
+    .session-info {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        font-size: 0.95rem;
+        color: #aaa;
+        margin-bottom: 1rem;
+    }
+
+    .session-info .session-code {
+        color: #888;
+    }
+
+    .session-info .players {
+        color: #bbb;
+        font-weight: 500;
     }
 
     .game-stats {
