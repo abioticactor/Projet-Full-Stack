@@ -155,8 +155,9 @@
         {
             await InvokeAsync(async () =>
             {
-                if (!string.IsNullOrEmpty(currentPartieId) && partie?.Statut == "EnAttente")
+                if (!string.IsNullOrEmpty(currentPartieId))
                 {
+                    // Vérifier si le statut a changé (EnAttente -> Prêt ou Prêt -> EnCours)
                     await RefreshGameStatus(silent: true);
                 }
             });
@@ -244,7 +245,8 @@
             await LoadPlayersInfo();
             successMessage = "Vous avez rejoint la partie avec succès !";
             
-            // Pas besoin d'auto-refresh pour J2 car la partie est déjà "Prêt"
+            // Démarrer l'auto-refresh pour détecter quand l'autre joueur lance la partie
+            StartAutoRefresh();
         }
         catch (Exception ex)
         {
@@ -275,9 +277,12 @@
             response.EnsureSuccessStatusCode();
             partie = await response.Content.ReadFromJsonAsync<PartieDto>();
             
-            // Redirection vers la page de jeu avec le pseudo dans l'URL
-            var pseudo = AuthService.CurrentPseudo ?? "Joueur";
-            NavigationManager.NavigateTo($"/guess/{currentPartieId}/{pseudo}");
+            Logger.LogInformation($"Partie démarrée, statut: {partie?.Statut}");
+            
+            // Le timer va détecter le changement de statut et rediriger automatiquement
+            // Cela permet à l'autre joueur d'être aussi redirigé
+            successMessage = "Lancement de la partie...";
+            StateHasChanged();
         }
         catch (Exception ex)
         {
@@ -380,12 +385,20 @@
             
             await LoadPlayersInfo();
             
-            // Si le statut passe à "Prêt", arrêter l'auto-refresh
+            // Si le statut passe à "Prêt", arrêter l'auto-refresh pour "EnAttente"
             if (oldStatus == "EnAttente" && partie?.Statut == "Prêt")
             {
-                StopAutoRefresh();
                 successMessage = "Le joueur 2 a rejoint ! Vous pouvez démarrer la partie.";
                 StateHasChanged();
+            }
+            
+            // Si la partie a démarré (statut "EnCours"), rediriger automatiquement
+            if (partie?.Statut == "EnCours")
+            {
+                StopAutoRefresh();
+                Logger.LogInformation("La partie a démarré ! Redirection vers le jeu...");
+                var pseudo = AuthService.CurrentPseudo ?? "Joueur";
+                NavigationManager.NavigateTo($"/guess/{currentPartieId}/{pseudo}");
             }
         }
         catch (Exception ex)
