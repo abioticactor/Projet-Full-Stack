@@ -14,6 +14,8 @@ builder.Services.AddScoped(sp => new System.Net.Http.HttpClient
 
 // Auth service to handle login/register and token management
 builder.Services.AddScoped<Projet_FullStack_FrontEnd.Services.AuthService>();
+// User state service to manage current user data across the app
+builder.Services.AddScoped<Projet_FullStack_FrontEnd.Services.UserStateService>();
 
 var app = builder.Build();
 

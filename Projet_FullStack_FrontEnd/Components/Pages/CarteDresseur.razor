@@ -1,4 +1,7 @@
 @page "/carte-dresseur"
+@inject Projet_FullStack_FrontEnd.Services.UserStateService UserState
+@inject Projet_FullStack_FrontEnd.Services.AuthService AuthService
+@implements IDisposable
  
 <!-- 1. LE STYLE (CSS) -->
 <style>
@@ -171,9 +174,10 @@
 </style>
  
 <!-- 2. LE HTML (L'AFFICHAGE) -->
+<RequireAuth>
 <div class="page-container">
    
-    @if (Dresseur == null)
+    @if (UserState.IsLoading || UserState.CurrentUser == null)
     {
         <p>Chargement des données du dresseur...</p>
     }
@@ -183,17 +187,16 @@
             <!-- En-tête -->
             <div class="card-header">
                 <div class="avatar-container">
-                    <img src="@Dresseur.AvatarUrl" alt="Avatar" class="avatar-img" />
+                    <img src="https://archives.bulbagarden.net/media/upload/5/53/Red_Green_Red.png" alt="Avatar" class="avatar-img" />
                 </div>
                 <div class="info-text">
-                    <div class="niveau-badge">Niv. @Dresseur.Niveau</div>
-                    <h1 class="pseudo">@Dresseur.Pseudo</h1>
+                    <div class="niveau-badge">Niv. @CalculerNiveau()</div>
+                    <h1 class="pseudo">@UserState.CurrentUser.Pseudo</h1>
                    
                     <!-- Barre XP -->
                     <div class="xp-wrapper">
-                        <div class="xp-label">@Dresseur.XpActuel / @Dresseur.XpRequis XP</div>
+                        <div class="xp-label">@UserState.CurrentUser.PartiesJouees / 10 Parties</div>
                         <div class="xp-track">
-                            <!-- Calcul du pourcentage en C# direct -->
                             <div class="xp-fill" style="width: @(CalculerPourcentage())%;"></div>
                         </div>
                     </div>
@@ -203,15 +206,15 @@
             <!-- Stats -->
             <div class="stats-section">
                 <div class="stat-box">
-                    <span class="stat-number" style="color: var(--poke-blue)">@Dresseur.PokemonDecouverts</span>
-                    <span class="stat-title">Pokédex</span>
+                    <span class="stat-number" style="color: var(--poke-blue)">@UserState.CurrentUser.Amis.Count</span>
+                    <span class="stat-title">Amis</span>
                 </div>
                 <div class="stat-box">
-                    <span class="stat-number" style="color: #28a745">@Dresseur.Victoires</span>
+                    <span class="stat-number" style="color: #28a745">@UserState.CurrentUser.Victoires</span>
                     <span class="stat-title">Victoires</span>
                 </div>
                 <div class="stat-box">
-                    <span class="stat-number" style="color: #dc3545">@Dresseur.Defaites</span>
+                    <span class="stat-number" style="color: #dc3545">@UserState.CurrentUser.Defaites</span>
                     <span class="stat-title">Défaites</span>
                 </div>
             </div>
@@ -224,54 +227,37 @@
         </div>
     }
 </div>
+</RequireAuth>
  
 <!-- 3. LE C# (LA LOGIQUE) -->
 @code {
-    // Définition d'une petite classe interne pour stocker les infos (Modèle)
-    public class DresseurInfo
+    protected override async Task OnInitializedAsync()
     {
-        public string Pseudo { get; set; } = "";
-        public int Niveau { get; set; }
-        public int XpActuel { get; set; }
-        public int XpRequis { get; set; }
-        public string AvatarUrl { get; set; } = "";
-        public int Victoires { get; set; }
-        public int Defaites { get; set; }
-        public int PokemonDecouverts { get; set; }
+        await UserState.LoadUserDataAsync();
+        UserState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        UserState.OnChange -= StateHasChanged;
+    }
+
+    private int CalculerNiveau()
+    {
+        if (UserState.CurrentUser == null) return 1;
+        // Niveau basé sur les parties jouées (1 niveau tous les 10 parties)
+        return 1 + (UserState.CurrentUser.PartiesJouees / 10);
     }
  
-    // Variable qui contient les données à afficher
-    private DresseurInfo? Dresseur;
- 
-    // Cette fonction se lance automatiquement au chargement de la page
-    protected override void OnInitialized()
-    {
-        // SIMULATION DES DONNÉES (MOCK)
-        // Plus tard, tu remplaceras ça par un appel API vers la BDD
-        Dresseur = new DresseurInfo
-        {
-            Pseudo = "SachaDu01",
-            Niveau = 5,
-            XpActuel = 450,
-            XpRequis = 1000,
-            // Image officielle de Red (héros Pokémon) pour l'exemple
-            AvatarUrl = "https://archives.bulbagarden.net/media/upload/5/53/Red_Green_Red.png",
-            Victoires = 12,
-            Defaites = 4,
-            PokemonDecouverts = 23
-        };
-    }
- 
-    // Petite méthode utilitaire pour la barre de chargement
     private int CalculerPourcentage()
     {
-        if (Dresseur == null || Dresseur.XpRequis == 0) return 0;
-        return (int)((double)Dresseur.XpActuel / Dresseur.XpRequis * 100);
+        if (UserState.CurrentUser == null) return 0;
+        var partiesDansNiveau = UserState.CurrentUser.PartiesJouees % 10;
+        return (int)((double)partiesDansNiveau / 10 * 100);
     }
  
     private void ModifierProfil()
     {
-        // Logique future pour ouvrir un formulaire d'édition
         Console.WriteLine("Clic sur modifier profil");
     }
 }

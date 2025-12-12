@@ -1,22 +1,53 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text.Json.Serialization;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.JSInterop;
 
 namespace Projet_FullStack_FrontEnd.Services;
 
 public class AuthService
 {
     private readonly HttpClient _http;
+    private readonly IJSRuntime _jsRuntime;
     private string? _token;
+    private string? _currentUserId;
+    private string? _currentPseudo;
+    private string? _currentEmail;
 
-    public AuthService(HttpClient http)
+    public AuthService(HttpClient http, IJSRuntime jsRuntime)
     {
         _http = http;
+        _jsRuntime = jsRuntime;
     }
 
     public bool IsAuthenticated => !string.IsNullOrEmpty(_token);
-
     public string? Token => _token;
+    public string? CurrentUserId => _currentUserId;
+    public string? CurrentPseudo => _currentPseudo;
+    public string? CurrentEmail => _currentEmail;
+
+    /// <summary>
+    /// Initialise l'AuthService en chargeant le token depuis localStorage
+    /// Appeler cette méthode au démarrage de l'application
+    /// </summary>
+    public async Task InitializeAsync()
+    {
+        try
+        {
+            _token = await _jsRuntime.InvokeAsync<string?>("localStorage.getItem", "authToken");
+            if (!string.IsNullOrEmpty(_token))
+            {
+                ExtractUserInfoFromToken(_token);
+                _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+            }
+        }
+        catch
+        {
+            // Si localStorage n'est pas disponible (SSR), ignorer
+            _token = null;
+        }
+    }
 
     public async Task<(bool ok, string? error)> RegisterAsync(string pseudo, string email, string password)
     {
@@ -53,9 +84,18 @@ public class AuthService
             {
                 return (false, "Token manquant dans la réponse");
             }
+            
             _token = body.token;
-            // Set the Authorization header for subsequent requests
+            
+            // Extraire les informations du JWT
+            ExtractUserInfoFromToken(_token);
+            
+            // Sauvegarder le token dans localStorage
+            await _jsRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", _token);
+            
+            // Configurer l'en-tête Authorization pour les requêtes futures
             _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+            
             return (true, null);
         }
         catch (Exception ex)
@@ -64,10 +104,45 @@ public class AuthService
         }
     }
 
-    public void Logout()
+    public async Task LogoutAsync()
     {
         _token = null;
+        _currentUserId = null;
+        _currentPseudo = null;
+        _currentEmail = null;
         _http.DefaultRequestHeaders.Authorization = null;
+        
+        try
+        {
+            await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", "authToken");
+        }
+        catch
+        {
+            // Ignorer si localStorage n'est pas disponible
+        }
+    }
+
+    /// <summary>
+    /// Extrait les informations utilisateur depuis le JWT token
+    /// </summary>
+    private void ExtractUserInfoFromToken(string token)
+    {
+        try
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            
+            _currentUserId = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
+            _currentEmail = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Email)?.Value;
+            _currentPseudo = jwtToken.Claims.FirstOrDefault(c => c.Type == "pseudo")?.Value;
+        }
+        catch
+        {
+            // Si le token est invalide, réinitialiser
+            _currentUserId = null;
+            _currentEmail = null;
+            _currentPseudo = null;
+        }
     }
 
     private class LoginResponse { public string? token { get; set; } }

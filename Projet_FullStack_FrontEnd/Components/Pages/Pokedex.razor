@@ -5,6 +5,7 @@
 @inject Microsoft.Extensions.Logging.ILogger<Projet_FullStack_FrontEnd.Components.Pages.Pokedex> Logger
 @inject NavigationManager NavigationManager
 
+<RequireAuth>
 <div class="hero-content">
     <div class="hero-title">Pokédex</div>
 
@@ -168,3 +169,4 @@
 @@media (max-width: 768px) { .pokedex-grid { grid-template-columns: repeat(2, 1fr); } }
 @@media (max-width: 420px) { .pokedex-grid { grid-template-columns: 1fr; } }
 </style>
+</RequireAuth>

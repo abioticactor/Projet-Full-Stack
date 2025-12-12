@@ -4,11 +4,14 @@
 @inject HttpClient Http
 @inject Microsoft.Extensions.Logging.ILogger<Projet_FullStack_FrontEnd.Components.Pages.Partie> Logger
 @inject NavigationManager NavigationManager
+@inject Projet_FullStack_FrontEnd.Services.AuthService AuthService
+@inject Projet_FullStack_FrontEnd.Services.UserStateService UserState
 
+<RequireAuth>
 <div class="hero-content">
-    <div class="hero-title">Débuter une Partie</div>
+    <div class="hero-title">Débuter une Partie - @UserState.CurrentUser?.Pseudo</div>
 
-    @if (isLoading)
+    @if (isLoading || UserState.IsLoading)
     {
         <p><em>Chargement…</em></p>
     }
@@ -37,7 +40,7 @@
             {
                 <div class="option-card">
                     <h3>Démarrer la partie</h3>
-                    <p>Partie: @currentPartieId</p>
+                    <p>Code: @partie?.CodeSession</p>
                     <button @onclick="StartGame" disabled="@isLoading">Démarrer (Mode Standard)</button>
                 </div>
             }
@@ -53,14 +56,19 @@
         }
     }
 </div>
+</RequireAuth>
 
 @code {
-    private string dresseurId = "user123"; // À récupérer de la session/contexte
     private string codeSession = string.Empty;
     private string currentPartieId = string.Empty;
     private bool isLoading = false;
     private string? errorMessage;
     private PartieDto? partie;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await UserState.LoadUserDataAsync();
+    }
 
     // API: Créer une partie
     private async Task CreateGame()
@@ -69,7 +77,7 @@
         errorMessage = null;
         try
         {
-            var request = new CreateGameRequest { DresseurId = dresseurId };
+            var request = new CreateGameRequest { DresseurId = AuthService.CurrentUserId ?? "" };
             var response = await Http.PostAsJsonAsync("api/partie/create", request);
             response.EnsureSuccessStatusCode();
             partie = await response.Content.ReadFromJsonAsync<PartieDto>();
@@ -100,7 +108,7 @@
             var request = new JoinGameRequest 
             { 
                 CodeSession = codeSession, 
-                DresseurId = dresseurId 
+                DresseurId = AuthService.CurrentUserId ?? "" 
             };
             var response = await Http.PostAsJsonAsync("api/partie/join", request);
             response.EnsureSuccessStatusCode();
@@ -137,8 +145,9 @@
             response.EnsureSuccessStatusCode();
             partie = await response.Content.ReadFromJsonAsync<PartieDto>();
             
-            // Redirection vers la page de jeu
-            NavigationManager.NavigateTo($"/guess/{currentPartieId}/{dresseurId}");
+            // Redirection vers la page de jeu avec le pseudo dans l'URL
+            var pseudo = AuthService.CurrentPseudo ?? "Joueur";
+            NavigationManager.NavigateTo($"/guess/{currentPartieId}/{pseudo}");
         }
         catch (Exception ex)
         {

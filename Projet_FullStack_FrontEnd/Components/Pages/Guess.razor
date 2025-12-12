@@ -1,9 +1,11 @@
-@page "/guess/{PartieId}/{DresseurId}"
+@page "/guess/{PartieId}/{DresseurPseudo}"
 @using System.Net.Http.Json
 @inject HttpClient Http
 @inject Microsoft.Extensions.Logging.ILogger<Guess> Logger
 @inject NavigationManager NavigationManager
+@inject Projet_FullStack_FrontEnd.Services.AuthService AuthService
 
+<RequireAuth>
 <div class="guess-container">
     @if (isLoading)
     {
@@ -273,7 +275,10 @@
     public string PartieId { get; set; } = string.Empty;
 
     [Parameter]
-    public string DresseurId { get; set; } = string.Empty;
+    public string DresseurPseudo { get; set; } = string.Empty;
+
+    // ID réel du dresseur (récupéré depuis AuthService)
+    private string DresseurId => AuthService.CurrentUserId ?? "";
 
     // États
     private bool isLoading = true;
@@ -1194,3 +1199,4 @@
         font-family: inherit;
     }
 </style>
+</RequireAuth>
