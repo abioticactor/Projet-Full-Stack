@@ -232,22 +232,22 @@
                 <div class="revealed-hints-container">
                     <h4>Indices disponibles : @revealedHints.Count</h4>
                     
-                    @if (usedHints.Contains("Sprite") && !string.IsNullOrEmpty(currentPokemonSprite))
-                    {
-                        <div class="sprite-hint">
-                            <h4>Silhouette :</h4>
-                            <img src="@currentPokemonSprite" alt="Silhouette du Pokémon" class="silhouette-sprite" />
-                        </div>
-                    }
-                    
                     @if (revealedHints.Any())
                     {
                         <div class="revealed-hints">
                             <h4>Indices révélés :</h4>
                             @foreach (var hint in revealedHints)
                             {
-                                <div class="hint-item">
-                                    <strong>@hint.Key :</strong> @hint.Value
+                                <div class="hint-item @(hint.Key == "Silhouette" ? "sprite-hint" : string.Empty)">
+                                    <strong>@hint.Key :</strong>
+                                    @if (hint.Key == "Silhouette")
+                                    {
+                                        <img src="@hint.Value" alt="Silhouette du Pokémon" class="silhouette-sprite" />
+                                    }
+                                    else
+                                    {
+                                        <span>@hint.Value</span>
+                                    }
                                 </div>
                             }
                         </div>
@@ -422,6 +422,21 @@
             if (hints != null)
             {
                 revealedHints.Clear();
+
+                if (hints.Sprites != null)
+                {
+                    var spriteUrl = hints.Sprites.FrontDefault ?? string.Empty;
+                    if (!string.IsNullOrEmpty(spriteUrl))
+                    {
+                        currentPokemonSprite = spriteUrl;
+                    }
+                }
+
+                if (usedHints.Contains("Sprite") && !string.IsNullOrEmpty(currentPokemonSprite))
+                {
+                    revealedHints["Silhouette"] = currentPokemonSprite;
+                    Logger.LogInformation("Indice Silhouette ajouté");
+                }
                 
                 if (usedHints.Contains("Type1") && hints.Types != null && hints.Types.Any())
                 {
