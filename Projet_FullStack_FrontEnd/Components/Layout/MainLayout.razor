@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@inject Projet_FullStack_FrontEnd.Services.AuthService AuthService
 
 <div class="page">
     <nav class="sidebar">
@@ -10,7 +11,7 @@
         </div>
 
         <div class="nav-menu">
-            <NavAnchor Href="/carte-dresseur" Class="nav-link" AriaLabel="Carte Dresseur">
+            <NavAnchor Href="@GetCarteDresseurUrl()" Class="nav-link" AriaLabel="Carte Dresseur">
                 <i class="fas fa-id-card"></i> Carte Dresseur
             </NavAnchor>
             <NavAnchor Href="/partie" Class="nav-link" AriaLabel="Partie">
@@ -46,3 +47,11 @@
         </article>
     </main>
 </div>
+
+@code {
+    private string GetCarteDresseurUrl()
+    {
+        var pseudo = AuthService.CurrentPseudo ?? "Joueur";
+        return $"/carte-dresseur/{pseudo}";
+    }
+}

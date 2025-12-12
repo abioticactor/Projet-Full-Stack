@@ -1,4 +1,4 @@
-@page "/carte-dresseur"
+@page "/carte-dresseur/{DresseurPseudo}"
 @inject Projet_FullStack_FrontEnd.Services.UserStateService UserState
 @inject Projet_FullStack_FrontEnd.Services.AuthService AuthService
 @implements IDisposable
@@ -231,6 +231,9 @@
  
 <!-- 3. LE C# (LA LOGIQUE) -->
 @code {
+    [Parameter]
+    public string DresseurPseudo { get; set; } = string.Empty;
+
     protected override async Task OnInitializedAsync()
     {
         await UserState.LoadUserDataAsync();

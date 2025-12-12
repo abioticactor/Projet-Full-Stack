@@ -1,13 +1,14 @@
 ﻿@page "/home"
 
 @layout HomeLayout
+@inject Projet_FullStack_FrontEnd.Services.AuthService AuthService
 
 <PageTitle>PokeGuessr</PageTitle>
 
 <div class="hero-content">
     <nav class="button-grid" aria-label="Navigation rapide">
         <div class="nav-button-wrapper">
-            <NavLink class="square-button" href="/carte-dresseur" Match="NavLinkMatch.All" role="link" aria-label="Carte de Dresseur">
+            <NavLink class="square-button" href="@GetCarteDresseurUrl()" Match="NavLinkMatch.All" role="link" aria-label="Carte de Dresseur">
                 <div class="btn-image btn-trainer-card" title="Carte de Dresseur" role="img" aria-label="Carte de Dresseur"></div>
             </NavLink>
         </div>
@@ -55,3 +56,11 @@
         </div>
     </nav>
 </div>
+
+@code {
+    private string GetCarteDresseurUrl()
+    {
+        var pseudo = AuthService.CurrentPseudo ?? "Joueur";
+        return $"/carte-dresseur/{pseudo}";
+    }
+}
