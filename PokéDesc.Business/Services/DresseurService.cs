@@ -159,4 +159,10 @@ public class DresseurService
 
         return dresseur.Pokedex;
     }
+
+    // Récupérer un dresseur par son ID
+    public async Task<Dresseur?> GetDresseurByIdAsync(string dresseurId)
+    {
+        return await _dresseurRepository.GetByIdAsync(dresseurId);
+    }
 }

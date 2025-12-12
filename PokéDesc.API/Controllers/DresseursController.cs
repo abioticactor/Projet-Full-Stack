@@ -67,6 +67,25 @@ public class DresseursController : ControllerBase
         return Ok(new { id = dresseurId, pseudo = pseudo });
     }
 
+    // --- ENDPOINT POUR RÉCUPÉRER UN DRESSEUR PAR ID ---
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetDresseurById(string id)
+    {
+        try
+        {
+            var dresseur = await _dresseurService.GetDresseurByIdAsync(id);
+            if (dresseur == null)
+            {
+                return NotFound(new { message = "Dresseur introuvable." });
+            }
+            return Ok(new { id = dresseur.Id, pseudo = dresseur.Pseudo });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     // --- NOUVEL ENDPOINT D'AJOUT D'AMI (PROTÉGÉ) ---
     [HttpPost("amis/ajouter")]
     [Authorize] // 👈 Cet endpoint est aussi protégé

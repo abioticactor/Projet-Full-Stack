@@ -105,11 +105,20 @@ public class PartieService : IPartieService
 
     public async Task<Partie> JoinGameAsync(string codeSession, string dresseurId)
     {
-        var partie = _fakeGameStore.FirstOrDefault(p => p.CodeSession == codeSession);
-        if (partie == null) throw new KeyNotFoundException("Partie introuvable.");
+        // Normaliser le code de session (supprimer espaces et mettre en majuscules)
+        var normalizedCode = codeSession?.Trim().ToUpper();
+        
+        var partie = _fakeGameStore.FirstOrDefault(p => 
+            p.CodeSession?.Trim().ToUpper() == normalizedCode);
+            
+        if (partie == null) 
+            throw new KeyNotFoundException($"Partie introuvable avec le code '{codeSession}'. Codes disponibles: {string.Join(", ", _fakeGameStore.Select(p => p.CodeSession))}");
+        
+        if (!string.IsNullOrEmpty(partie.Dresseur2Id))
+            throw new ArgumentException("Cette partie a déjà deux joueurs.");
         
         partie.Dresseur2Id = dresseurId;
-        partie.Statut = "EnCours";
+        partie.Statut = "Prêt"; // Les deux joueurs sont connectés, en attente de démarrage
         
         return await Task.FromResult(partie);
     }
