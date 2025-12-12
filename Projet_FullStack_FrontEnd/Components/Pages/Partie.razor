@@ -12,15 +12,10 @@
 
 <RequireAuth>
 <div class="hero-content">
-    <div class="hero-title">Débuter une Partie - @UserState.CurrentUser?.Pseudo</div>
 
     @if (isLoading || UserState.IsLoading)
     {
         <p><em>Chargement…</em></p>
-    }
-    else if (!string.IsNullOrEmpty(errorMessage))
-    {
-        <p class="text-danger">Erreur : @errorMessage</p>
     }
     else
     {
@@ -120,13 +115,14 @@
                 @successMessage
             </div>
         }
-    }
 </div>
 </RequireAuth>
 
 @code {
     private string codeSession = string.Empty;
+    private string? joinErrorMessage = null;
     private string currentPartieId = string.Empty;
+    private bool hideOptions = false;
     private bool isLoading = false;
     private string? errorMessage;
     private string? successMessage;
@@ -192,6 +188,7 @@
             
             // Démarrer le rafraîchissement automatique pour détecter quand J2 rejoint
             StartAutoRefresh();
+            hideOptions = true;
         }
         catch (Exception ex)
         {
@@ -201,12 +198,24 @@
         finally { isLoading = false; }
     }
 
+        // Retour à la config: masquer section démarrer et réafficher options créer/rejoindre
+        private void GoBack()
+        {
+            hideOptions = false;
+            currentPartieId = string.Empty;
+            codeSession = string.Empty;
+            errorMessage = null;
+            joinErrorMessage = null;
+            partie = null;
+        }
+
+
     // API: Rejoindre une partie
     private async Task JoinGame()
     {
         if (string.IsNullOrEmpty(codeSession))
         {
-            errorMessage = "Veuillez entrer un code de session";
+            joinErrorMessage = "Veuillez entrer un code de session";
             return;
         }
 
@@ -247,11 +256,13 @@
             
             // Démarrer l'auto-refresh pour détecter quand l'autre joueur lance la partie
             StartAutoRefresh();
+            joinErrorMessage = null;
+            hideOptions = true;
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Erreur lors de la connexion");
-            errorMessage = $"Erreur: {ex.Message}";
+            joinErrorMessage = $"Erreur: {ex.Message}";
         }
         finally { isLoading = false; }
     }
@@ -467,6 +478,10 @@
     {
         public string? Id { get; set; }
         public string? Pseudo { get; set; }
+    private string GetPlayerDisplay(string? dresseurIdValue)
+    {
+        if (string.IsNullOrEmpty(dresseurIdValue)) return "En attente...";
+        return dresseurIdValue == dresseurId ? "Vous" : dresseurIdValue;
     }
 }
 
