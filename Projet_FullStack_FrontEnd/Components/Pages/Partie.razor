@@ -11,12 +11,12 @@
     {
         <p><em>Chargement…</em></p>
     }
-    else if (!string.IsNullOrEmpty(errorMessage))
+    else
     {
-        <p class="text-danger">Erreur : @errorMessage</p>
-    }
-        else
+        if (!string.IsNullOrEmpty(errorMessage))
         {
+            <p class="text-danger">Erreur : @errorMessage</p>
+        }
             @if (!hideOptions && string.IsNullOrEmpty(currentPartieId))
             {
                 <div class="game-options">
@@ -24,16 +24,17 @@
                         <div class="option-card create-card large-option">
                             <h3>Créer une partie</h3>
                             <p class="card-desc">Créez une nouvelle partie et obtenez un code de session à partager.</p>
-                            <button @onclick="CreateGame" disabled="@isLoading">Créer</button>
+                            <button class="tab-btn" @onclick="CreateGame" disabled="@isLoading">Créer</button>
                         </div>
                     </div>
 
                     <div class="option-column">
                         <div class="option-card join-card large-option">
                             <h3>Rejoindre une partie</h3>
-                            <p>Entrez le code de session fourni par l'hôte pour rejoindre.</p>
+                            <p class="card-desc">Entrez le code de session fourni par l'hôte pour rejoindre.</p>
+                            <p class="form-error text-danger @(string.IsNullOrEmpty(joinErrorMessage) ? "empty" : "")" aria-live="polite">@joinErrorMessage</p>
                             <input type="text" @bind="codeSession" placeholder="Code de session" />
-                            <button @onclick="JoinGame" disabled="@isLoading">Rejoindre</button>
+                            <button class="tab-btn" @onclick="JoinGame" disabled="@isLoading">Rejoindre</button>
                         </div>
                     </div>
                 </div>
@@ -77,6 +78,7 @@
 @code {
     private string dresseurId = "user123"; // À récupérer de la session/contexte
     private string codeSession = string.Empty;
+    private string? joinErrorMessage = null;
     private string currentPartieId = string.Empty;
     private bool hideOptions = false;
     private bool isLoading = false;
@@ -113,6 +115,7 @@
             currentPartieId = string.Empty;
             codeSession = string.Empty;
             errorMessage = null;
+            joinErrorMessage = null;
             partie = null;
         }
 
@@ -122,7 +125,7 @@
     {
         if (string.IsNullOrEmpty(codeSession))
         {
-            errorMessage = "Veuillez entrer un code de session";
+            joinErrorMessage = "Veuillez entrer un code de session";
             return;
         }
 
@@ -136,16 +139,28 @@
                 DresseurId = dresseurId 
             };
             var response = await Http.PostAsJsonAsync("api/partie/join", request);
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    joinErrorMessage = "Veuillez entrer un code de session valide";
+                }
+                else
+                {
+                    joinErrorMessage = $"Erreur: {(response.ReasonPhrase ?? response.StatusCode.ToString())}";
+                }
+                return;
+            }
             partie = await response.Content.ReadFromJsonAsync<PartieDto>();
             
             currentPartieId = partie?.Id ?? string.Empty;
+            joinErrorMessage = null;
             hideOptions = true;
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Erreur lors de la connexion");
-            errorMessage = $"Erreur: {ex.Message}";
+            joinErrorMessage = $"Erreur: {ex.Message}";
         }
         finally { isLoading = false; }
     }
@@ -216,15 +231,22 @@
     .game-options { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: stretch; flex: 0 1 auto; }
     .option-column { display: flex; }
     .option-card { background: rgba(255,255,255,0.05); padding: 1.6rem; border-radius: 8px; border: none; width: 100%; box-shadow: 0 6px 18px rgba(0,0,0,0.12); display: flex; flex-direction: column; gap: 0.9rem; height: 100%; justify-content: flex-start; align-items: stretch; color: #000; text-align: center; }
-    .option-card h3 { margin: 0 0 0.5rem 0; font-size: 1.9rem; line-height: 1.08; color: #000; }
+    .option-card h3 { margin: 0 0 0.5rem 0; font-size: 1.9rem; line-height: 1.08; color: #ffffff; }
     .option-card p { font-size: 1.05rem; color: #000; max-width: 36rem; margin: 0 auto; }
+    .card-desc { font-size: 1.4rem; font-weight: 600; color: #000; white-space: nowrap; max-width: 100%; overflow: visible; text-overflow: clip; }
     .option-card input { padding: 0.6rem; width: 100%; margin-bottom: 0.6rem; border-radius: 8px; border: 1px solid rgba(0,0,0,0.12); color: #000; font-size: 1rem; text-align: center; }
-    .option-card button { padding: 0.9rem 1.6rem; background: #007bff; color: rgb(0, 0, 0); border: none; border-radius: 8px; cursor: pointer; font-size: 1.05rem; font-weight: 600; margin-top: auto; }
-    .card-desc { color: #000 !important; }
+    .option-card button { padding: 0.9rem 1.6rem; border: none; border-radius: 8px; cursor: pointer; font-size: 1.05rem; font-weight: 600; margin-top: auto; }
+    .tab-btn { background: #196a9e !important; color: #ffffff !important; }
+    .tab-btn:hover:not(:disabled) { filter: brightness(0.95); }
+    .tab-btn:active:not(:disabled) { filter: brightness(0.9); }
+    .card-desc { color: #196a9e !important; white-space: nowrap; max-width: 100%; overflow: visible; text-overflow: clip; }
+    /* Ensure buttons have good contrast on the new tab color */
+    .option-card.create-card button, .option-card.join-card button { color: #ffffff; background: #28aafd; border: none; }
 
     /* Variantes visuelles pour chaque section */
-    .create-card { background: linear-gradient(180deg, rgba(0,123,255,0.14), rgba(0,123,255,0.06)); }
-    .join-card { background: linear-gradient(180deg, rgba(40,167,69,0.12), rgba(40,167,69,0.04)); }
+    /* Use requested tab color */
+    .create-card { background: linear-gradient(180deg, rgba(40, 170, 253), rgba(31, 133, 199)); border: 0; }
+    .join-card { background: linear-gradient(180deg, rgba(40, 170, 253), rgba(31, 133, 199)); border: 0; }
 
     /* Enlarged option card variant for create/join tabs */
     .option-card.large-option { padding: 2.4rem; min-height: 22rem; }
@@ -232,6 +254,8 @@
     .option-card.large-option p { font-size: 1.15rem; }
     .option-card.large-option input { padding: 1rem; font-size: 1.05rem; }
     .option-card.large-option button { padding: 1.25rem 2rem; font-size: 1.25rem; border-radius: 10px; }
+    .form-error { min-height: 1.3rem; margin: 0 0 0.5rem 0; color: #dc3545; font-size: 1rem; line-height: 1.2rem; }
+    .form-error.empty { visibility: hidden; }
 
     /* Section de démarrage distincte */
     .start-section { margin-top: 1.5rem; flex: 0 0 auto; }
@@ -262,6 +286,7 @@
         .game-options { grid-template-columns: 1fr; gap: 1rem; }
         .option-card { align-items: stretch; padding: 1rem; }
         .option-card.large-option { padding: 1.2rem; min-height: 14rem; }
+        .card-desc { font-size: 1.05rem; }
         .option-card.large-option h3 { font-size: 1.6rem; }
         .hero-title { font-size: 2rem; }
         .option-card h3 { font-size: 1.6rem; }
