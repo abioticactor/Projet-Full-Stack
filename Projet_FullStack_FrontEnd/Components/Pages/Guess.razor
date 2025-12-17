@@ -274,6 +274,22 @@
             </div>
         }
 
+        @if (showFailureModal && !string.IsNullOrEmpty(revealedPokemonSprite))
+        {
+            <div class="modal-overlay">
+                <div class="failure-modal">
+                    <h4>😔 Dommage ! C'était :</h4>
+                    <div class="pokemon-reveal">
+                        <img src="@revealedPokemonSprite" alt="Pokémon à deviner" class="revealed-sprite" />
+                        <p class="pokemon-name-reveal">@(allPokemons.FirstOrDefault(p => p.Id == currentPokemonId)?.NameFr ?? "Pokémon inconnu")</p>
+                    </div>
+                    <button @onclick="ProceedAfterFailure" class="next-button">
+                        @(isFinalPokemon ? "Terminer la partie" : "Passer au Pokémon suivant")
+                    </button>
+                </div>
+            </div>
+        }
+
 @code {
     [Parameter]
     public string PartieId { get; set; } = string.Empty;
@@ -290,6 +306,7 @@
     private bool isRequestingHint = false;
     private bool gameFinished = false;
     private bool showSuccessModal = false;
+    private bool showFailureModal = false;
     private bool isFinalPokemon = false;
     private string? errorMessage;
     private string? resultMessage;
@@ -648,9 +665,10 @@
                     
                     if (result.IsTurnFinished)
                     {
-                        await Task.Delay(2000);
-                        await LoadGameData();
-                        ResetGuessState();
+                        // Afficher le modal d'échec au lieu de passer automatiquement
+                        revealedPokemonSprite = currentPokemonSprite;
+                        isFinalPokemon = result.IsGameFinished;
+                        showFailureModal = true;
                     }
                 }
             }
@@ -673,8 +691,26 @@
 
         if (isFinalPokemon)
         {
-            gameFinished = true;
-            resultMessage = "Félicitations ! Vous avez terminé tous les Pokémon !";
+            NavigationManager.NavigateTo($"/resultats/{PartieId}");
+        }
+        else
+        {
+            await LoadGameData();
+            ResetGuessState();
+        }
+
+        lastGuessCorrect = false;
+        guessResultMessage = string.Empty;
+        isFinalPokemon = false;
+    }
+
+    private async Task ProceedAfterFailure()
+    {
+        showFailureModal = false;
+
+        if (isFinalPokemon)
+        {
+            NavigationManager.NavigateTo($"/resultats/{PartieId}");
         }
         else
         {
@@ -1230,6 +1266,22 @@
         text-align: center;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
         animation: fadeInScale 0.3s ease-out;
+    }
+
+    .failure-modal {
+        background: rgba(20, 20, 40, 0.95);
+        border: 2px solid #f44336;
+        border-radius: 12px;
+        padding: 2rem;
+        max-width: 420px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        animation: fadeInScale 0.3s ease-out;
+    }
+
+    .failure-modal h4 {
+        color: #f44336;
     }
 
     .revealed-sprite {

@@ -1,0 +1,801 @@
+@page "/resultats/{PartieId}"
+@using System.Net.Http.Json
+@implements IDisposable
+@inject HttpClient Http
+@inject Microsoft.Extensions.Logging.ILogger<Resultats> Logger
+@inject NavigationManager NavigationManager
+@inject Projet_FullStack_FrontEnd.Services.AuthService AuthService
+
+<RequireAuth>
+<div class="results-container">
+    @if (isLoading)
+    {
+        <div class="loading">
+            <p>Chargement des résultats...</p>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="error-message">
+            <p>❌ Erreur : @errorMessage</p>
+            <button @onclick="BackToMenu">Retour au menu</button>
+        </div>
+    }
+    else if (partie != null)
+    {
+        <div class="results-header">
+            <h1>🏆 Résultats de la Partie</h1>
+            <p class="session-code">Session : @partie.CodeSession</p>
+            @if (!gameFullyComplete)
+            {
+                <p class="waiting-message">⏳ En attente de la fin de partie du deuxième joueur...</p>
+            }
+        </div>
+
+        <!-- Scores et Vainqueur -->
+        <div class="scores-section">
+            <div class="player-score @(partie.ScoreJ1 > partie.ScoreJ2 ? "winner" : "")">
+                <div class="player-info">
+                    <h2>@player1Pseudo</h2>
+                    @if (partie.ScoreJ1 > partie.ScoreJ2)
+                    {
+                        <span class="winner-badge">👑 Vainqueur</span>
+                    }
+                </div>
+                <div class="score">@partie.ScoreJ1 pts</div>
+                <div class="stats">
+                    <span>✅ @partie.CompletedPokemonsJ1.Count(p => p.WasGuessed) devinés</span>
+                    <span>❌ @partie.CompletedPokemonsJ1.Count(p => !p.WasGuessed) ratés</span>
+                </div>
+            </div>
+
+            <div class="vs-divider">VS</div>
+
+            <div class="player-score @(partie.ScoreJ2 > partie.ScoreJ1 ? "winner" : "")">
+                <div class="player-info">
+                    <h2>@player2Pseudo</h2>
+                    @if (partie.ScoreJ2 > partie.ScoreJ1)
+                    {
+                        <span class="winner-badge">👑 Vainqueur</span>
+                    }
+                    @if (!gameFullyComplete && partie.CompletedPokemonsJ2.Count == 0)
+                    {
+                        <span class="loading-badge">⏳ En cours...</span>
+                    }
+                </div>
+                <div class="score">@partie.ScoreJ2 pts</div>
+                <div class="stats">
+                    <span>✅ @partie.CompletedPokemonsJ2.Count(p => p.WasGuessed) devinés</span>
+                    <span>❌ @partie.CompletedPokemonsJ2.Count(p => !p.WasGuessed) ratés</span>
+                </div>
+            </div>
+        </div>
+
+        @if (partie.ScoreJ1 == partie.ScoreJ2 && gameFullyComplete)
+        {
+            <div class="draw-message">
+                🤝 Match nul ! Les deux joueurs sont à égalité !
+            </div>
+        }
+
+        <!-- Détails des Pokémons -->
+        <div class="pokemons-details">
+            <h2>Détails des Pokémons</h2>
+            
+            <div class="pokemons-grid">
+                <!-- Colonne Joueur 1 -->
+                <div class="player-column">
+                    <h3>@player1Pseudo</h3>
+                    @if (partie.CompletedPokemonsJ1.Any())
+                    {
+                        @foreach (var pokemon in partie.CompletedPokemonsJ1)
+                        {
+                            <div class="pokemon-card @(pokemon.WasGuessed ? "guessed" : "failed")">
+                                <div class="pokemon-header">
+                                    <img src="@GetPokemonSprite(pokemon.PokemonId)" alt="@pokemon.PokemonName" class="pokemon-sprite" />
+                                    <div class="pokemon-info">
+                                        <h4>@pokemon.PokemonName</h4>
+                                        <span class="status-badge">
+                                            @(pokemon.WasGuessed ? "✅ Deviné" : "❌ Raté")
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="pokemon-stats">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Tentatives :</span>
+                                        <span class="stat-value">@pokemon.AttemptsUsed / 3</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Indices utilisés :</span>
+                                        <span class="stat-value">@pokemon.HintsUsed.Count</span>
+                                    </div>
+                                    @if (pokemon.HintsUsed.Any())
+                                    {
+                                        <div class="hints-used">
+                                            @foreach (var hint in pokemon.HintsUsed)
+                                            {
+                                                <span class="hint-tag">@hint</span>
+                                            }
+                                        </div>
+                                    }
+                                    <div class="stat-item points">
+                                        <span class="stat-label">Points :</span>
+                                        <span class="stat-value">@pokemon.PointsEarned pts</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="no-data">Aucun Pokémon complété</p>
+                    }
+                </div>
+
+                <!-- Colonne Joueur 2 -->
+                <div class="player-column">
+                    <h3>@player2Pseudo</h3>
+                    @if (partie.CompletedPokemonsJ2.Any())
+                    {
+                        @foreach (var pokemon in partie.CompletedPokemonsJ2)
+                        {
+                            <div class="pokemon-card @(pokemon.WasGuessed ? "guessed" : "failed")">
+                                <div class="pokemon-header">
+                                    <img src="@GetPokemonSprite(pokemon.PokemonId)" alt="@pokemon.PokemonName" class="pokemon-sprite" />
+                                    <div class="pokemon-info">
+                                        <h4>@pokemon.PokemonName</h4>
+                                        <span class="status-badge">
+                                            @(pokemon.WasGuessed ? "✅ Deviné" : "❌ Raté")
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="pokemon-stats">
+                                    <div class="stat-item">
+                                        <span class="stat-label">Tentatives :</span>
+                                        <span class="stat-value">@pokemon.AttemptsUsed / 3</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">Indices utilisés :</span>
+                                        <span class="stat-value">@pokemon.HintsUsed.Count</span>
+                                    </div>
+                                    @if (pokemon.HintsUsed.Any())
+                                    {
+                                        <div class="hints-used">
+                                            @foreach (var hint in pokemon.HintsUsed)
+                                            {
+                                                <span class="hint-tag">@hint</span>
+                                            }
+                                        </div>
+                                    }
+                                    <div class="stat-item points">
+                                        <span class="stat-label">Points :</span>
+                                        <span class="stat-value">@pokemon.PointsEarned pts</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else if (!gameFullyComplete)
+                    {
+                        <p class="loading-data">⏳ Résultats en cours de chargement...</p>
+                    }
+                    else
+                    {
+                        <p class="no-data">Aucun Pokémon complété</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions-section">
+            <button @onclick="NewGame" class="action-button primary" disabled="@(gameFullyComplete ? false : true)">
+                🎮 Nouvelle partie
+            </button>
+            <button @onclick="BackToMenu" class="action-button secondary">
+                🏠 Menu principal
+            </button>
+        </div>
+    }
+</div>
+</RequireAuth>
+
+@code {
+    [Parameter]
+    public string PartieId { get; set; } = string.Empty;
+
+    private bool isLoading = true;
+    private string? errorMessage;
+    private PartieDto? partie;
+    private string player1Pseudo = string.Empty;
+    private string player2Pseudo = string.Empty;
+    private Dictionary<string, string> pokemonSprites = new();
+    private bool gameFullyComplete = false;
+    private System.Threading.Timer? autoRefreshTimer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadResults();
+        StartAutoRefresh();
+    }
+
+    public void Dispose()
+    {
+        autoRefreshTimer?.Dispose();
+    }
+
+    private void StartAutoRefresh()
+    {
+        // Rafraîchir tous les 2 secondes si la partie n'est pas complètement terminée
+        autoRefreshTimer?.Dispose();
+        autoRefreshTimer = new System.Threading.Timer(async _ =>
+        {
+            await InvokeAsync(async () =>
+            {
+                if (!gameFullyComplete)
+                {
+                    await RefreshResults();
+                }
+            });
+        }, null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2));
+    }
+
+    private async Task RefreshResults()
+    {
+        try
+        {
+            var response = await Http.GetAsync($"api/partie/{PartieId}");
+            if (response.IsSuccessStatusCode)
+            {
+                var newPartie = await response.Content.ReadFromJsonAsync<PartieDto>();
+                if (newPartie != null)
+                {
+                    // Vérifier si les données ont changé
+                    if (newPartie.CompletedPokemonsJ2.Count != partie?.CompletedPokemonsJ2.Count)
+                    {
+                        partie = newPartie;
+                        await LoadPokemonSprites();
+                        StateHasChanged();
+
+                        Logger.LogInformation($"Résultats mise à jour: J1={partie.CompletedPokemonsJ1.Count}, J2={partie.CompletedPokemonsJ2.Count}");
+                    }
+
+                    // Vérifier si la partie est complètement terminée
+                    if (partie?.CompletedPokemonsJ1.Count > 0 && partie?.CompletedPokemonsJ2.Count > 0)
+                    {
+                        gameFullyComplete = true;
+                        StopAutoRefresh();
+                        StateHasChanged();
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors du rafraîchissement des résultats");
+        }
+    }
+
+    private void StopAutoRefresh()
+    {
+        autoRefreshTimer?.Dispose();
+        autoRefreshTimer = null;
+    }
+
+    private async Task LoadResults()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var response = await Http.GetAsync($"api/partie/{PartieId}");
+            response.EnsureSuccessStatusCode();
+            partie = await response.Content.ReadFromJsonAsync<PartieDto>();
+
+            if (partie == null)
+            {
+                errorMessage = "Impossible de charger les résultats de la partie";
+                return;
+            }
+
+            // Vérifier si les résultats des deux joueurs sont présents
+            gameFullyComplete = partie.CompletedPokemonsJ1.Count > 0 && partie.CompletedPokemonsJ2.Count > 0;
+
+            await LoadPlayersPseudos(partie.Dresseur1Id, partie.Dresseur2Id);
+            await LoadPokemonSprites();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors du chargement des résultats");
+            errorMessage = $"Erreur : {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadPlayersPseudos(string? dresseur1Id, string? dresseur2Id)
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(dresseur1Id))
+            {
+                var response1 = await Http.GetAsync($"api/dresseurs/{dresseur1Id}");
+                if (response1.IsSuccessStatusCode)
+                {
+                    var dresseur1 = await response1.Content.ReadFromJsonAsync<DresseurDto>();
+                    player1Pseudo = dresseur1?.Pseudo ?? "Joueur 1";
+                }
+                else
+                {
+                    player1Pseudo = "Joueur 1";
+                }
+            }
+
+            if (!string.IsNullOrEmpty(dresseur2Id))
+            {
+                var response2 = await Http.GetAsync($"api/dresseurs/{dresseur2Id}");
+                if (response2.IsSuccessStatusCode)
+                {
+                    var dresseur2 = await response2.Content.ReadFromJsonAsync<DresseurDto>();
+                    player2Pseudo = dresseur2?.Pseudo ?? "Joueur 2";
+                }
+                else
+                {
+                    player2Pseudo = "Joueur 2";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors du chargement des pseudos");
+            player1Pseudo = "Joueur 1";
+            player2Pseudo = "Joueur 2";
+        }
+    }
+
+    private async Task LoadPokemonSprites()
+    {
+        if (partie == null) return;
+
+        var allCompletedPokemons = partie.CompletedPokemonsJ1.Concat(partie.CompletedPokemonsJ2).ToList();
+
+        foreach (var pokemon in allCompletedPokemons)
+        {
+            if (!pokemonSprites.ContainsKey(pokemon.PokemonId))
+            {
+                try
+                {
+                    var response = await Http.GetAsync($"api/pokemon/{pokemon.PokemonId}/hints");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var hints = await response.Content.ReadFromJsonAsync<PokemonHintsDto>();
+                        if (hints?.Sprites?.FrontDefault != null)
+                        {
+                            pokemonSprites[pokemon.PokemonId] = hints.Sprites.FrontDefault;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, $"Erreur lors du chargement du sprite pour {pokemon.PokemonId}");
+                }
+            }
+        }
+    }
+
+    private string GetPokemonSprite(string pokemonId)
+    {
+        return pokemonSprites.TryGetValue(pokemonId, out var sprite) 
+            ? sprite 
+            : "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png";
+    }
+
+    private void NewGame()
+    {
+        NavigationManager.NavigateTo("/partie");
+    }
+
+    private void BackToMenu()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+    // DTOs
+    public class PartieDto
+    {
+        public string? Id { get; set; }
+        public string? CodeSession { get; set; }
+        public string? Statut { get; set; }
+        public string? Dresseur1Id { get; set; }
+        public string? Dresseur2Id { get; set; }
+        public int ScoreJ1 { get; set; }
+        public int ScoreJ2 { get; set; }
+        public List<CompletedPokemonDto> CompletedPokemonsJ1 { get; set; } = new();
+        public List<CompletedPokemonDto> CompletedPokemonsJ2 { get; set; } = new();
+    }
+
+    public class CompletedPokemonDto
+    {
+        public string PokemonId { get; set; } = string.Empty;
+        public string PokemonName { get; set; } = string.Empty;
+        public bool WasGuessed { get; set; }
+        public int AttemptsUsed { get; set; }
+        public List<string> HintsUsed { get; set; } = new();
+        public int PointsEarned { get; set; }
+    }
+
+    public class DresseurDto
+    {
+        public string? Id { get; set; }
+        public string? Pseudo { get; set; }
+    }
+
+    public class PokemonHintsDto
+    {
+        public SpritesDto? Sprites { get; set; }
+    }
+
+    public class SpritesDto
+    {
+        public string? FrontDefault { get; set; }
+    }
+}
+
+<style>
+    .results-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+        color: #fff;
+    }
+
+    .loading, .error-message {
+        text-align: center;
+        padding: 3rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+    }
+
+    .error-message p {
+        color: #ff6b6b;
+        margin-bottom: 1rem;
+    }
+
+    .results-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .results-header h1 {
+        font-size: 3rem;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(45deg, #ffd700, #ffed4e);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .session-code {
+        color: #888;
+        font-size: 1rem;
+    }
+
+    .waiting-message {
+        color: #ffa500;
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+        font-weight: 500;
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .loading-badge {
+        display: inline-block;
+        background: rgba(255, 165, 0, 0.2);
+        color: #ffa500;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        border: 1px solid #ffa500;
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .loading-data {
+        text-align: center;
+        color: #ffa500;
+        font-style: italic;
+        padding: 2rem;
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    /* Scores Section */
+    .scores-section {
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+        align-items: stretch;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .player-score {
+        flex: 1;
+        min-width: 300px;
+        max-width: 500px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s;
+    }
+
+    .player-score.winner {
+        border-color: #ffd700;
+        background: rgba(255, 215, 0, 0.1);
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    }
+
+    .player-info {
+        margin-bottom: 1rem;
+    }
+
+    .player-info h2 {
+        margin: 0 0 0.5rem 0;
+        color: #4ecdc4;
+        font-size: 1.8rem;
+    }
+
+    .winner-badge {
+        display: inline-block;
+        background: linear-gradient(45deg, #ffd700, #ffed4e);
+        color: #000;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 1rem;
+    }
+
+    .score {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #4ecdc4;
+        margin: 1rem 0;
+    }
+
+    .stats {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        color: #aaa;
+        font-size: 0.9rem;
+    }
+
+    .vs-divider {
+        display: flex;
+        align-items: center;
+        font-size: 2rem;
+        font-weight: bold;
+        color: #ffa500;
+    }
+
+    .draw-message {
+        text-align: center;
+        background: rgba(255, 165, 0, 0.2);
+        border: 2px solid #ffa500;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #ffa500;
+    }
+
+    /* Pokémons Details */
+    .pokemons-details {
+        margin-bottom: 3rem;
+    }
+
+    .pokemons-details > h2 {
+        text-align: center;
+        color: #4ecdc4;
+        margin-bottom: 2rem;
+        font-size: 2rem;
+    }
+
+    .pokemons-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    @@media (max-width: 1024px) {
+        .pokemons-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .player-column {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+
+    .player-column > h3 {
+        color: #4ecdc4;
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        font-size: 1.5rem;
+    }
+
+    .pokemon-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: transform 0.2s;
+    }
+
+    .pokemon-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .pokemon-card.guessed {
+        border-color: #4caf50;
+        background: rgba(76, 175, 80, 0.1);
+    }
+
+    .pokemon-card.failed {
+        border-color: #f44336;
+        background: rgba(244, 67, 54, 0.1);
+    }
+
+    .pokemon-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .pokemon-sprite {
+        width: 80px;
+        height: 80px;
+        image-rendering: pixelated;
+    }
+
+    .pokemon-info {
+        flex: 1;
+    }
+
+    .pokemon-info h4 {
+        margin: 0 0 0.5rem 0;
+        color: #fff;
+        font-size: 1.2rem;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: bold;
+    }
+
+    .pokemon-card.guessed .status-badge {
+        background: rgba(76, 175, 80, 0.3);
+        color: #4caf50;
+    }
+
+    .pokemon-card.failed .status-badge {
+        background: rgba(244, 67, 54, 0.3);
+        color: #f44336;
+    }
+
+    .pokemon-stats {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .stat-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .stat-label {
+        color: #aaa;
+        font-size: 0.9rem;
+    }
+
+    .stat-value {
+        color: #fff;
+        font-weight: bold;
+    }
+
+    .stat-item.points {
+        margin-top: 0.5rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stat-item.points .stat-value {
+        color: #4ecdc4;
+        font-size: 1.1rem;
+    }
+
+    .hints-used {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .hint-tag {
+        background: rgba(78, 205, 196, 0.2);
+        color: #4ecdc4;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        border: 1px solid rgba(78, 205, 196, 0.3);
+    }
+
+    .no-data {
+        text-align: center;
+        color: #888;
+        font-style: italic;
+        padding: 2rem;
+    }
+
+    /* Actions */
+    .actions-section {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .action-button {
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .action-button:hover {
+        transform: translateY(-2px);
+    }
+
+    .action-button.primary {
+        background: linear-gradient(45deg, #4ecdc4, #44a3d5);
+        color: #fff;
+    }
+
+    .action-button.secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    button {
+        font-family: inherit;
+    }
+
+    @@keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.6;
+        }
+    }
+</style>

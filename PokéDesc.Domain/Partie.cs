@@ -47,4 +47,18 @@ public class Partie
     // État du tour actuel (Joueur 2)
     public int AttemptsUsedJ2 { get; set; } = 0;
     public List<string> UsedHintsJ2 { get; set; } = new List<string>();
+
+    // Historique des Pokémons complétés
+    public List<CompletedPokemon> CompletedPokemonsJ1 { get; set; } = new List<CompletedPokemon>();
+    public List<CompletedPokemon> CompletedPokemonsJ2 { get; set; } = new List<CompletedPokemon>();
+}
+
+public class CompletedPokemon
+{
+    public string PokemonId { get; set; } = string.Empty;
+    public string PokemonName { get; set; } = string.Empty;
+    public bool WasGuessed { get; set; } // true si deviné, false si raté
+    public int AttemptsUsed { get; set; }
+    public List<string> HintsUsed { get; set; } = new List<string>();
+    public int PointsEarned { get; set; }
 }

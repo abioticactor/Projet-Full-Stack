@@ -178,6 +178,9 @@ public class PartieService : IPartieService
             if (isJ1) partie.ScoreJ1 += points;
             else partie.ScoreJ2 += points;
 
+            // Enregistrer le Pokémon complété
+            RecordCompletedPokemon(partie, isJ1, targetPokemon, true, points);
+
             AdvanceToNextPokemon(partie, isJ1);
 
             return new GuessResult
@@ -201,6 +204,8 @@ public class PartieService : IPartieService
             if (attemptsUsed >= MaxAttempts)
             {
                 // Perdu pour ce Pokémon
+                RecordCompletedPokemon(partie, isJ1, targetPokemon, false, 0);
+                
                 AdvanceToNextPokemon(partie, isJ1);
                 
                 return new GuessResult
@@ -242,6 +247,24 @@ public class PartieService : IPartieService
             partie.AttemptsUsedJ2 = 0;
             partie.UsedHintsJ2.Clear();
         }
+    }
+
+    private void RecordCompletedPokemon(Partie partie, bool isJ1, Pokemon pokemon, bool wasGuessed, int pointsEarned)
+    {
+        var completedPokemon = new CompletedPokemon
+        {
+            PokemonId = pokemon.Id,
+            PokemonName = pokemon.NameFr,
+            WasGuessed = wasGuessed,
+            AttemptsUsed = isJ1 ? partie.AttemptsUsedJ1 : partie.AttemptsUsedJ2,
+            HintsUsed = new List<string>(isJ1 ? partie.UsedHintsJ1 : partie.UsedHintsJ2),
+            PointsEarned = pointsEarned
+        };
+
+        if (isJ1)
+            partie.CompletedPokemonsJ1.Add(completedPokemon);
+        else
+            partie.CompletedPokemonsJ2.Add(completedPokemon);
     }
 
     private int CalculateScore(List<string> usedHints)
