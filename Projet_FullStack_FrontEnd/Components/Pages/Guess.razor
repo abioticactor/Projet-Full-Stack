@@ -29,7 +29,6 @@
             <span class="finish-icon">🎉</span>
             <h2>Partie terminée !</h2>
             <p><strong>Score final :</strong> @currentScore points</p>
-            <p>@resultMessage</p>
             <button class="btn-primary" @onclick="BackToMenu">Nouvelle partie</button>
         </div>
     }
@@ -39,7 +38,14 @@
             <h1>Devinez le Pokémon !</h1>
             <div class="session-info">
                 <span class="session-code"><span class="info-icon">🎯</span> Code : @sessionCode</span>
-                <span class="players"><span class="info-icon">👥</span> @player1Pseudo VS @player2Pseudo</span>
+                @if (partie?.ModeSolo != true)
+                {
+                    <span class="players"><span class="info-icon">👥</span> @player1Pseudo VS @player2Pseudo</span>
+                }
+                else
+                {
+                    <span class="players"><span class="info-icon">👤</span> Mode Solo - @player1Pseudo</span>
+                }
             </div>
             <div class="game-stats">
                 <span class="score"><span class="stat-icon">⭐</span> Score : @currentScore</span>
@@ -315,7 +321,6 @@
     private bool showFailureModal = false;
     private bool isFinalPokemon = false;
     private string? errorMessage;
-    private string? resultMessage;
 
     // Données du jeu
     private string censoredDescription = string.Empty;
@@ -327,6 +332,7 @@
     private Dictionary<string, string> revealedHints = new();
     
     // Informations de session
+    private PartieDto? partie;
     private string sessionCode = string.Empty;
     private string player1Pseudo = string.Empty;
     private string player2Pseudo = string.Empty;
@@ -367,7 +373,7 @@
         {
             var partieResponse = await Http.GetAsync($"api/partie/{PartieId}");
             partieResponse.EnsureSuccessStatusCode();
-            var partie = await partieResponse.Content.ReadFromJsonAsync<PartieDto>();
+            partie = await partieResponse.Content.ReadFromJsonAsync<PartieDto>();
 
             if (partie == null)
             {
@@ -472,8 +478,8 @@
                 // Le joueur connecté est le joueur 1
                 player1Pseudo = currentUserPseudo;
                 
-                // Charger le pseudo du joueur 2 via l'API
-                if (!string.IsNullOrEmpty(dresseur2Id))
+                // Charger le pseudo du joueur 2 via l'API (sauf en mode solo)
+                if (!string.IsNullOrEmpty(dresseur2Id) && partie?.ModeSolo != true)
                 {
                     var response2 = await Http.GetAsync($"api/dresseurs/{dresseur2Id}");
                     if (response2.IsSuccessStatusCode)
@@ -488,7 +494,7 @@
                 }
                 else
                 {
-                    player2Pseudo = "N/A";
+                    player2Pseudo = partie?.ModeSolo == true ? "Mode Solo" : "N/A";
                 }
             }
             else
@@ -805,6 +811,7 @@
         public string? Statut { get; set; }
         public string? Dresseur1Id { get; set; }
         public string? Dresseur2Id { get; set; }
+        public bool ModeSolo { get; set; } = false;
         public List<PokemonSimpleDto>? PokemonsToGuessJ1 { get; set; }
         public List<PokemonSimpleDto>? PokemonsToGuessJ2 { get; set; }
         public int CurrentIndexJ1 { get; set; }

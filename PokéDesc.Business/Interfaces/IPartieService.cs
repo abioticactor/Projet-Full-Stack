@@ -14,7 +14,7 @@ public interface IPartieService
     /// <summary>
     /// Lance la partie avec le mode de jeu choisi.
     /// </summary>
-    Task<Partie> StartGameAsync(string partieId, string mode);
+    Task<Partie> StartGameAsync(string partieId, string mode, bool isSolo = false);
 
     /// <summary>
     /// Permet à un deuxième joueur de rejoindre une partie existante via son code.

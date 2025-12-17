@@ -53,9 +53,12 @@ public class PartieService : IPartieService
         return await Task.FromResult(partie);
     }
 
-    public async Task<Partie> StartGameAsync(string partieId, string mode)
+    public async Task<Partie> StartGameAsync(string partieId, string mode, bool isSolo = false)
     {
         var partie = await GetGameAsync(partieId);
+
+        // Marquer le mode solo dans la partie
+        partie.ModeSolo = isSolo;
 
         if (mode == "Standard")
         {
@@ -75,6 +78,7 @@ public class PartieService : IPartieService
             }
             
             // Génération des Pokémons pour chaque joueur selon les tirages
+            // En mode solo, on génère quand même pour J1 et J2 mais on n'utilise que J1
             partie.PokemonsToGuessJ1 = SelectPokemonsBasedOnDraws(rarityDraws, basePokemons, legendaryMythicalPokemons, random);
             partie.PokemonsToGuessJ2 = SelectPokemonsBasedOnDraws(rarityDraws, basePokemons, legendaryMythicalPokemons, random);
             partie.Statut = "EnCours";

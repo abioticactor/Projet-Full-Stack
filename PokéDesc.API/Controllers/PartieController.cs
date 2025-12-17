@@ -87,7 +87,7 @@ public class PartieController : ControllerBase
     {
         try
         {
-            var partie = await _partieService.StartGameAsync(partieId, request.Mode);
+            var partie = await _partieService.StartGameAsync(partieId, request.Mode, request.IsSolo);
             return Ok(partie);
         }
         catch (KeyNotFoundException ex)

@@ -107,6 +107,15 @@
                                 <p class="hint">Partagez le code <strong>@partie?.CodeSession</strong> avec votre ami</p>
                             </div>
                         </div>
+                        
+                        @* Bouton Solo visible uniquement si J2 n'est pas présent *@
+                        @if (string.IsNullOrEmpty(partie?.Dresseur2Id))
+                        {
+                            <button class="btn-success" @onclick="StartGameSolo" disabled="@isLoading">
+                                <span class="btn-icon">🎮</span> Jouer en solo
+                            </button>
+                        }
+                        
                         <button class="btn-secondary" @onclick="() => RefreshGameStatus()" disabled="@isLoading">
                             <span class="btn-icon">🔄</span> Rafraîchir
                         </button>
@@ -278,7 +287,7 @@
         errorMessage = null;
         try
         {
-            var request = new StartGameRequest { Mode = "Standard" };
+            var request = new StartGameRequest { Mode = "Standard", IsSolo = false };
             var response = await Http.PostAsJsonAsync(
                 $"api/partie/{currentPartieId}/start", 
                 request
@@ -296,6 +305,44 @@
         catch (Exception ex)
         {
             Logger.LogError(ex, "Erreur lors du démarrage");
+            errorMessage = $"Erreur: {ex.Message}";
+        }
+        finally { isLoading = false; }
+    }
+
+    // API: Démarrer la partie en mode solo
+    private async Task StartGameSolo()
+    {
+        if (string.IsNullOrEmpty(currentPartieId))
+        {
+            errorMessage = "Aucune partie sélectionnée";
+            return;
+        }
+
+        isLoading = true;
+        errorMessage = null;
+        try
+        {
+            var request = new StartGameRequest { Mode = "Standard", IsSolo = true };
+            var response = await Http.PostAsJsonAsync(
+                $"api/partie/{currentPartieId}/start", 
+                request
+            );
+            response.EnsureSuccessStatusCode();
+            partie = await response.Content.ReadFromJsonAsync<PartieDto>();
+            
+            Logger.LogInformation($"Partie solo démarrée, statut: {partie?.Statut}");
+            
+            successMessage = "Lancement de la partie solo...";
+            StateHasChanged();
+            
+            // Redirection immédiate vers la page de jeu
+            await Task.Delay(500);
+            NavigationManager.NavigateTo($"/guess/{currentPartieId}/{player1Pseudo}");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors du démarrage solo");
             errorMessage = $"Erreur: {ex.Message}";
         }
         finally { isLoading = false; }
@@ -461,7 +508,11 @@
         public string CodeSession { get; set; } = string.Empty;
         public string DresseurId { get; set; } = string.Empty;
     }
-    private class StartGameRequest { public string Mode { get; set; } = string.Empty; }
+    private class StartGameRequest 
+    { 
+        public string Mode { get; set; } = string.Empty; 
+        public bool IsSolo { get; set; } = false;
+    }
     
     private class PartieDto
     {
@@ -470,6 +521,7 @@
         public string? Statut { get; set; }  // Correspond à "Statut" dans le backend
         public string? Dresseur1Id { get; set; }
         public string? Dresseur2Id { get; set; }
+        public bool ModeSolo { get; set; } = false;
     }
 
     private class DresseurDto

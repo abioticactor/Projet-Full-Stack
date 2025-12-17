@@ -26,7 +26,7 @@
         <div class="results-header">
             <h1>🏆 Résultats de la Partie</h1>
             <p class="session-code">Session : @partie.CodeSession</p>
-            @if (!gameFullyComplete)
+            @if (!gameFullyComplete && partie.ModeSolo != true)
             {
                 <p class="waiting-message">⏳ En attente de la fin de partie du deuxième joueur...</p>
             }
@@ -34,10 +34,10 @@
 
         <!-- Scores et Vainqueur -->
         <div class="scores-section">
-            <div class="player-score @(partie.ScoreJ1 > partie.ScoreJ2 ? "winner" : "")">
+            <div class="player-score @(partie.ModeSolo != true && partie.ScoreJ1 > partie.ScoreJ2 ? "winner" : "")">
                 <div class="player-info">
                     <h2>@player1Pseudo</h2>
-                    @if (partie.ScoreJ1 > partie.ScoreJ2)
+                    @if (partie.ModeSolo != true && partie.ScoreJ1 > partie.ScoreJ2)
                     {
                         <span class="winner-badge">👑 Vainqueur</span>
                     }
@@ -49,29 +49,32 @@
                 </div>
             </div>
 
-            <div class="vs-divider">VS</div>
+            @if (partie.ModeSolo != true)
+            {
+                <div class="vs-divider">VS</div>
 
-            <div class="player-score @(partie.ScoreJ2 > partie.ScoreJ1 ? "winner" : "")">
-                <div class="player-info">
-                    <h2>@player2Pseudo</h2>
-                    @if (partie.ScoreJ2 > partie.ScoreJ1)
-                    {
-                        <span class="winner-badge">👑 Vainqueur</span>
-                    }
-                    @if (!gameFullyComplete && partie.CompletedPokemonsJ2.Count == 0)
-                    {
-                        <span class="loading-badge">⏳ En cours...</span>
-                    }
+                <div class="player-score @(partie.ScoreJ2 > partie.ScoreJ1 ? "winner" : "")">
+                    <div class="player-info">
+                        <h2>@player2Pseudo</h2>
+                        @if (partie.ScoreJ2 > partie.ScoreJ1)
+                        {
+                            <span class="winner-badge">👑 Vainqueur</span>
+                        }
+                        @if (!gameFullyComplete && partie.CompletedPokemonsJ2.Count == 0)
+                        {
+                            <span class="loading-badge">⏳ En cours...</span>
+                        }
+                    </div>
+                    <div class="score">@partie.ScoreJ2 pts</div>
+                    <div class="stats">
+                        <span>✅ @partie.CompletedPokemonsJ2.Count(p => p.WasGuessed) devinés</span>
+                        <span>❌ @partie.CompletedPokemonsJ2.Count(p => !p.WasGuessed) ratés</span>
+                    </div>
                 </div>
-                <div class="score">@partie.ScoreJ2 pts</div>
-                <div class="stats">
-                    <span>✅ @partie.CompletedPokemonsJ2.Count(p => p.WasGuessed) devinés</span>
-                    <span>❌ @partie.CompletedPokemonsJ2.Count(p => !p.WasGuessed) ratés</span>
-                </div>
-            </div>
+            }
         </div>
 
-        @if (partie.ScoreJ1 == partie.ScoreJ2 && gameFullyComplete)
+        @if (partie.ScoreJ1 == partie.ScoreJ2 && gameFullyComplete && partie.ModeSolo != true)
         {
             <div class="draw-message">
                 🤝 Match nul ! Les deux joueurs sont à égalité !
@@ -132,58 +135,61 @@
                     }
                 </div>
 
-                <!-- Colonne Joueur 2 -->
-                <div class="player-column">
-                    <h3>@player2Pseudo</h3>
-                    @if (partie.CompletedPokemonsJ2.Any())
-                    {
-                        @foreach (var pokemon in partie.CompletedPokemonsJ2)
+                <!-- Colonne Joueur 2 (masquée en mode solo) -->
+                @if (partie.ModeSolo != true)
+                {
+                    <div class="player-column">
+                        <h3>@player2Pseudo</h3>
+                        @if (partie.CompletedPokemonsJ2.Any())
                         {
-                            <div class="pokemon-card @(pokemon.WasGuessed ? "guessed" : "failed")">
-                                <div class="pokemon-header">
-                                    <img src="@GetPokemonSprite(pokemon.PokemonId)" alt="@pokemon.PokemonName" class="pokemon-sprite" />
-                                    <div class="pokemon-info">
-                                        <h4>@pokemon.PokemonName</h4>
-                                        <span class="status-badge">
-                                            @(pokemon.WasGuessed ? "✅ Deviné" : "❌ Raté")
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="pokemon-stats">
-                                    <div class="stat-item">
-                                        <span class="stat-label">Tentatives :</span>
-                                        <span class="stat-value">@pokemon.AttemptsUsed / 3</span>
-                                    </div>
-                                    <div class="stat-item">
-                                        <span class="stat-label">Indices utilisés :</span>
-                                        <span class="stat-value">@pokemon.HintsUsed.Count</span>
-                                    </div>
-                                    @if (pokemon.HintsUsed.Any())
-                                    {
-                                        <div class="hints-used">
-                                            @foreach (var hint in pokemon.HintsUsed)
-                                            {
-                                                <span class="hint-tag">@hint</span>
-                                            }
+                            @foreach (var pokemon in partie.CompletedPokemonsJ2)
+                            {
+                                <div class="pokemon-card @(pokemon.WasGuessed ? "guessed" : "failed")">
+                                    <div class="pokemon-header">
+                                        <img src="@GetPokemonSprite(pokemon.PokemonId)" alt="@pokemon.PokemonName" class="pokemon-sprite" />
+                                        <div class="pokemon-info">
+                                            <h4>@pokemon.PokemonName</h4>
+                                            <span class="status-badge">
+                                                @(pokemon.WasGuessed ? "✅ Deviné" : "❌ Raté")
+                                            </span>
                                         </div>
-                                    }
-                                    <div class="stat-item points">
-                                        <span class="stat-label">Points :</span>
-                                        <span class="stat-value">@pokemon.PointsEarned pts</span>
+                                    </div>
+                                    <div class="pokemon-stats">
+                                        <div class="stat-item">
+                                            <span class="stat-label">Tentatives :</span>
+                                            <span class="stat-value">@pokemon.AttemptsUsed / 3</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Indices utilisés :</span>
+                                            <span class="stat-value">@pokemon.HintsUsed.Count</span>
+                                        </div>
+                                        @if (pokemon.HintsUsed.Any())
+                                        {
+                                            <div class="hints-used">
+                                                @foreach (var hint in pokemon.HintsUsed)
+                                                {
+                                                    <span class="hint-tag">@hint</span>
+                                                }
+                                            </div>
+                                        }
+                                        <div class="stat-item points">
+                                            <span class="stat-label">Points :</span>
+                                            <span class="stat-value">@pokemon.PointsEarned pts</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            }
                         }
-                    }
-                    else if (!gameFullyComplete)
-                    {
-                        <p class="loading-data">⏳ Résultats en cours de chargement...</p>
-                    }
-                    else
-                    {
-                        <p class="no-data">Aucun Pokémon complété</p>
-                    }
-                </div>
+                        else if (!gameFullyComplete)
+                        {
+                            <p class="loading-data">⏳ Résultats en cours de chargement...</p>
+                        }
+                        else
+                        {
+                            <p class="no-data">Aucun Pokémon complété</p>
+                        }
+                    </div>
+                }
             </div>
         </div>
 
@@ -411,6 +417,7 @@
         public string? Statut { get; set; }
         public string? Dresseur1Id { get; set; }
         public string? Dresseur2Id { get; set; }
+        public bool ModeSolo { get; set; } = false;
         public int ScoreJ1 { get; set; }
         public int ScoreJ2 { get; set; }
         public List<CompletedPokemonDto> CompletedPokemonsJ1 { get; set; } = new();

@@ -24,6 +24,9 @@ public class Partie
     // Statut : "EnAttente", "EnCours", "Termine"
     public string Statut { get; set; } = "EnAttente";
 
+    // Mode de jeu : true si solo (1 joueur), false si multijoueur (2 joueurs)
+    public bool ModeSolo { get; set; } = false;
+
     // --- Logique du Jeu ---
 
     // La liste des 6 Pokémon à deviner pour le Joueur 1
