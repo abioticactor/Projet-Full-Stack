@@ -20,6 +20,13 @@ public class PokemonService : IPokemonService
         return await _repository.GetAllAsync();
     }
 
+    public async Task<(List<Pokemon> items, int totalCount, int totalPages)> GetPokemonsPaginatedAsync(int page, int pageSize)
+    {
+        var (items, totalCount) = await _repository.GetPaginatedAsync(page, pageSize);
+        var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+        return (items, totalCount, totalPages);
+    }
+
     public async Task<Pokemon> GetPokemonByIdAsync(string id)
     {
         Pokemon? pokemon = null;

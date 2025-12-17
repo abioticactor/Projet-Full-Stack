@@ -1,9 +1,12 @@
 @page "/pokedex"
 @using System.Net.Http.Json
 @using System.Text.Json.Serialization
+@using Microsoft.JSInterop
 @inject HttpClient Http
 @inject Microsoft.Extensions.Logging.ILogger<Projet_FullStack_FrontEnd.Components.Pages.Pokedex> Logger
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@implements IDisposable
 
 <RequireAuth>
 <div class="hero-content">
@@ -17,15 +20,14 @@
     {
         <p class="text-danger">Erreur : @errorMessage</p>
     }
-    else if (pokemons is null || pokemons.Length == 0)
+    else if (pokemons is null || pokemons.Count == 0)
     {
         <p><em>Aucun pokémon disponible.</em></p>
     }
     else
     {
         <div class="pokedex-grid">
-            @{ var list = pokemons ?? Array.Empty<Pokemon>(); }
-            @foreach (var pokemon in list)
+            @foreach (var pokemon in pokemons)
             {
                 <div class="pokemon-card" @onclick="() => ShowDetails(pokemon?.numericId)" role="button" tabindex="0">
                     <div class="sprite-wrap">
@@ -46,40 +48,92 @@
                 </div>
             }
         </div>
+        
+        @if (isLoadingMore)
+        {
+            <div class="loading-more">
+                <p><em>Chargement de plus de pokémons…</em></p>
+            </div>
+        }
+        
+        @if (!hasMoreData && pokemons.Count > 0)
+        {
+            <div class="end-message">
+                <p>Tous les pokémons ont été chargés !</p>
+            </div>
+        }
     }
 </div>
 
 @code {
-    private Pokemon[]? pokemons;
+    private List<Pokemon> pokemons = new();
     private bool isLoading = true;
+    private bool isLoadingMore = false;
     private string? errorMessage;
+    private int currentPage = 1;
+    private int pageSize = 20;
+    private int totalPages = 0;
+    private bool hasMoreData = true;
+    private ElementReference scrollContainer;
 
     protected override async Task OnInitializedAsync()
     {
-        isLoading = true;
+        await LoadPokemons();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("initInfiniteScroll", DotNetObjectReference.Create(this));
+        }
+    }
+
+    private async Task LoadPokemons()
+    {
+        if (isLoadingMore || !hasMoreData) return;
+
+        if (currentPage == 1)
+            isLoading = true;
+        else
+            isLoadingMore = true;
+
         errorMessage = null;
         try
         {
-            pokemons = await Http.GetFromJsonAsync<Pokemon[]>("api/pokemon");
-            if (pokemons == null || pokemons.Length == 0)
+            var response = await Http.GetFromJsonAsync<PaginatedResponse>($"api/pokemon?page={currentPage}&pageSize={pageSize}");
+            
+            if (response == null || response.items == null)
             {
                 errorMessage = "Aucune donnée reçue du serveur.";
+                hasMoreData = false;
             }
             else
             {
-                // Trier les pokémons par ID numérique
-                pokemons = pokemons.OrderBy(p => p.numericId).ToArray();
+                pokemons.AddRange(response.items);
+                totalPages = response.totalPages;
+                hasMoreData = currentPage < totalPages;
+                currentPage++;
             }
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Erreur lors de la récupération des pokémons");
             errorMessage = ex.Message;
+            hasMoreData = false;
         }
         finally
         {
             isLoading = false;
+            isLoadingMore = false;
         }
+    }
+
+    [JSInvokable]
+    public async Task LoadMorePokemons()
+    {
+        await LoadPokemons();
+        StateHasChanged();
     }
 
     void ShowDetails(int? id)
@@ -98,6 +152,15 @@
         public Sprites? sprites { get; set; }
         public TypeEntry[]? types { get; set; }
         public string? description { get; set; }
+    }
+
+    private class PaginatedResponse
+    {
+        public List<Pokemon>? items { get; set; }
+        public int page { get; set; }
+        public int pageSize { get; set; }
+        public int totalCount { get; set; }
+        public int totalPages { get; set; }
     }
 
     private class Sprites
@@ -125,6 +188,11 @@
 
         public int slot { get; set; }
     }
+
+    public void Dispose()
+    {
+        // Nettoyage si nécessaire
+    }
 }
 
 <style>
@@ -145,6 +213,9 @@
 
 .types { display:flex; gap:0.5rem; justify-content:center; margin-top:0.5rem; flex-wrap:wrap; }
 .type { padding:0.25rem 0.65rem; border-radius:999px; font-size:0.85rem; color:white; box-shadow: inset 0 -2px rgba(0,0,0,0.12); }
+
+.loading-more, .end-message { text-align: center; padding: 2rem 1rem; color: #fff; font-size: 1.1rem; }
+.end-message { color: #4CAF50; font-weight: 500; }
 
 /* Types colors (kept from previous file) */
 .normal { background-color: #A8A878; }

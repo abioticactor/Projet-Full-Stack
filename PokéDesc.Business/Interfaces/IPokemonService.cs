@@ -6,6 +6,7 @@ namespace PokéDesc.Business.Interfaces;
 public interface IPokemonService
 {
     Task<List<Pokemon>> GetAllPokemonsAsync();
+    Task<(List<Pokemon> items, int totalCount, int totalPages)> GetPokemonsPaginatedAsync(int page, int pageSize);
     Task<Pokemon> GetPokemonByIdAsync(string id);
     Task<Pokemon> GetPokemonByPokedexNumberAsync(int pokedexNumber);
     Task<List<Pokemon>> GetPokemonsByTypeAsync(string typeName);
