@@ -8,9 +8,10 @@ namespace PokéDesc.Business.Services;
 public class PartieService : IPartieService
 {
     private readonly IPokemonService _pokemonService;
+    private readonly DresseurService _dresseurService;
     // TODO: Injecter un Repository pour sauvegarder la Partie (ex: IPartieRepository)
     // Pour l'instant, on va simuler le stockage en mémoire ou supposer qu'il existe.
-    private static readonly List<Partie> _fakeGameStore = new(); 
+    private static readonly List<Partie> _fakeGameStore = new();
 
     // Configuration des coûts des indices
     private static readonly Dictionary<string, int> HintCosts = new()
@@ -30,9 +31,10 @@ public class PartieService : IPartieService
     private const int BaseScore = 100;
     private const int PokemonsPerGame = 6;
 
-    public PartieService(IPokemonService pokemonService)
+    public PartieService(IPokemonService pokemonService, DresseurService dresseurService)
     {
         _pokemonService = pokemonService;
+        _dresseurService = dresseurService;
     }
 
     public async Task<Partie> CreateGameAsync(string dresseurId)
@@ -180,6 +182,9 @@ public class PartieService : IPartieService
 
             // Enregistrer le Pokémon complété
             RecordCompletedPokemon(partie, isJ1, targetPokemon, true, points);
+
+            // Capturer le Pokémon dans le Pokédex du joueur
+            await _dresseurService.CapturerPokemonAsync(dresseurId, targetPokemon.PokedexNumber);
 
             AdvanceToNextPokemon(partie, isJ1);
 

@@ -6,142 +6,232 @@
 @inject Microsoft.Extensions.Logging.ILogger<Projet_FullStack_FrontEnd.Components.Pages.Pokedex> Logger
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
+@inject Projet_FullStack_FrontEnd.Services.AuthService AuthService
 @implements IDisposable
 
 <RequireAuth>
 <div class="hero-content">
-    <div class="hero-title">Pokédex</div>
+    <div class="hero-title">Mon Pokédex</div>
 
     @if (isLoading)
     {
-        <p><em>Chargement des pokémons…</em></p>
+        <p><em>Chargement de votre Pokédex…</em></p>
     }
     else if (!string.IsNullOrEmpty(errorMessage))
     {
         <p class="text-danger">Erreur : @errorMessage</p>
     }
-    else if (pokemons is null || pokemons.Count == 0)
-    {
-        <p><em>Aucun pokémon disponible.</em></p>
-    }
     else
     {
+        <!-- Filtres -->
+        <div class="filters-container">
+            <div class="filter-group">
+                <label>
+                    <input type="checkbox" @bind="showCapturedOnly" @bind:after="ApplyFilters" />
+                    Pokémon capturés uniquement
+                </label>
+                <label>
+                    <input type="checkbox" @bind="showUncapturedOnly" @bind:after="ApplyFilters" />
+                    Pokémon non capturés uniquement
+                </label>
+            </div>
+            <div class="stats">
+                <span>Total capturés : @capturedCount / @totalPokemons</span>
+                <span>Progression : @((capturedCount * 100.0 / totalPokemons).ToString("F1"))%</span>
+            </div>
+        </div>
+
         <div class="pokedex-grid">
-            @foreach (var pokemon in pokemons)
+            @foreach (var entry in filteredEntries)
             {
-                <div class="pokemon-card" @onclick="() => ShowDetails(pokemon?.numericId)" role="button" tabindex="0">
+                <div class="pokemon-card @(entry.IsCaptured ? "captured" : "not-captured")" 
+                     @onclick="() => HandleCardClick(entry)"
+                     role="@(entry.IsCaptured ? "button" : "div")" 
+                     tabindex="@(entry.IsCaptured ? "0" : "-1")">
                     <div class="sprite-wrap">
-                        <img src="@(pokemon?.sprites?.frontDefault ?? string.Empty)" alt="@(pokemon?.nameFr ?? string.Empty)" />
+                        @if (entry.IsCaptured)
+                        {
+                            <img src="@entry.SpriteUrl" alt="@entry.Name" />
+                        }
+                        else
+                        {
+                            <div class="unknown-sprite">?</div>
+                        }
                     </div>
                     <div class="card-body">
-                        <h3 class="card-title">#@((pokemon?.numericId).GetValueOrDefault().ToString("D3")) - @(pokemon?.nameFr ?? "—")</h3>
-                        <div class="types">
-                            @foreach (var type in (pokemon?.types ?? Array.Empty<TypeEntry>()))
-                            {
-                                var display = type?.name ?? type?.nameFr ?? type?.name_fr ?? type?.nameEn ?? type?.name_en ?? string.Empty;
-                                var cssRaw = type?.nameEn ?? type?.name_en ?? type?.name ?? display ?? string.Empty;
-                                var css = (cssRaw ?? string.Empty).ToLowerInvariant().Replace(' ', '-').Replace('é','e').Replace('è','e');
-                                <span class="type @css">@display</span>
-                            }
-                        </div>
+                        <h3 class="card-title">
+                            #@(entry.PokedexNumber.ToString("D3")) - @(entry.IsCaptured ? entry.Name : "???")
+                        </h3>
+                        @if (entry.IsCaptured)
+                        {
+                            <div class="types">
+                                @foreach (var type in entry.Types)
+                                {
+                                    <span class="type @type.CssClass">@type.Display</span>
+                                }
+                            </div>
+                            <div class="level-badge">Niv. @entry.Level</div>
+                        }
+                        else
+                        {
+                            <div class="not-captured-text">Non découvert</div>
+                        }
                     </div>
                 </div>
             }
         </div>
-        
-        @if (isLoadingMore)
-        {
-            <div class="loading-more">
-                <p><em>Chargement de plus de pokémons…</em></p>
-            </div>
-        }
-        
-        @if (!hasMoreData && pokemons.Count > 0)
-        {
-            <div class="end-message">
-                <p>Tous les pokémons ont été chargés !</p>
-            </div>
-        }
     }
 </div>
 
 @code {
-    private List<Pokemon> pokemons = new();
+    private List<PokedexEntry> allEntries = new();
+    private List<PokedexEntry> filteredEntries = new();
     private bool isLoading = true;
-    private bool isLoadingMore = false;
     private string? errorMessage;
-    private int currentPage = 1;
-    private int pageSize = 20;
-    private int totalPages = 0;
-    private bool hasMoreData = true;
-    private ElementReference scrollContainer;
+    private bool showCapturedOnly = false;
+    private bool showUncapturedOnly = false;
+    private int capturedCount = 0;
+    private int totalPokemons = 0;
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadPokemons();
+        await LoadPokedex();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private async Task LoadPokedex()
     {
-        if (firstRender)
-        {
-            await JSRuntime.InvokeVoidAsync("initInfiniteScroll", DotNetObjectReference.Create(this));
-        }
-    }
-
-    private async Task LoadPokemons()
-    {
-        if (isLoadingMore || !hasMoreData) return;
-
-        if (currentPage == 1)
-            isLoading = true;
-        else
-            isLoadingMore = true;
-
+        isLoading = true;
         errorMessage = null;
+        
         try
         {
-            var response = await Http.GetFromJsonAsync<PaginatedResponse>($"api/pokemon?page={currentPage}&pageSize={pageSize}");
+            // 1. Récupérer le Pokédex personnel du joueur
+            var token = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
+            Http.DefaultRequestHeaders.Authorization = 
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
             
-            if (response == null || response.items == null)
+            var myPokedex = await Http.GetFromJsonAsync<List<PokemonCapture>>("api/dresseurs/pokedex");
+            
+            // 2. Récupérer tous les Pokémon (sans pagination, ou avec pagination complète)
+            var allPokemons = await LoadAllPokemons();
+            
+            // 3. Créer les entrées du Pokédex
+            allEntries = allPokemons.Select(pokemon =>
             {
-                errorMessage = "Aucune donnée reçue du serveur.";
-                hasMoreData = false;
-            }
-            else
-            {
-                pokemons.AddRange(response.items);
-                totalPages = response.totalPages;
-                hasMoreData = currentPage < totalPages;
-                currentPage++;
-            }
+                var capture = myPokedex?.FirstOrDefault(c => c.PokemonId == pokemon.numericId);
+                return new PokedexEntry
+                {
+                    PokedexNumber = pokemon.numericId ?? 0,
+                    Name = pokemon.nameFr ?? "???",
+                    SpriteUrl = pokemon.sprites?.frontDefault ?? "",
+                    IsCaptured = capture != null,
+                    Level = capture?.Niveau ?? 0,
+                    Types = pokemon.types?.Select(t => new TypeInfo
+                    {
+                        Display = t.name ?? t.nameFr ?? "",
+                        CssClass = (t.nameEn ?? t.name ?? "").ToLowerInvariant().Replace(' ', '-').Replace('é','e').Replace('è','e')
+                    }).ToList() ?? new List<TypeInfo>()
+                };
+            }).OrderBy(e => e.PokedexNumber).ToList();
+
+            totalPokemons = allEntries.Count;
+            capturedCount = allEntries.Count(e => e.IsCaptured);
+            
+            ApplyFilters();
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Erreur lors de la récupération des pokémons");
+            Logger.LogError(ex, "Erreur lors du chargement du Pokédex");
             errorMessage = ex.Message;
-            hasMoreData = false;
         }
         finally
         {
             isLoading = false;
-            isLoadingMore = false;
         }
     }
 
-    [JSInvokable]
-    public async Task LoadMorePokemons()
+    private async Task<List<Pokemon>> LoadAllPokemons()
     {
-        await LoadPokemons();
+        var allPokemons = new List<Pokemon>();
+        int page = 1;
+        int pageSize = 100;
+        bool hasMore = true;
+
+        while (hasMore)
+        {
+            var response = await Http.GetFromJsonAsync<PaginatedResponse>($"api/pokemon?page={page}&pageSize={pageSize}");
+            
+            if (response?.items != null && response.items.Count > 0)
+            {
+                allPokemons.AddRange(response.items);
+                hasMore = page < response.totalPages;
+                page++;
+            }
+            else
+            {
+                hasMore = false;
+            }
+        }
+
+        return allPokemons;
+    }
+
+    private void ApplyFilters()
+    {
+        filteredEntries = allEntries;
+
+        if (showCapturedOnly && !showUncapturedOnly)
+        {
+            filteredEntries = allEntries.Where(e => e.IsCaptured).ToList();
+        }
+        else if (showUncapturedOnly && !showCapturedOnly)
+        {
+            filteredEntries = allEntries.Where(e => !e.IsCaptured).ToList();
+        }
+        else if (showCapturedOnly && showUncapturedOnly)
+        {
+            // Les deux cochés = tout afficher (cas contradictoire, on montre tout)
+            filteredEntries = allEntries;
+        }
+
         StateHasChanged();
     }
 
-    void ShowDetails(int? id)
+    void ShowDetails(int id)
     {
-        if (id.HasValue)
+        NavigationManager.NavigateTo($"/pokemon/{id}");
+    }
+
+    void HandleCardClick(PokedexEntry entry)
+    {
+        if (entry.IsCaptured)
         {
-            NavigationManager.NavigateTo($"/pokemon/{id.Value}");
+            ShowDetails(entry.PokedexNumber);
         }
+    }
+
+    // Classes de modèles
+    private class PokedexEntry
+    {
+        public int PokedexNumber { get; set; }
+        public string Name { get; set; } = "";
+        public string SpriteUrl { get; set; } = "";
+        public bool IsCaptured { get; set; }
+        public int Level { get; set; }
+        public List<TypeInfo> Types { get; set; } = new();
+    }
+
+    private class TypeInfo
+    {
+        public string Display { get; set; } = "";
+        public string CssClass { get; set; } = "";
+    }
+
+    private class PokemonCapture
+    {
+        public int PokemonId { get; set; }
+        public int Niveau { get; set; }
+        public DateTime DateCapture { get; set; }
     }
 
     private class Pokemon
@@ -196,28 +286,156 @@
 }
 
 <style>
-/* Pokedex page styling inspired by Home */
-.hero-content { max-width: 1100px; margin: 0 auto; padding: 1.25rem; color: #fff; }
-.hero-title { font-size: 1.6rem; font-weight: 600; margin-bottom: 0.75rem; }
+/* Pokedex page styling */
+.hero-content { max-width: 1100px; margin: 0 auto; padding: 1.25rem; color: #0F172A; background: #F7F9FC; min-height: 100vh; }
+.hero-title { font-size: 1.8rem; font-weight: 700; margin-bottom: 1.5rem; color: #E53935; }
 
-.pokedex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; padding: 0.75rem; }
+/* Filtres */
+.filters-container { 
+    background: white; 
+    border-radius: 12px; 
+    padding: 1rem 1.5rem; 
+    margin-bottom: 1.5rem; 
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    border: 1px solid #D9E1EC;
+}
 
-.pokemon-card { background: rgba(255,255,255,0.03); border-radius: 16px; overflow: hidden; cursor: pointer; transition: transform 0.28s cubic-bezier(.2,.8,.2,1), box-shadow 0.28s; border: 1px solid rgba(255,255,255,0.04); box-shadow: 0 6px 14px rgba(0,0,0,0.18); display:flex; flex-direction:column; align-items:center; padding:1rem; }
-.pokemon-card:focus, .pokemon-card:hover { transform: translateY(-8px); box-shadow: 0 18px 36px rgba(0,0,0,0.26); }
+.filter-group { 
+    display: flex; 
+    gap: 1.5rem; 
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
 
-.sprite-wrap { width:120px; height:120px; display:flex; align-items:center; justify-content:center; border-radius: 999px; background: rgba(255,255,255,0.03); margin-bottom:0.6rem; }
-.sprite-wrap img { width:96px; height:96px; image-rendering: pixelated; }
+.filter-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #546E7A;
+}
 
-.card-body { text-align:center; width:100%; }
-.card-title { font-size:1.05rem; margin:0; color:#000000; }
+.filter-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
 
-.types { display:flex; gap:0.5rem; justify-content:center; margin-top:0.5rem; flex-wrap:wrap; }
-.type { padding:0.25rem 0.65rem; border-radius:999px; font-size:0.85rem; color:white; box-shadow: inset 0 -2px rgba(0,0,0,0.12); }
+.stats {
+    display: flex;
+    gap: 2rem;
+    font-size: 0.9rem;
+    color: #1E88E5;
+    font-weight: 600;
+}
 
-.loading-more, .end-message { text-align: center; padding: 2rem 1rem; color: #fff; font-size: 1.1rem; }
-.end-message { color: #4CAF50; font-weight: 500; }
+/* Grille */
+.pokedex-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+    gap: 1rem; 
+}
 
-/* Types colors (kept from previous file) */
+.pokemon-card { 
+    background: white;
+    border-radius: 12px; 
+    overflow: hidden; 
+    transition: transform 0.28s cubic-bezier(.2,.8,.2,1), box-shadow 0.28s; 
+    border: 1px solid #D9E1EC; 
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06); 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    padding: 1rem;
+}
+
+.pokemon-card.captured {
+    cursor: pointer;
+}
+
+.pokemon-card.captured:focus, 
+.pokemon-card.captured:hover { 
+    transform: translateY(-4px); 
+    box-shadow: 0 12px 24px rgba(229, 57, 53, 0.15);
+    border-color: #E53935;
+}
+
+.pokemon-card.not-captured {
+    opacity: 0.5;
+    filter: grayscale(100%);
+}
+
+.sprite-wrap { 
+    width: 120px; 
+    height: 120px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    border-radius: 999px; 
+    background: #F7F9FC;
+    margin-bottom: 0.6rem;
+}
+
+.sprite-wrap img { 
+    width: 96px; 
+    height: 96px; 
+    image-rendering: pixelated;
+}
+
+.unknown-sprite {
+    font-size: 4rem;
+    color: #D9E1EC;
+    font-weight: 700;
+}
+
+.card-body { 
+    text-align: center; 
+    width: 100%;
+}
+
+.card-title { 
+    font-size: 1.05rem; 
+    margin: 0 0 0.5rem 0; 
+    color: #0F172A;
+    font-weight: 600;
+}
+
+.types { 
+    display: flex; 
+    gap: 0.5rem; 
+    justify-content: center; 
+    margin-top: 0.5rem; 
+    flex-wrap: wrap;
+}
+
+.type { 
+    padding: 0.25rem 0.65rem; 
+    border-radius: 999px; 
+    font-size: 0.85rem; 
+    color: white; 
+    box-shadow: inset 0 -2px rgba(0,0,0,0.12);
+}
+
+.level-badge {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    background: #1E88E5;
+    color: white;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.not-captured-text {
+    color: #546E7A;
+    font-size: 0.9rem;
+    font-style: italic;
+    margin-top: 0.5rem;
+}
+
+/* Types colors */
 .normal { background-color: #A8A878; }
 .fire { background-color: #F08030; }
 .water { background-color: #6890F0; }
@@ -237,7 +455,14 @@
 .steel { background-color: #B8B8D0; color:#222; }
 .fairy { background-color: #EE99AC; color:#222; }
 
-@@media (max-width: 768px) { .pokedex-grid { grid-template-columns: repeat(2, 1fr); } }
-@@media (max-width: 420px) { .pokedex-grid { grid-template-columns: 1fr; } }
+@@media (max-width: 768px) { 
+    .pokedex-grid { grid-template-columns: repeat(2, 1fr); }
+    .filter-group { flex-direction: column; gap: 0.75rem; }
+    .stats { flex-direction: column; gap: 0.5rem; }
+}
+
+@@media (max-width: 420px) { 
+    .pokedex-grid { grid-template-columns: 1fr; }
+}
 </style>
 </RequireAuth>

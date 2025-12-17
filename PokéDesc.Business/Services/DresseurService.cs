@@ -123,32 +123,31 @@ public class DresseurService
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
-    public async Task CapturerPokemonAsync(string dresseurId, int pokemonId, int niveau)
+    public async Task CapturerPokemonAsync(string dresseurId, int pokemonId)
     {
         var dresseur = await _dresseurRepository.GetByIdAsync(dresseurId);
-        if (dresseur == null) throw new Exception("Dresseur introuvable.");
+        if (dresseur == null) throw new KeyNotFoundException("Dresseur introuvable.");
 
         // Vérifier si le dresseur a déjà ce Pokémon
         var captureExistante = dresseur.Pokedex.FirstOrDefault(p => p.PokemonId == pokemonId);
 
         if (captureExistante != null)
         {
-            // Si oui, on pourrait imaginer augmenter son niveau ou juste ne rien faire
-            // Pour l'instant, on ne fait rien s'il l'a déjà.
-            return;
+            // Le Pokémon existe déjà : on incrémente son niveau
+            captureExistante.Niveau++;
+            await _dresseurRepository.UpdatePokemonLevelAsync(dresseurId, pokemonId, captureExistante.Niveau);
         }
-
-        // Sinon, on crée la nouvelle capture
-        var nouvelleCapture = new PokemonCapture
+        else
         {
-            PokemonId = pokemonId,
-            Niveau = niveau
-        };
-
-        dresseur.Pokedex.Add(nouvelleCapture);
-        
-        // On sauvegarde le dresseur mis à jour
-        await _dresseurRepository.UpdateAsync(dresseur);
+            // Nouvelle capture : niveau 1
+            var nouvelleCapture = new PokemonCapture
+            {
+                PokemonId = pokemonId,
+                Niveau = 1,
+                DateCapture = DateTime.UtcNow
+            };
+            await _dresseurRepository.UpdatePokedexAsync(dresseurId, nouvelleCapture);
+        }
     }
 
     // Récupérer le Pokédex complet
