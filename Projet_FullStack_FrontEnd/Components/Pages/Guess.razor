@@ -54,73 +54,77 @@
         </div>
 
         <div class="game-content">
-            <!-- Description censurée -->
-            <div class="description-section">
-                <h2>Description du Pokédex</h2>
-                <div class="censored-description">
-                    @if (!string.IsNullOrEmpty(censoredDescription))
-                    {
-                        <p>@censoredDescription</p>
-                    }
-                    else
-                    {
-                        <p class="loading-text">Chargement de la description...</p>
-                    }
+            <!-- Colonne gauche : Description + Réponse -->
+            <div class="left-column">
+                <!-- Description censurée -->
+                <div class="description-section">
+                    <h2>Description du Pokédex</h2>
+                    <div class="censored-description">
+                        @if (!string.IsNullOrEmpty(censoredDescription))
+                        {
+                            <p>@censoredDescription</p>
+                        }
+                        else
+                        {
+                            <p class="loading-text">Chargement de la description...</p>
+                        }
+                    </div>
                 </div>
-            </div>
 
-            <!-- Section de devinette -->
-            <div class="guess-section">
-                <h3>Votre réponse</h3>
-                <div class="search-container">
-                    <input 
-                        type="text" 
-                        @bind="searchTerm" 
-                        @bind:event="oninput"
-                        @onfocus="ShowDropdown"
-                        placeholder="Rechercher un Pokémon..."
-                        class="input-field pokemon-search"
-                        disabled="@isSubmitting" />
+                <!-- Section de devinette -->
+                <div class="guess-section">
+                    <h3>Votre réponse</h3>
+                    <div class="search-container">
+                        <input 
+                            type="text" 
+                            @bind="searchTerm" 
+                            @bind:event="oninput"
+                            @onfocus="ShowDropdown"
+                            placeholder="Rechercher un Pokémon..."
+                            class="input-field pokemon-search"
+                            disabled="@isSubmitting" />
+                        
+                        @if (showDropdown && filteredPokemons.Any())
+                        {
+                            <div class="dropdown-list">
+                                @foreach (var pokemon in filteredPokemons.Take(10))
+                                {
+                                    <div class="dropdown-item" @onclick="@(() => SelectPokemon(pokemon))">
+                                        <span class="pokemon-number">#@pokemon.PokedexNumber</span>
+                                        <span class="pokemon-name">@pokemon.NameFr</span>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
                     
-                    @if (showDropdown && filteredPokemons.Any())
+                    @if (!string.IsNullOrEmpty(selectedPokemonName))
                     {
-                        <div class="dropdown-list">
-                            @foreach (var pokemon in filteredPokemons.Take(10))
-                            {
-                                <div class="dropdown-item" @onclick="@(() => SelectPokemon(pokemon))">
-                                    <span class="pokemon-number">#@pokemon.PokedexNumber</span>
-                                    <span class="pokemon-name">@pokemon.NameFr</span>
-                                </div>
-                            }
+                        <div class="selected-pokemon">
+                            <strong>Pokémon sélectionné :</strong> @selectedPokemonName
+                        </div>
+                    }
+
+                    <button 
+                        @onclick="SubmitGuess" 
+                        disabled="@(string.IsNullOrEmpty(selectedPokemonName) || isSubmitting)"
+                        class="btn-primary submit-button">
+                        <span class="btn-icon">✓</span> @(isSubmitting ? "Envoi..." : "Valider la réponse")
+                    </button>
+
+                    @if (!string.IsNullOrEmpty(guessResultMessage))
+                    {
+                        <div class="result-message @(lastGuessCorrect ? "correct" : "incorrect")">
+                            @guessResultMessage
                         </div>
                     }
                 </div>
-                
-                @if (!string.IsNullOrEmpty(selectedPokemonName))
-                {
-                    <div class="selected-pokemon">
-                        <strong>Pokémon sélectionné :</strong> @selectedPokemonName
-                    </div>
-                }
-
-                <button 
-                    @onclick="SubmitGuess" 
-                    disabled="@(string.IsNullOrEmpty(selectedPokemonName) || isSubmitting)"
-                    class="btn-primary submit-button">
-                    <span class="btn-icon">✓</span> @(isSubmitting ? "Envoi..." : "Valider la réponse")
-                </button>
-
-                @if (!string.IsNullOrEmpty(guessResultMessage))
-                {
-                    <div class="result-message @(lastGuessCorrect ? "correct" : "incorrect")">
-                        @guessResultMessage
-                    </div>
-                }
-
             </div>
 
-            <!-- Section des indices -->
-            <div class="hints-section">
+            <!-- Colonne droite : Indices -->
+            <div class="right-column">
+                <!-- Section des indices -->
+                <div class="hints-section">
                 <h3>Indices disponibles</h3>
                 <p class="hints-info">Chaque indice coûte des points !</p>
                 
@@ -233,37 +237,36 @@
                         }
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <!-- Affichage des indices révélés -->
-                <div class="revealed-hints-container">
-                    <h4>Indices disponibles : @revealedHints.Count</h4>
-                    
-                    @if (revealedHints.Any())
+        <!-- Indices révélés (pleine largeur en dessous) -->
+        <div class="revealed-hints-container">
+            @if (revealedHints.Any())
+            {
+                <div class="revealed-hints">
+                    <h4>Indices révélés :</h4>
+                    @foreach (var hint in revealedHints)
                     {
-                        <div class="revealed-hints">
-                            <h4>Indices révélés :</h4>
-                            @foreach (var hint in revealedHints)
+                        <div class="hint-item @(hint.Key == "Silhouette" ? "sprite-hint" : string.Empty)">
+                            <strong>@hint.Key :</strong>
+                            @if (hint.Key == "Silhouette")
                             {
-                                <div class="hint-item @(hint.Key == "Silhouette" ? "sprite-hint" : string.Empty)">
-                                    <strong>@hint.Key :</strong>
-                                    @if (hint.Key == "Silhouette")
-                                    {
-                                        <img src="@hint.Value" alt="Silhouette du Pokémon" class="silhouette-sprite" />
-                                    }
-                                    else
-                                    {
-                                        <span>@hint.Value</span>
-                                    }
-                                </div>
+                                <img src="@hint.Value" alt="Silhouette du Pokémon" class="silhouette-sprite" />
+                            }
+                            else
+                            {
+                                <span>@hint.Value</span>
                             }
                         </div>
                     }
-                    else if (usedHints.Any())
-                    {
-                        <p class="no-hints-message">Indices utilisés (@usedHints.Count) mais non chargés. Vérifiez la console.</p>
-                    }
                 </div>
-            </div>
+            }
+            else if (usedHints.Any())
+            {
+                <p class="no-hints-message">Indices utilisés (@usedHints.Count) mais non chargés. Vérifiez la console.</p>
+            }
         </div>
     }
 </div>
@@ -1049,7 +1052,20 @@
 
     .game-content {
         display: grid;
+        grid-template-columns: 1fr 1fr;
         gap: var(--space-lg);
+        margin-bottom: var(--space-lg);
+    }
+
+    .left-column {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-lg);
+    }
+
+    .right-column {
+        display: flex;
+        flex-direction: column;
     }
 
     .description-section,
@@ -1060,6 +1076,10 @@
         border-radius: var(--radius-md);
         border: 1px solid var(--color-border);
         box-shadow: var(--shadow-sm);
+    }
+
+    .hints-section {
+        height: 100%;
     }
 
     .description-section h2,
@@ -1305,6 +1325,11 @@
         box-shadow: var(--shadow-sm);
     }
 
+    .revealed-hints-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
     .revealed-hints-container h4 {
         color: var(--color-blue);
         margin-bottom: var(--space-md);
@@ -1464,6 +1489,25 @@
 
     button {
         font-family: inherit;
+    }
+
+    /* Responsive : mobile en 1 colonne */
+    @@media (max-width: 768px) {
+        .game-content {
+            grid-template-columns: 1fr;
+        }
+
+        .guess-container {
+            padding: var(--space-md);
+        }
+
+        .game-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .game-stats {
+            gap: 1rem;
+        }
     }
 </style>
 </RequireAuth>
