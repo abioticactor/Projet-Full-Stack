@@ -445,77 +445,104 @@
 }
 
 <style>
+    :root {
+        --color-red: #E53935;
+        --color-blue: #1E88E5;
+        --color-orange: #FF9800;
+        --color-green: #2E7D32;
+        --color-white: #FFFFFF;
+        --color-bg: #F7F9FC;
+        --color-text: #2C3E50;
+        --color-text-light: #7F8C8D;
+        --color-border: #E0E0E0;
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+        --radius-sm: 6px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --space-xs: 0.25rem;
+        --space-sm: 0.5rem;
+        --space-md: 1rem;
+        --space-lg: 1.5rem;
+        --space-xl: 2rem;
+    }
+
     .results-container {
         max-width: 1400px;
         margin: 0 auto;
-        padding: 2rem;
-        color: #fff;
+        padding: var(--space-xl);
+        color: var(--color-text);
     }
 
     .loading, .error-message {
         text-align: center;
-        padding: 3rem;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 12px;
+        padding: var(--space-xl) var(--space-lg);
+        background: var(--color-white);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        border: 2px solid var(--color-border);
     }
 
     .error-message p {
-        color: #ff6b6b;
-        margin-bottom: 1rem;
+        color: var(--color-red);
+        margin-bottom: var(--space-md);
     }
 
     .results-header {
         text-align: center;
-        margin-bottom: 3rem;
+        margin-bottom: var(--space-xl);
+        background: var(--color-white);
+        padding: var(--space-xl);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
     }
 
     .results-header h1 {
-        font-size: 3rem;
-        margin-bottom: 0.5rem;
-        background: linear-gradient(45deg, #ffd700, #ffed4e);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        font-size: 2.5rem;
+        margin-bottom: var(--space-sm);
+        color: var(--color-blue);
+        font-weight: 700;
     }
 
     .session-code {
-        color: #888;
+        color: var(--color-text-light);
         font-size: 1rem;
     }
 
     .waiting-message {
-        color: #ffa500;
+        color: var(--color-orange);
         font-size: 1.1rem;
-        margin-top: 0.5rem;
+        margin-top: var(--space-sm);
         font-weight: 500;
         animation: pulse 1.5s ease-in-out infinite;
     }
 
     .loading-badge {
         display: inline-block;
-        background: rgba(255, 165, 0, 0.2);
-        color: #ffa500;
-        padding: 0.25rem 0.75rem;
+        background: rgba(255, 152, 0, 0.1);
+        color: var(--color-orange);
+        padding: var(--space-xs) var(--space-md);
         border-radius: 20px;
         font-size: 0.85rem;
-        border: 1px solid #ffa500;
+        border: 1px solid var(--color-orange);
         animation: pulse 1.5s ease-in-out infinite;
     }
 
     .loading-data {
         text-align: center;
-        color: #ffa500;
+        color: var(--color-orange);
         font-style: italic;
-        padding: 2rem;
+        padding: var(--space-xl);
         animation: pulse 1.5s ease-in-out infinite;
     }
 
     /* Scores Section */
     .scores-section {
         display: flex;
-        gap: 2rem;
+        gap: var(--space-xl);
         justify-content: center;
         align-items: stretch;
-        margin-bottom: 2rem;
+        margin-bottom: var(--space-xl);
         flex-wrap: wrap;
     }
 
@@ -523,53 +550,56 @@
         flex: 1;
         min-width: 300px;
         max-width: 500px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 2px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        padding: 2rem;
+        background: var(--color-white);
+        border: 2px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        padding: var(--space-xl);
         text-align: center;
         transition: all 0.3s;
+        box-shadow: var(--shadow-sm);
     }
 
     .player-score.winner {
-        border-color: #ffd700;
-        background: rgba(255, 215, 0, 0.1);
-        box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        border-color: #FFD700;
+        background: linear-gradient(to bottom, #FFF9E6, var(--color-white));
+        box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
     }
 
     .player-info {
-        margin-bottom: 1rem;
+        margin-bottom: var(--space-md);
     }
 
     .player-info h2 {
-        margin: 0 0 0.5rem 0;
-        color: #4ecdc4;
+        margin: 0 0 var(--space-sm) 0;
+        color: var(--color-blue);
         font-size: 1.8rem;
+        font-weight: 600;
     }
 
     .winner-badge {
         display: inline-block;
-        background: linear-gradient(45deg, #ffd700, #ffed4e);
+        background: linear-gradient(135deg, #FFD700, #FFC107);
         color: #000;
-        padding: 0.5rem 1rem;
+        padding: var(--space-sm) var(--space-md);
         border-radius: 20px;
-        font-weight: bold;
-        font-size: 1rem;
+        font-weight: 700;
+        font-size: 0.9rem;
+        box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
     }
 
     .score {
         font-size: 3rem;
-        font-weight: bold;
-        color: #4ecdc4;
-        margin: 1rem 0;
+        font-weight: 700;
+        color: var(--color-blue);
+        margin: var(--space-md) 0;
     }
 
     .stats {
         display: flex;
-        gap: 1rem;
+        gap: var(--space-md);
         justify-content: center;
         flex-wrap: wrap;
-        color: #aaa;
+        color: var(--color-text-light);
         font-size: 0.9rem;
     }
 
@@ -577,38 +607,40 @@
         display: flex;
         align-items: center;
         font-size: 2rem;
-        font-weight: bold;
-        color: #ffa500;
+        font-weight: 700;
+        color: var(--color-text-light);
     }
 
     .draw-message {
         text-align: center;
-        background: rgba(255, 165, 0, 0.2);
-        border: 2px solid #ffa500;
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
+        background: rgba(255, 152, 0, 0.1);
+        border: 2px solid var(--color-orange);
+        border-radius: var(--radius-lg);
+        padding: var(--space-lg);
+        margin-bottom: var(--space-xl);
         font-size: 1.3rem;
-        font-weight: bold;
-        color: #ffa500;
+        font-weight: 600;
+        color: var(--color-orange);
+        box-shadow: var(--shadow-sm);
     }
 
     /* Pokémons Details */
     .pokemons-details {
-        margin-bottom: 3rem;
+        margin-bottom: var(--space-xl);
     }
 
     .pokemons-details > h2 {
         text-align: center;
-        color: #4ecdc4;
-        margin-bottom: 2rem;
+        color: var(--color-blue);
+        margin-bottom: var(--space-xl);
         font-size: 2rem;
+        font-weight: 600;
     }
 
     .pokemons-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 2rem;
+        gap: var(--space-xl);
     }
 
     @@media (max-width: 1024px) {
@@ -618,55 +650,62 @@
     }
 
     .player-column {
-        background: rgba(255, 255, 255, 0.03);
-        border-radius: 12px;
-        padding: 1.5rem;
+        background: var(--color-white);
+        border-radius: var(--radius-lg);
+        padding: var(--space-lg);
+        box-shadow: var(--shadow-sm);
+        border: 2px solid var(--color-border);
     }
 
     .player-column > h3 {
-        color: #4ecdc4;
+        color: var(--color-blue);
         margin-top: 0;
-        margin-bottom: 1.5rem;
+        margin-bottom: var(--space-lg);
         text-align: center;
         font-size: 1.5rem;
+        font-weight: 600;
     }
 
     .pokemon-card {
-        background: rgba(255, 255, 255, 0.05);
-        border: 2px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-        transition: transform 0.2s;
+        background: #FAFAFA;
+        border: 2px solid var(--color-border);
+        border-radius: var(--radius-md);
+        padding: var(--space-lg);
+        margin-bottom: var(--space-md);
+        transition: all 0.2s ease;
     }
 
     .pokemon-card:hover {
         transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
     }
 
     .pokemon-card.guessed {
-        border-color: #4caf50;
-        background: rgba(76, 175, 80, 0.1);
+        border-color: var(--color-green);
+        background: rgba(46, 125, 50, 0.05);
     }
 
     .pokemon-card.failed {
-        border-color: #f44336;
-        background: rgba(244, 67, 54, 0.1);
+        border-color: var(--color-red);
+        background: rgba(229, 57, 53, 0.05);
     }
 
     .pokemon-header {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        margin-bottom: 1rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        gap: var(--space-md);
+        margin-bottom: var(--space-md);
+        padding-bottom: var(--space-md);
+        border-bottom: 2px solid var(--color-border);
     }
 
     .pokemon-sprite {
         width: 80px;
         height: 80px;
         image-rendering: pixelated;
+        background: var(--color-white);
+        border-radius: var(--radius-sm);
+        padding: var(--space-xs);
     }
 
     .pokemon-info {
@@ -674,33 +713,37 @@
     }
 
     .pokemon-info h4 {
-        margin: 0 0 0.5rem 0;
-        color: #fff;
+        margin: 0 0 var(--space-sm) 0;
+        color: var(--color-text);
         font-size: 1.2rem;
+        font-weight: 600;
     }
 
     .status-badge {
         display: inline-block;
-        padding: 0.25rem 0.75rem;
-        border-radius: 12px;
-        font-size: 0.9rem;
-        font-weight: bold;
+        padding: var(--space-xs) var(--space-md);
+        border-radius: var(--radius-md);
+        font-size: 0.85rem;
+        font-weight: 600;
+        border: 1px solid;
     }
 
     .pokemon-card.guessed .status-badge {
-        background: rgba(76, 175, 80, 0.3);
-        color: #4caf50;
+        background: rgba(46, 125, 50, 0.1);
+        color: var(--color-green);
+        border-color: var(--color-green);
     }
 
     .pokemon-card.failed .status-badge {
-        background: rgba(244, 67, 54, 0.3);
-        color: #f44336;
+        background: rgba(229, 57, 53, 0.1);
+        color: var(--color-red);
+        border-color: var(--color-red);
     }
 
     .pokemon-stats {
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+        gap: var(--space-sm);
     }
 
     .stat-item {
@@ -710,80 +753,97 @@
     }
 
     .stat-label {
-        color: #aaa;
+        color: var(--color-text-light);
         font-size: 0.9rem;
     }
 
     .stat-value {
-        color: #fff;
-        font-weight: bold;
+        color: var(--color-text);
+        font-weight: 600;
     }
 
     .stat-item.points {
-        margin-top: 0.5rem;
-        padding-top: 0.75rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: var(--space-sm);
+        padding-top: var(--space-sm);
+        border-top: 2px solid var(--color-border);
     }
 
     .stat-item.points .stat-value {
-        color: #4ecdc4;
+        color: var(--color-blue);
         font-size: 1.1rem;
+        font-weight: 700;
     }
 
     .hints-used {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
+        gap: var(--space-sm);
+        margin-top: var(--space-sm);
     }
 
     .hint-tag {
-        background: rgba(78, 205, 196, 0.2);
-        color: #4ecdc4;
-        padding: 0.25rem 0.75rem;
-        border-radius: 12px;
+        background: rgba(30, 136, 229, 0.1);
+        color: var(--color-blue);
+        padding: var(--space-xs) var(--space-md);
+        border-radius: var(--radius-md);
         font-size: 0.8rem;
-        border: 1px solid rgba(78, 205, 196, 0.3);
+        border: 1px solid rgba(30, 136, 229, 0.3);
+        font-weight: 500;
     }
 
     .no-data {
         text-align: center;
-        color: #888;
+        color: var(--color-text-light);
         font-style: italic;
-        padding: 2rem;
+        padding: var(--space-xl);
     }
 
     /* Actions */
     .actions-section {
         display: flex;
-        gap: 1rem;
+        gap: var(--space-md);
         justify-content: center;
         flex-wrap: wrap;
     }
 
     .action-button {
-        padding: 1rem 2rem;
+        padding: var(--space-md) var(--space-xl);
         font-size: 1.1rem;
-        font-weight: bold;
+        font-weight: 600;
         border: none;
-        border-radius: 8px;
+        border-radius: var(--radius-md);
         cursor: pointer;
-        transition: transform 0.2s;
+        transition: all 0.2s ease;
+        min-height: 44px;
     }
 
     .action-button:hover {
         transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .action-button:active {
+        transform: translateY(0);
     }
 
     .action-button.primary {
-        background: linear-gradient(45deg, #4ecdc4, #44a3d5);
-        color: #fff;
+        background: var(--color-blue);
+        color: white;
+    }
+
+    .action-button.primary:hover {
+        background: #1976D2;
     }
 
     .action-button.secondary {
-        background: rgba(255, 255, 255, 0.1);
-        color: #fff;
-        border: 2px solid rgba(255, 255, 255, 0.3);
+        background: var(--color-white);
+        color: var(--color-text);
+        border: 2px solid var(--color-border);
+    }
+
+    .action-button.secondary:hover {
+        border-color: var(--color-blue);
+        color: var(--color-blue);
     }
 
     button {
