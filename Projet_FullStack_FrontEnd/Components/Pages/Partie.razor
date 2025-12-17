@@ -29,17 +29,19 @@
             <div class="game-options">
                 <!-- Option 1: Créer une partie -->
                 <div class="option-card">
-                    <h3>🎮 Créer une partie</h3>
+                    <div class="card-icon">🎮</div>
+                    <h3>Créer une partie</h3>
                     <p class="card-description">Créez une nouvelle session et partagez le code avec un ami</p>
-                    <button @onclick="CreateGame" disabled="@isLoading">Créer une nouvelle partie</button>
+                    <button class="btn-primary" @onclick="CreateGame" disabled="@isLoading">Créer une nouvelle partie</button>
                 </div>
 
                 <!-- Option 2: Rejoindre une partie -->
                 <div class="option-card">
-                    <h3>🔗 Rejoindre une partie</h3>
+                    <div class="card-icon">🔗</div>
+                    <h3>Rejoindre une partie</h3>
                     <p class="card-description">Entrez le code de session fourni par votre ami</p>
-                    <input type="text" @bind="codeSession" placeholder="Code de session" />
-                    <button @onclick="JoinGame" disabled="@isLoading">Rejoindre la partie</button>
+                    <input class="input-field" type="text" @bind="codeSession" placeholder="Code de session" />
+                    <button class="btn-primary" @onclick="JoinGame" disabled="@isLoading">Rejoindre la partie</button>
                 </div>
             </div>
         }
@@ -48,11 +50,14 @@
             <!-- Salle d'attente / Lobby -->
             <div class="lobby-container">
                 <div class="lobby-header">
-                    <h2>🎯 Salle d'attente</h2>
+                    <div class="lobby-icon">🎯</div>
+                    <h2>Salle d'attente</h2>
                     <div class="session-code-display">
                         <span class="label">Code de session :</span>
                         <span class="code">@partie?.CodeSession</span>
-                        <button class="copy-btn" @onclick="CopySessionCode" title="Copier le code">📋</button>
+                        <button class="copy-btn" @onclick="CopySessionCode" title="Copier le code">
+                            <span class="copy-icon">📋</span>
+                        </button>
                     </div>
                 </div>
 
@@ -86,20 +91,24 @@
                     @if (partie?.Statut == "Prêt")
                     {
                         <div class="ready-message">
-                            <p>✅ Les deux joueurs sont connectés !</p>
+                            <span class="message-icon">✅</span>
+                            <p>Les deux joueurs sont connectés !</p>
                         </div>
-                        <button class="start-btn" @onclick="StartGame" disabled="@isLoading">
-                            🚀 Démarrer la partie (Mode Standard)
+                        <button class="btn-success" @onclick="StartGame" disabled="@isLoading">
+                            <span class="btn-icon">🚀</span> Démarrer la partie (Mode Standard)
                         </button>
                     }
                     else if (partie?.Statut == "EnAttente")
                     {
                         <div class="waiting-message">
-                            <p>⏳ En attente du second joueur...</p>
-                            <p class="hint">Partagez le code <strong>@partie?.CodeSession</strong> avec votre ami</p>
+                            <span class="message-icon">⏳</span>
+                            <div>
+                                <p>En attente du second joueur...</p>
+                                <p class="hint">Partagez le code <strong>@partie?.CodeSession</strong> avec votre ami</p>
+                            </div>
                         </div>
-                        <button class="refresh-btn" @onclick="() => RefreshGameStatus()" disabled="@isLoading">
-                            🔄 Actualiser
+                        <button class="btn-secondary" @onclick="() => RefreshGameStatus()" disabled="@isLoading">
+                            <span class="btn-icon">🔄</span> Rafraîchir
                         </button>
                     }
                     else
@@ -109,7 +118,7 @@
                         </div>
                     }
 
-                    <button class="cancel-btn" @onclick="CancelLobby">Annuler</button>
+                    <button class="btn-danger" @onclick="CancelLobby">Annuler</button>
                 </div>
             </div>
         }
@@ -471,55 +480,410 @@
 }
 
 <style>
-    .hero-content { max-width: 900px; margin: 0 auto; padding: 2rem; color: #fff; }
-    .hero-title { font-size: 2rem; margin-bottom: 2rem; text-align: center; }
+    /* Design tokens - Pokédex Gen 1 moderne/minimaliste */
+    :root {
+        --color-red: #E53935;
+        --color-blue: #1E88E5;
+        --color-bg: #F7F9FC;
+        --color-white: #FFFFFF;
+        --color-border: #D9E1EC;
+        --color-text: #0F172A;
+        --color-text-muted: #546E7A;
+        --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.06);
+        --radius-md: 12px;
+        --space-xs: 8px;
+        --space-sm: 12px;
+        --space-md: 16px;
+        --space-lg: 24px;
+    }
+
+    .hero-content { 
+        max-width: 1200px; 
+        margin: 0 auto; 
+        padding: var(--space-lg); 
+        color: var(--color-text); 
+    }
     
-    .game-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
-    .option-card { background: rgba(255,255,255,0.05); padding: 2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); text-align: center; transition: transform 0.2s; }
-    .option-card:hover { transform: translateY(-4px); border-color: #4ecdc4; }
-    .option-card h3 { margin-top: 0; color: #4ecdc4; }
-    .card-description { color: #aaa; font-size: 0.9rem; margin-bottom: 1.5rem; }
-    .option-card input { padding: 0.75rem; width: 100%; margin-bottom: 1rem; border: 2px solid rgba(255,255,255,0.2); border-radius: 8px; background: rgba(0,0,0,0.3); color: #fff; font-size: 1rem; }
-    .option-card input:focus { outline: none; border-color: #4ecdc4; }
-    .option-card button { padding: 0.75rem 1.5rem; background: linear-gradient(45deg, #4ecdc4, #44a3d5); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: transform 0.2s; }
-    .option-card button:hover:not(:disabled) { transform: translateY(-2px); }
-    .option-card button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .hero-title { 
+        font-size: 2rem; 
+        margin-bottom: 2rem; 
+        text-align: center;
+        color: var(--color-text);
+        font-weight: 700;
+    }
     
-    .lobby-container { background: rgba(255,255,255,0.05); padding: 2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
-    .lobby-header { text-align: center; margin-bottom: 2rem; }
-    .lobby-header h2 { color: #4ecdc4; margin-bottom: 1rem; }
+    /* Grille des options - applique design system */
+    .game-options { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); 
+        gap: var(--space-lg); 
+    }
     
-    .session-code-display { display: flex; align-items: center; justify-content: center; gap: 1rem; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; }
-    .session-code-display .label { color: #aaa; }
-    .session-code-display .code { font-size: 1.5rem; font-weight: bold; color: #4ecdc4; letter-spacing: 2px; }
-    .copy-btn { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 0.5rem; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
-    .copy-btn:hover { background: rgba(78,205,196,0.2); border-color: #4ecdc4; }
+    .option-card { 
+        background: var(--color-white); 
+        padding: var(--space-lg); 
+        border-radius: var(--radius-md); 
+        border: 1px solid var(--color-border); 
+        text-align: center; 
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: var(--shadow-sm);
+    }
     
-    .players-status { display: flex; align-items: center; justify-content: center; gap: 2rem; margin: 2rem 0; }
-    .player-card { flex: 1; max-width: 250px; background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 12px; border: 2px solid rgba(255,255,255,0.1); text-align: center; position: relative; }
-    .player-card.current-player { border-color: #4ecdc4; background: rgba(78,205,196,0.1); }
-    .player-icon { font-size: 3rem; margin-bottom: 0.5rem; }
-    .player-label { color: #aaa; font-size: 0.9rem; margin-bottom: 0.25rem; }
-    .player-name { font-size: 1.2rem; font-weight: bold; color: #fff; }
-    .you-badge { position: absolute; top: 0.5rem; right: 0.5rem; background: #4ecdc4; color: #000; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+    .option-card:hover { 
+        transform: translateY(-2px); 
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1);
+    }
     
-    .vs-divider { font-size: 1.5rem; font-weight: bold; color: #ffa500; }
+    .card-icon {
+        font-size: 2.5rem;
+        margin-bottom: var(--space-sm);
+        filter: grayscale(100%);
+        opacity: 0.7;
+    }
     
-    .lobby-actions { text-align: center; margin-top: 2rem; }
-    .ready-message { background: rgba(76,175,80,0.2); color: #4caf50; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
-    .waiting-message { background: rgba(255,165,0,0.2); color: #ffa500; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
-    .waiting-message .hint { margin-top: 0.5rem; font-size: 0.9rem; }
-    .status-message { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; color: #aaa; }
+    .option-card h3 { 
+        margin-top: 0;
+        margin-bottom: var(--space-sm);
+        color: var(--color-text);
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
     
-    .start-btn, .refresh-btn, .cancel-btn { padding: 0.75rem 2rem; margin: 0.5rem; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: transform 0.2s; }
-    .start-btn { background: linear-gradient(45deg, #4caf50, #45a049); color: white; font-size: 1.1rem; }
-    .start-btn:hover:not(:disabled) { transform: translateY(-2px); }
-    .refresh-btn { background: rgba(78,205,196,0.2); color: #4ecdc4; border: 2px solid #4ecdc4; }
-    .refresh-btn:hover:not(:disabled) { background: rgba(78,205,196,0.3); }
-    .cancel-btn { background: rgba(244,67,54,0.2); color: #f44336; border: 2px solid #f44336; }
-    .cancel-btn:hover { background: rgba(244,67,54,0.3); }
-    .start-btn:disabled, .refresh-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .card-description { 
+        color: var(--color-text-muted); 
+        font-size: 0.95rem; 
+        margin-bottom: var(--space-md);
+        line-height: 1.5;
+    }
     
-    .success-message { margin-top: 1rem; padding: 1rem; background: rgba(76,175,80,0.2); color: #4caf50; border-radius: 8px; text-align: center; }
-    .text-danger { color: #f44336; padding: 1rem; background: rgba(244,67,54,0.2); border-radius: 8px; text-align: center; }
+    /* Input style - design system */
+    .input-field { 
+        padding: 0.75rem; 
+        width: 100%; 
+        margin-bottom: var(--space-md); 
+        border: 1px solid var(--color-border); 
+        border-radius: 10px; 
+        background: var(--color-white); 
+        color: var(--color-text); 
+        font-size: 1rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        height: 44px;
+    }
+    
+    .input-field:focus { 
+        outline: none; 
+        border-color: var(--color-blue);
+        box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+    }
+    
+    /* Bouton primaire - design system */
+    .btn-primary { 
+        padding: 0.75rem 1.5rem; 
+        background: var(--color-blue);
+        color: white; 
+        border: none; 
+        border-radius: 10px; 
+        cursor: pointer; 
+        font-weight: 600; 
+        width: 100%; 
+        transition: transform 0.2s, box-shadow 0.2s;
+        height: 44px;
+        font-size: 1rem;
+    }
+    
+    .btn-primary:hover:not(:disabled) { 
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(30, 136, 229, 0.3);
+    }
+    
+    .btn-primary:disabled { 
+        opacity: 0.5; 
+        cursor: not-allowed; 
+        transform: none;
+    }
+    
+    /* Lobby container */
+    .lobby-container { 
+        background: var(--color-white); 
+        padding: var(--space-lg); 
+        border-radius: var(--radius-md); 
+        border: 1px solid var(--color-border);
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .lobby-header { 
+        text-align: center; 
+        margin-bottom: 2rem; 
+    }
+    
+    .lobby-icon {
+        font-size: 2.5rem;
+        margin-bottom: var(--space-sm);
+        filter: grayscale(100%);
+        opacity: 0.7;
+    }
+    
+    .lobby-header h2 { 
+        color: var(--color-text); 
+        margin-bottom: var(--space-md);
+        font-weight: 600;
+        font-size: 1.5rem;
+    }
+    
+    /* Code session badge */
+    .session-code-display { 
+        display: inline-flex; 
+        align-items: center; 
+        gap: var(--space-sm); 
+        background: rgba(30, 136, 229, 0.1); 
+        padding: var(--space-sm) var(--space-md); 
+        border-radius: 999px;
+        border: 1px solid rgba(30, 136, 229, 0.2);
+    }
+    
+    .session-code-display .label { 
+        color: var(--color-text-muted); 
+        font-size: 0.9rem;
+    }
+    
+    .session-code-display .code { 
+        font-size: 1.25rem; 
+        font-weight: 700; 
+        color: var(--color-blue); 
+        letter-spacing: 2px; 
+    }
+    
+    .copy-btn { 
+        background: transparent; 
+        border: 1px solid var(--color-border); 
+        color: var(--color-text-muted); 
+        padding: 0.5rem; 
+        border-radius: 6px; 
+        cursor: pointer; 
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .copy-btn:hover { 
+        background: rgba(30, 136, 229, 0.1); 
+        border-color: var(--color-blue);
+    }
+    
+    .copy-icon {
+        filter: grayscale(100%);
+        opacity: 0.7;
+    }
+    
+    /* Player cards */
+    .players-status { 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        gap: 2rem; 
+        margin: 2rem 0; 
+    }
+    
+    .player-card { 
+        flex: 1; 
+        max-width: 250px; 
+        background: var(--color-white); 
+        padding: var(--space-md); 
+        border-radius: var(--radius-md); 
+        border: 2px solid var(--color-border); 
+        text-align: center; 
+        position: relative;
+        transition: border-color 0.2s;
+    }
+    
+    .player-card.current-player { 
+        border-color: var(--color-blue); 
+        background: rgba(30, 136, 229, 0.05);
+    }
+    
+    .player-icon { 
+        font-size: 3rem; 
+        margin-bottom: 0.5rem;
+        filter: grayscale(100%);
+        opacity: 0.6;
+    }
+    
+    .player-name { 
+        font-size: 1.1rem; 
+        font-weight: 600; 
+        color: var(--color-text); 
+    }
+    
+    .you-badge { 
+        position: absolute; 
+        top: 0.5rem; 
+        right: 0.5rem; 
+        background: var(--color-blue); 
+        color: white; 
+        padding: 0.25rem 0.5rem; 
+        border-radius: 999px; 
+        font-size: 0.75rem; 
+        font-weight: 600; 
+    }
+    
+    .vs-divider { 
+        font-size: 1.5rem; 
+        font-weight: 700; 
+        color: #ffa500;
+    }
+    
+    /* Actions lobby */
+    .lobby-actions { 
+        text-align: center; 
+        margin-top: 2rem; 
+    }
+    
+    /* Messages */
+    .ready-message { 
+        background: rgba(46, 125, 50, 0.1); 
+        color: #2E7D32; 
+        padding: var(--space-md); 
+        border-radius: var(--radius-md); 
+        margin-bottom: var(--space-md);
+        border: 1px solid rgba(46, 125, 50, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-sm);
+    }
+    
+    .ready-message p {
+        margin: 0;
+        font-weight: 500;
+    }
+    
+    .waiting-message { 
+        background: rgba(255, 165, 0, 0.1); 
+        color: #ffa500; 
+        padding: var(--space-md); 
+        border-radius: var(--radius-md); 
+        margin-bottom: var(--space-md);
+        border: 1px solid rgba(255, 165, 0, 0.2);
+        display: flex;
+        align-items: flex-start;
+        gap: var(--space-sm);
+    }
+    
+    .waiting-message p {
+        margin: 0;
+        font-weight: 500;
+    }
+    
+    .waiting-message .hint { 
+        margin-top: 0.5rem; 
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+    
+    .message-icon {
+        filter: grayscale(100%);
+        opacity: 0.7;
+        font-size: 1.5rem;
+    }
+    
+    .status-message { 
+        padding: var(--space-md); 
+        border-radius: var(--radius-md); 
+        margin-bottom: var(--space-md); 
+        color: var(--color-text-muted);
+        background: rgba(0, 0, 0, 0.02);
+    }
+    
+    /* Boutons d'action */
+    .btn-success { 
+        padding: 0.75rem 2rem; 
+        margin: 0.5rem; 
+        border: none; 
+        border-radius: 10px; 
+        cursor: pointer; 
+        font-weight: 600; 
+        transition: transform 0.2s, box-shadow 0.2s;
+        background: #2E7D32;
+        color: white; 
+        font-size: 1.05rem;
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-xs);
+    }
+    
+    .btn-success:hover:not(:disabled) { 
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+    }
+    
+    .btn-secondary { 
+        padding: 0.75rem 2rem; 
+        margin: 0.5rem; 
+        background: rgba(30, 136, 229, 0.1); 
+        color: var(--color-blue); 
+        border: 2px solid var(--color-blue); 
+        border-radius: 10px; 
+        cursor: pointer; 
+        font-weight: 600; 
+        transition: transform 0.2s, background 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-xs);
+    }
+    
+    .btn-secondary:hover:not(:disabled) { 
+        background: rgba(30, 136, 229, 0.2);
+        transform: translateY(-1px);
+    }
+    
+    .btn-danger { 
+        padding: 0.75rem 2rem; 
+        margin: 0.5rem; 
+        background: rgba(211, 47, 47, 0.1); 
+        color: #D32F2F; 
+        border: 2px solid #D32F2F; 
+        border-radius: 10px; 
+        cursor: pointer; 
+        font-weight: 600; 
+        transition: transform 0.2s, background 0.2s; 
+    }
+    
+    .btn-danger:hover { 
+        background: rgba(211, 47, 47, 0.2);
+        transform: translateY(-1px);
+    }
+    
+    .btn-success:disabled, .btn-secondary:disabled { 
+        opacity: 0.5; 
+        cursor: not-allowed; 
+        transform: none; 
+    }
+    
+    .btn-icon {
+        filter: grayscale(100%);
+        opacity: 0.8;
+    }
+    
+    /* Messages de feedback */
+    .success-message { 
+        margin-top: var(--space-md); 
+        padding: var(--space-md); 
+        background: rgba(46, 125, 50, 0.1); 
+        color: #2E7D32; 
+        border-radius: var(--radius-md); 
+        text-align: center;
+        border: 1px solid rgba(46, 125, 50, 0.2);
+        font-weight: 500;
+    }
+    
+    .text-danger { 
+        color: #D32F2F; 
+        padding: var(--space-md); 
+        background: rgba(211, 47, 47, 0.1); 
+        border-radius: var(--radius-md); 
+        text-align: center;
+        border: 1px solid rgba(211, 47, 47, 0.2);
+        font-weight: 500;
+    }
 </style>

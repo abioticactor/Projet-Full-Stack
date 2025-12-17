@@ -300,7 +300,7 @@ builder.Services.AddScoped<IPartieService, PartieService>();
 - Utiliser `RequireAuth` pour les pages nécessitant authentification
 
 **Direction artistique (Pokédex Gen 1, moderne/minimaliste, public jeune)** :
-- Palette : Rouge primaire `#E53935`, Bleu secondaire `#1E88E5`, Fond clair `#F7F9FC`, Blanc pur `#FFFFFF`, Gris neutres `#D9E1EC` (bordures) et `#546E7A`/`#0F172A` (texte). États : Succès `#2E7D32`, Alerte `#E65100`, Danger `#D32F2F`.
+- Palette : Rouge primaire `#E53935`, Bleu secondaire `#1E88E5`, Fond clair `#F7F9FC`, Blanc pur `#FFFFFF`, Gris neutres `#D9E1EC` (bordures) et `#546E7A`/`#0F172A` (texte). États : Succès `#2E7D32`, Alerte `#ffa500`, Danger `#D32F2F`.
 - Typo : Police moderne sans-serif (Inter ou Poppins, fallback Segoe UI). Hiérarchie : H1 28-32px, H2 22-24px, H3 18-20px, corps 15-16px, petit 13px. Poids : titres 700/600, corps 400-500.
 - Layout : Largeur max 1200px, padding horizontal 16-24px. Grille responsive minmax(260px, 1fr) gap 16-20px. Spacing vertical 24-32px (sections), 8-12px (éléments). Header sticky ~64px, fond blanc, ombre légère.
 - Composants communs :
