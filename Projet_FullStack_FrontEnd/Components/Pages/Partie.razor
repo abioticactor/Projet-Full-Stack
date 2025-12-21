@@ -40,7 +40,16 @@
                     <div class="card-icon">🔗</div>
                     <h3>Rejoindre une partie</h3>
                     <p class="card-description">Entrez le code de session fourni par votre ami</p>
-                    <input class="input-field" type="text" @bind="codeSession" placeholder="Code de session" />
+                    <div class="input-wrapper">
+                        <input class="input-field @(!string.IsNullOrEmpty(joinErrorMessage) ? "input-error" : "")" 
+                               type="text" 
+                               @bind="codeSession" 
+                               placeholder="Code de session" />
+                        @if (!string.IsNullOrEmpty(joinErrorMessage))
+                        {
+                            <span class="field-error-text">@joinErrorMessage</span>
+                        }
+                    </div>
                     <button class="btn-primary" @onclick="JoinGame" disabled="@isLoading">Rejoindre la partie</button>
                 </div>
             </div>
@@ -148,6 +157,7 @@
     private bool isLoading = false;
     private string? errorMessage;
     private string? successMessage;
+    private string? joinErrorMessage;
     private PartieDto? partie;
     
     private string player1Pseudo = string.Empty;
@@ -224,11 +234,12 @@
     {
         if (string.IsNullOrEmpty(codeSession))
         {
-            errorMessage = "Veuillez entrer un code de session";
+            joinErrorMessage = "Veuillez entrer un code de session";
             return;
         }
 
         isLoading = true;
+        joinErrorMessage = null;
         errorMessage = null;
         successMessage = null;
         try
@@ -249,11 +260,23 @@
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
                 Logger.LogError($"Erreur serveur: {response.StatusCode} - {errorContent}");
-                errorMessage = $"Impossible de rejoindre: {errorContent}";
+                
+                // Message d'erreur plus clair selon le type d'erreur
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    joinErrorMessage = "Code de session invalide ou partie introuvable";
+                }
+                else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                {
+                    joinErrorMessage = "Impossible de rejoindre cette partie (déjà complète ou terminée)";
+                }
+                else
+                {
+                    joinErrorMessage = "Erreur lors de la connexion à la partie";
+                }
                 return;
             }
             
-            response.EnsureSuccessStatusCode();
             partie = await response.Content.ReadFromJsonAsync<PartieDto>();
             
             Logger.LogInformation($"Partie rejointe: {partie?.Id}, Statut: {partie?.Statut}");
@@ -269,7 +292,7 @@
         catch (Exception ex)
         {
             Logger.LogError(ex, "Erreur lors de la connexion");
-            errorMessage = $"Erreur: {ex.Message}";
+            joinErrorMessage = "Une erreur inattendue s'est produite";
         }
         finally { isLoading = false; }
     }
@@ -499,6 +522,7 @@
         player2Pseudo = string.Empty;
         successMessage = null;
         errorMessage = null;
+        joinErrorMessage = null;
     }
 
     // DTOs locaux (ou à partager)
@@ -609,10 +633,14 @@
     }
     
     /* Input style - design system */
+    .input-wrapper {
+        margin-bottom: var(--space-md);
+    }
+    
     .input-field { 
         padding: 0.75rem; 
         width: 100%; 
-        margin-bottom: var(--space-md); 
+        margin-bottom: 0;
         border: 1px solid var(--color-border); 
         border-radius: 10px; 
         background: var(--color-white); 
@@ -626,6 +654,24 @@
         outline: none; 
         border-color: var(--color-blue);
         box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+    }
+    
+    .input-field.input-error {
+        border-color: #D32F2F;
+    }
+    
+    .input-field.input-error:focus {
+        border-color: #D32F2F;
+        box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+    }
+    
+    .field-error-text {
+        display: block;
+        color: #D32F2F;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+        padding-left: 0.25rem;
+        font-weight: 500;
     }
     
     /* Bouton primaire - design system */
