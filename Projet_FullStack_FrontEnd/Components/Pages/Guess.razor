@@ -51,8 +51,12 @@
             <div class="game-stats">
                 <span class="score"><span class="stat-icon">⭐</span> Score : @currentScore</span>
                 <span class="attempts"><span class="stat-icon">🎲</span> Tentatives : @attemptsUsed / 3</span>
-                <span class="timer @(timeRemaining <= 10 ? "timer-warning" : "")">
+                <span class="timer @(timeRemaining <= 10 ? "timer-warning" : "") @(timerShake ? "timer-shake" : "") @(timerFlash ? "timer-flash" : "")" style="position: relative;">
                     <span class="stat-icon">⏱️</span> Temps : @timeRemaining.ToString("F1")s
+                    @if (showTimePenalty)
+                    {
+                        <span class="time-penalty-float">-@(currentTimePenalty)s</span>
+                    }
                 </span>
             </div>
         </div>
@@ -135,8 +139,13 @@
                 <div class="hints-grid">
                     <button 
                         @onclick="@(() => RequestHint("Type1"))" 
-                        disabled="@(usedHints.Contains("Type1") || isRequestingHint)"
-                        class="hint-button @(usedHints.Contains("Type1") ? "revealed" : "")">
+                        disabled="@usedHints.Contains("Type1")"
+                        class="hint-button @(usedHints.Contains("Type1") ? "revealed" : "")"
+                        style="position: relative;">
+                        @if (activeHintAnimations.ContainsKey("Type1"))
+                        {
+                            <span class="hint-time-penalty-float">-@(activeHintAnimations["Type1"])s</span>
+                        }
                         @if (usedHints.Contains("Type1") && revealedHints.ContainsKey("Type 1"))
                         {
                             <span class="revealed-hint-content">@revealedHints["Type 1"]</span>
@@ -151,8 +160,13 @@
 
                     <button 
                         @onclick="@(() => RequestHint("Type2"))" 
-                        disabled="@(usedHints.Contains("Type2") || isRequestingHint)"
-                        class="hint-button @(usedHints.Contains("Type2") ? "revealed" : "")">
+                        disabled="@usedHints.Contains("Type2")"
+                        class="hint-button @(usedHints.Contains("Type2") ? "revealed" : "")"
+                        style="position: relative;">
+                        @if (activeHintAnimations.ContainsKey("Type2"))
+                        {
+                            <span class="hint-time-penalty-float">-@(activeHintAnimations["Type2"])s</span>
+                        }
                         @if (usedHints.Contains("Type2") && revealedHints.ContainsKey("Type 2"))
                         {
                             <span class="revealed-hint-content">@revealedHints["Type 2"]</span>
@@ -167,8 +181,13 @@
 
                     <button 
                         @onclick="@(() => RequestHint("Generation"))" 
-                        disabled="@(usedHints.Contains("Generation") || isRequestingHint)"
-                        class="hint-button @(usedHints.Contains("Generation") ? "revealed" : "")">
+                        disabled="@usedHints.Contains("Generation")"
+                        class="hint-button @(usedHints.Contains("Generation") ? "revealed" : "")"
+                        style="position: relative;">
+                        @if (activeHintAnimations.ContainsKey("Generation"))
+                        {
+                            <span class="hint-time-penalty-float">-@(activeHintAnimations["Generation"])s</span>
+                        }
                         @if (usedHints.Contains("Generation") && revealedHints.ContainsKey("Génération"))
                         {
                             <span class="revealed-hint-content">@revealedHints["Génération"]</span>
@@ -183,8 +202,13 @@
 
                     <button 
                         @onclick="@(() => RequestHint("Category"))" 
-                        disabled="@(usedHints.Contains("Category") || isRequestingHint)"
-                        class="hint-button @(usedHints.Contains("Category") ? "revealed" : "")">
+                        disabled="@usedHints.Contains("Category")"
+                        class="hint-button @(usedHints.Contains("Category") ? "revealed" : "")"
+                        style="position: relative;">
+                        @if (activeHintAnimations.ContainsKey("Category"))
+                        {
+                            <span class="hint-time-penalty-float">-@(activeHintAnimations["Category"])s</span>
+                        }
                         @if (usedHints.Contains("Category") && revealedHints.ContainsKey("Catégorie"))
                         {
                             <span class="revealed-hint-content">@revealedHints["Catégorie"]</span>
@@ -199,8 +223,13 @@
 
                     <button 
                         @onclick="@(() => RequestHint("Stats"))" 
-                        disabled="@(usedHints.Contains("Stats") || isRequestingHint)"
-                        class="hint-button @(usedHints.Contains("Stats") ? "revealed" : "")">
+                        disabled="@usedHints.Contains("Stats")"
+                        class="hint-button @(usedHints.Contains("Stats") ? "revealed" : "")"
+                        style="position: relative;">
+                        @if (activeHintAnimations.ContainsKey("Stats"))
+                        {
+                            <span class="hint-time-penalty-float">-@(activeHintAnimations["Stats"])s</span>
+                        }
                         @if (usedHints.Contains("Stats") && revealedHints.ContainsKey("Statistiques"))
                         {
                             <span class="revealed-hint-content stats">@revealedHints["Statistiques"]</span>
@@ -215,8 +244,13 @@
 
                     <button 
                         @onclick="@(() => RequestHint("Height"))" 
-                        disabled="@(usedHints.Contains("Height") || isRequestingHint)"
-                        class="hint-button @(usedHints.Contains("Height") ? "revealed" : "")">
+                        disabled="@usedHints.Contains("Height")"
+                        class="hint-button @(usedHints.Contains("Height") ? "revealed" : "")"
+                        style="position: relative;">
+                        @if (activeHintAnimations.ContainsKey("Height"))
+                        {
+                            <span class="hint-time-penalty-float">-@(activeHintAnimations["Height"])s</span>
+                        }
                         @if (usedHints.Contains("Height") && revealedHints.ContainsKey("Taille"))
                         {
                             <span class="revealed-hint-content">@revealedHints["Taille"]</span>
@@ -231,8 +265,13 @@
 
                     <button 
                         @onclick="@(() => RequestHint("Weight"))" 
-                        disabled="@(usedHints.Contains("Weight") || isRequestingHint)"
-                        class="hint-button @(usedHints.Contains("Weight") ? "revealed" : "")">
+                        disabled="@usedHints.Contains("Weight")"
+                        class="hint-button @(usedHints.Contains("Weight") ? "revealed" : "")"
+                        style="position: relative;">
+                        @if (activeHintAnimations.ContainsKey("Weight"))
+                        {
+                            <span class="hint-time-penalty-float">-@(activeHintAnimations["Weight"])s</span>
+                        }
                         @if (usedHints.Contains("Weight") && revealedHints.ContainsKey("Poids"))
                         {
                             <span class="revealed-hint-content">@revealedHints["Poids"]</span>
@@ -247,8 +286,13 @@
 
                     <button 
                         @onclick="@(() => RequestHint("Abilities"))" 
-                        disabled="@(usedHints.Contains("Abilities") || isRequestingHint)"
-                        class="hint-button @(usedHints.Contains("Abilities") ? "revealed" : "")">
+                        disabled="@usedHints.Contains("Abilities")"
+                        class="hint-button @(usedHints.Contains("Abilities") ? "revealed" : "")"
+                        style="position: relative;">
+                        @if (activeHintAnimations.ContainsKey("Abilities"))
+                        {
+                            <span class="hint-time-penalty-float">-@(activeHintAnimations["Abilities"])s</span>
+                        }
                         @if (usedHints.Contains("Abilities") && revealedHints.ContainsKey("Talents"))
                         {
                             <span class="revealed-hint-content">@revealedHints["Talents"]</span>
@@ -263,8 +307,13 @@
 
                     <button 
                         @onclick="@(() => RequestHint("Sprite"))" 
-                        disabled="@(usedHints.Contains("Sprite") || isRequestingHint)"
-                        class="hint-button @(usedHints.Contains("Sprite") ? "revealed" : "")">
+                        disabled="@usedHints.Contains("Sprite")"
+                        class="hint-button @(usedHints.Contains("Sprite") ? "revealed" : "")"
+                        style="position: relative;">
+                        @if (activeHintAnimations.ContainsKey("Sprite"))
+                        {
+                            <span class="hint-time-penalty-float">-@(activeHintAnimations["Sprite"])s</span>
+                        }
                         @if (usedHints.Contains("Sprite") && revealedHints.ContainsKey("Silhouette"))
                         {
                             <img src="@revealedHints["Silhouette"]" alt="Silhouette" class="revealed-sprite-img" />
@@ -330,7 +379,6 @@
     // États
     private bool isLoading = true;
     private bool isSubmitting = false;
-    private bool isRequestingHint = false;
     private bool gameFinished = false;
     private bool showSuccessModal = false;
     private bool showFailureModal = false;
@@ -367,6 +415,13 @@
     private double timeRemaining = 60.0;
     private System.Threading.Timer? timer;
     private bool isTimeout = false;
+    
+    // Animation de pénalité de temps
+    private bool showTimePenalty = false;
+    private double currentTimePenalty = 0;
+    private bool timerShake = false;
+    private bool timerFlash = false;
+    private Dictionary<string, double> activeHintAnimations = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -801,7 +856,19 @@
         if (usedHints.Contains(hintType))
             return;
 
-        isRequestingHint = true;
+        // Définir les pénalités de temps pour chaque indice
+        var timePenalties = new Dictionary<string, double>
+        {
+            { "Type1", 5.0 },
+            { "Type2", 5.0 },
+            { "Generation", 3.0 },
+            { "Category", 3.0 },
+            { "Stats", 7.0 },
+            { "Height", 2.0 },
+            { "Weight", 2.0 },
+            { "Abilities", 8.0 },
+            { "Sprite", 30.0 }
+        };
 
         try
         {
@@ -820,6 +887,16 @@
                 usedHints.Add(hintType);
             }
 
+            // Déclencher l'animation de pénalité de temps sur le bouton et le timer
+            if (timePenalties.TryGetValue(hintType, out double penalty))
+            {
+                // Lancer l'animation du bouton (ne pas attendre)
+                _ = TriggerHintButtonAnimation(hintType, penalty);
+                
+                // Lancer l'animation du timer global
+                _ = TriggerTimePenaltyAnimation(penalty);
+            }
+
             // Charger et afficher l'indice révélé
             await LoadRevealedHints();
             
@@ -836,10 +913,42 @@
             Logger.LogError(ex, $"Erreur inattendue lors de la demande d'indice '{hintType}'");
             errorMessage = $"Erreur inattendue: {ex.Message}";
         }
-        finally
-        {
-            isRequestingHint = false;
-        }
+    }
+    
+    private async Task TriggerHintButtonAnimation(string hintType, double penalty)
+    {
+        // Ajouter l'animation pour ce bouton spécifique
+        activeHintAnimations[hintType] = penalty;
+        StateHasChanged();
+        
+        // Retirer l'animation après 1500ms
+        await Task.Delay(1500);
+        activeHintAnimations.Remove(hintType);
+        StateHasChanged();
+    }
+    
+    private async Task TriggerTimePenaltyAnimation(double penalty)
+    {
+        currentTimePenalty = penalty;
+        showTimePenalty = true;
+        timerFlash = true;
+        timerShake = true;
+        StateHasChanged();
+        
+        // Arrêter le flash après 300ms
+        await Task.Delay(300);
+        timerFlash = false;
+        StateHasChanged();
+        
+        // Arrêter le shake après 500ms
+        await Task.Delay(200);
+        timerShake = false;
+        StateHasChanged();
+        
+        // Cacher l'animation flottante après 1500ms
+        await Task.Delay(1000);
+        showTimePenalty = false;
+        StateHasChanged();
     }
 
     private void ResetGuessState()
@@ -1202,6 +1311,67 @@
         animation: pulse 1s infinite;
     }
     
+    /* Animations de pénalité de temps */
+    .time-penalty-float {
+        position: absolute;
+        top: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: var(--color-red);
+        font-weight: 700;
+        font-size: 1.3rem;
+        animation: floatUp 1.5s ease-out forwards;
+        pointer-events: none;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+    }
+    
+    .timer-flash {
+        animation: flashRed 0.3s ease-in-out;
+    }
+    
+    .timer-shake {
+        animation: shake 0.5s ease-in-out;
+    }
+    
+    @@keyframes floatUp {
+        0% {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0) scale(1);
+        }
+        50% {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-10px) scale(1.2);
+        }
+        100% {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-30px) scale(1);
+        }
+    }
+    
+    @@keyframes flashRed {
+        0%, 100% {
+            background-color: transparent;
+        }
+        50% {
+            background-color: rgba(229, 57, 53, 0.3);
+            border-radius: 8px;
+            padding: 4px 8px;
+        }
+    }
+    
+    @@keyframes shake {
+        0%, 100% {
+            transform: translateX(0);
+        }
+        10%, 30%, 50%, 70%, 90% {
+            transform: translateX(-3px);
+        }
+        20%, 40%, 60%, 80% {
+            transform: translateX(3px);
+        }
+    }
+    
     @@keyframes pulse {
         0%, 100% {
             opacity: 1;
@@ -1476,6 +1646,40 @@
         font-size: 0.75rem;
         line-height: 1.3;
         white-space: pre-line;
+    }
+    
+    /* Animation de pénalité sur les boutons d'indices */
+    .hint-time-penalty-float {
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: var(--color-red);
+        font-weight: 700;
+        font-size: 1.2rem;
+        animation: hintFloatUp 1.5s ease-out forwards;
+        pointer-events: none;
+        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        z-index: 20;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 4px 8px;
+        border-radius: 6px;
+        border: 2px solid var(--color-red);
+    }
+    
+    @@keyframes hintFloatUp {
+        0% {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0) scale(1);
+        }
+        50% {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-15px) scale(1.15);
+        }
+        100% {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-40px) scale(0.9);
+        }
     }
 
     .revealed-sprite-img {
