@@ -99,4 +99,32 @@ public class PartieController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+    [HttpGet("{partieId}/timer/{dresseurId}")]
+    public IActionResult GetRemainingTime(string partieId, string dresseurId)
+    {
+        try
+        {
+            var remainingTime = _partieService.GetRemainingTime(partieId, dresseurId);
+            return Ok(new { TimeRemaining = remainingTime });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+    
+    [HttpPost("{partieId}/timer/reset")]
+    public IActionResult ResetTimer(string partieId, [FromBody] ResetTimerRequest request)
+    {
+        try
+        {
+            _partieService.ResetTimer(partieId, request.DresseurId);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
 }

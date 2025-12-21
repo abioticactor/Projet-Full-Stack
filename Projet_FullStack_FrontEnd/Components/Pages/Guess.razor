@@ -4,6 +4,7 @@
 @inject Microsoft.Extensions.Logging.ILogger<Guess> Logger
 @inject NavigationManager NavigationManager
 @inject Projet_FullStack_FrontEnd.Services.AuthService AuthService
+@implements IDisposable
 
 <RequireAuth>
 <div class="guess-container">
@@ -50,6 +51,9 @@
             <div class="game-stats">
                 <span class="score"><span class="stat-icon">⭐</span> Score : @currentScore</span>
                 <span class="attempts"><span class="stat-icon">🎲</span> Tentatives : @attemptsUsed / 3</span>
+                <span class="timer @(timeRemaining <= 10 ? "timer-warning" : "")">
+                    <span class="stat-icon">⏱️</span> Temps : @timeRemaining.ToString("F1")s
+                </span>
             </div>
         </div>
 
@@ -300,8 +304,8 @@
         {
             <div class="modal-overlay">
                 <div class="failure-modal">
-                    <span class="modal-icon failure-icon">😔</span>
-                    <h4>Dommage ! C'était :</h4>
+                    <span class="modal-icon failure-icon">@(isTimeout ? "⏱️" : "😔")</span>
+                    <h4>@(isTimeout ? "Temps écoulé ! C'était :" : "Dommage ! C'était :")</h4>
                     <div class="pokemon-reveal">
                         <img src="@revealedPokemonSprite" alt="Pokémon à deviner" class="revealed-sprite" />
                         <p class="pokemon-name-reveal">@(allPokemons.FirstOrDefault(p => p.Id == currentPokemonId)?.NameFr ?? "Pokémon inconnu")</p>
@@ -358,11 +362,22 @@
     private string guessResultMessage = string.Empty;
     private bool lastGuessCorrect = false;
     private string revealedPokemonSprite = string.Empty;
+    
+    // Timer
+    private double timeRemaining = 60.0;
+    private System.Threading.Timer? timer;
+    private bool isTimeout = false;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadGameData();
         await LoadAllPokemons();
+        StartTimer();
+    }
+    
+    public void Dispose()
+    {
+        timer?.Dispose();
     }
 
     private void BackToMenu()
@@ -678,9 +693,17 @@
 
                 if (result.IsCorrect)
                 {
+                    timer?.Dispose(); // Arrêter le timer
                     revealedPokemonSprite = currentPokemonSprite;
                     isFinalPokemon = result.IsGameFinished;
                     showSuccessModal = true;
+                }
+                else if (result.IsTimeout)
+                {
+                    timer?.Dispose(); // Arrêter le timer
+                    revealedPokemonSprite = currentPokemonSprite;
+                    isFinalPokemon = result.IsGameFinished;
+                    showFailureModal = true;
                 }
                 else
                 {
@@ -688,6 +711,7 @@
                     
                     if (result.IsTurnFinished)
                     {
+                        timer?.Dispose(); // Arrêter le timer
                         // Afficher le modal d'échec au lieu de passer automatiquement
                         revealedPokemonSprite = currentPokemonSprite;
                         isFinalPokemon = result.IsGameFinished;
@@ -718,8 +742,12 @@
         }
         else
         {
+            // Réinitialiser le timer côté serveur
+            await ResetTimerOnServer();
+            
             await LoadGameData();
             ResetGuessState();
+            StartTimer(); // Redémarrer le timer pour le prochain Pokémon
         }
 
         lastGuessCorrect = false;
@@ -730,6 +758,7 @@
     private async Task ProceedAfterFailure()
     {
         showFailureModal = false;
+        isTimeout = false;
 
         if (isFinalPokemon)
         {
@@ -737,13 +766,34 @@
         }
         else
         {
+            // Réinitialiser le timer côté serveur
+            await ResetTimerOnServer();
+            
             await LoadGameData();
             ResetGuessState();
+            StartTimer(); // Redémarrer le timer pour le prochain Pokémon
         }
 
         lastGuessCorrect = false;
         guessResultMessage = string.Empty;
         isFinalPokemon = false;
+    }
+    
+    private async Task ResetTimerOnServer()
+    {
+        try
+        {
+            var request = new ResetTimerRequest
+            {
+                DresseurId = DresseurId
+            };
+            
+            await Http.PostAsJsonAsync($"api/partie/{PartieId}/timer/reset", request);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors de la réinitialisation du timer");
+        }
     }
 
     private async Task RequestHint(string hintType)
@@ -798,6 +848,78 @@
         selectedPokemonName = string.Empty;
         guessResultMessage = string.Empty;
         showDropdown = false;
+    }
+    
+    private void StartTimer()
+    {
+        timer?.Dispose();
+        timer = new System.Threading.Timer(async _ => await UpdateTimer(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(100));
+    }
+
+    private async Task UpdateTimer()
+    {
+        try
+        {
+            var response = await Http.GetAsync($"api/partie/{PartieId}/timer/{DresseurId}");
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<TimerResponse>();
+                if (result != null)
+                {
+                    timeRemaining = result.TimeRemaining;
+                    
+                    if (timeRemaining <= 0 && !isTimeout)
+                    {
+                        isTimeout = true;
+                        await InvokeAsync(async () =>
+                        {
+                            await HandleTimeout();
+                        });
+                    }
+                    
+                    await InvokeAsync(StateHasChanged);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors de la mise à jour du timer");
+        }
+    }
+
+    private async Task HandleTimeout()
+    {
+        timer?.Dispose();
+        
+        try
+        {
+            // Afficher directement le popup d'échec avec les données actuelles
+            revealedPokemonSprite = currentPokemonSprite;
+            
+            // Soumettre au backend pour enregistrer l'échec (cela va incrémenter l'index)
+            var request = new SubmitGuessRequest
+            {
+                DresseurId = DresseurId,
+                PokemonName = "__TIMEOUT__" // Marqueur spécial pour le timeout
+            };
+
+            var response = await Http.PostAsJsonAsync($"api/partie/{PartieId}/guess", request);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<GuessResultDto>();
+                if (result != null)
+                {
+                    isFinalPokemon = result.IsGameFinished;
+                }
+            }
+            
+            showFailureModal = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors de la gestion du timeout");
+        }
     }
 
     private List<PokemonDto> filteredPokemons
@@ -931,6 +1053,7 @@
         public bool IsCorrect { get; set; }
         public bool IsTurnFinished { get; set; }
         public bool IsGameFinished { get; set; }
+        public bool IsTimeout { get; set; }
         public string Message { get; set; } = string.Empty;
         public int PointsEarned { get; set; }
     }
@@ -939,6 +1062,16 @@
     {
         public string? Id { get; set; }
         public string? Pseudo { get; set; }
+    }
+    
+    public class TimerResponse
+    {
+        public double TimeRemaining { get; set; }
+    }
+    
+    public class ResetTimerRequest
+    {
+        public string DresseurId { get; set; } = string.Empty;
     }
 }
 
@@ -1056,6 +1189,26 @@
     .game-stats .attempts {
         color: #ffa500;
         font-weight: 600;
+    }
+    
+    .game-stats .timer {
+        color: #2E7D32;
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+    
+    .game-stats .timer.timer-warning {
+        color: var(--color-red);
+        animation: pulse 1s infinite;
+    }
+    
+    @@keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.6;
+        }
     }
 
     .game-content {

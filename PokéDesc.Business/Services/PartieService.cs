@@ -26,6 +26,20 @@ public class PartieService : IPartieService
         { "Abilities", 25 },
         { "Sprite", 30 }
     };
+    
+    // Pénalités de temps (en secondes) pour chaque indice
+    private static readonly Dictionary<string, double> HintTimePenalties = new()
+    {
+        { "Type1", 5.0 },
+        { "Type2", 5.0 },
+        { "Generation", 3.0 },
+        { "Category", 3.0 },
+        { "Stats", 7.0 },
+        { "Height", 2.0 },
+        { "Weight", 2.0 },
+        { "Abilities", 8.0 },
+        { "Sprite", 30.0 }
+    };
 
     private const int MaxAttempts = 3;
     private const int BaseScore = 100;
@@ -82,6 +96,12 @@ public class PartieService : IPartieService
             partie.PokemonsToGuessJ1 = SelectPokemonsBasedOnDraws(rarityDraws, basePokemons, legendaryMythicalPokemons, random);
             partie.PokemonsToGuessJ2 = SelectPokemonsBasedOnDraws(rarityDraws, basePokemons, legendaryMythicalPokemons, random);
             partie.Statut = "EnCours";
+            
+            // Initialiser les timers pour chaque joueur
+            partie.TimerStartJ1 = DateTime.UtcNow;
+            partie.TimeRemainingJ1 = 60.0;
+            partie.TimerStartJ2 = DateTime.UtcNow;
+            partie.TimeRemainingJ2 = 60.0;
         }
         else
         {
@@ -152,6 +172,19 @@ public class PartieService : IPartieService
         if (!usedHints.Contains(hintType))
         {
             usedHints.Add(hintType);
+            
+            // Appliquer la pénalité de temps
+            if (HintTimePenalties.TryGetValue(hintType, out double timePenalty))
+            {
+                if (isJ1)
+                {
+                    partie.TimeRemainingJ1 = Math.Max(0, partie.TimeRemainingJ1 - timePenalty);
+                }
+                else
+                {
+                    partie.TimeRemainingJ2 = Math.Max(0, partie.TimeRemainingJ2 - timePenalty);
+                }
+            }
         }
 
         return partie;
@@ -161,6 +194,19 @@ public class PartieService : IPartieService
     {
         var partie = await GetGameAsync(partieId);
         bool isJ1 = dresseurId == partie.Dresseur1Id;
+        
+        // Si c'est le marqueur de timeout du frontend, gérer le timeout
+        if (pokemonName == "__TIMEOUT__")
+        {
+            return await HandleTimeout(partie, isJ1);
+        }
+        
+        // Vérifier si le temps est écoulé
+        bool isTimedOut = CheckTimeout(partie, isJ1);
+        if (isTimedOut)
+        {
+            return await HandleTimeout(partie, isJ1);
+        }
         
         int currentIndex = isJ1 ? partie.CurrentIndexJ1 : partie.CurrentIndexJ2;
         var pokemonsList = isJ1 ? partie.PokemonsToGuessJ1 : partie.PokemonsToGuessJ2;
@@ -258,6 +304,26 @@ public class PartieService : IPartieService
         }
     }
 
+    public void ResetTimer(string partieId, string dresseurId)
+    {
+        var partie = _fakeGameStore.FirstOrDefault(p => p.Id == partieId);
+        if (partie == null)
+            return;
+            
+        bool isJ1 = dresseurId == partie.Dresseur1Id;
+        
+        if (isJ1)
+        {
+            partie.TimerStartJ1 = DateTime.UtcNow;
+            partie.TimeRemainingJ1 = 60.0;
+        }
+        else
+        {
+            partie.TimerStartJ2 = DateTime.UtcNow;
+            partie.TimeRemainingJ2 = 60.0;
+        }
+    }
+
     private void RecordCompletedPokemon(Partie partie, bool isJ1, Pokemon pokemon, bool wasGuessed, int pointsEarned)
     {
         var completedPokemon = new CompletedPokemon
@@ -301,5 +367,66 @@ public class PartieService : IPartieService
         const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         var random = new Random();
         return new string(Enumerable.Repeat(chars, 6).Select(s => s[random.Next(s.Length)]).ToArray());
+    }
+
+    private bool CheckTimeout(Partie partie, bool isJ1)
+    {
+        DateTime? timerStart = isJ1 ? partie.TimerStartJ1 : partie.TimerStartJ2;
+        double timeRemaining = isJ1 ? partie.TimeRemainingJ1 : partie.TimeRemainingJ2;
+
+        if (timerStart == null)
+            return false;
+
+        var elapsed = (DateTime.UtcNow - timerStart.Value).TotalSeconds;
+        return elapsed >= timeRemaining;
+    }
+
+    private async Task<GuessResult> HandleTimeout(Partie partie, bool isJ1)
+    {
+        int currentIndex = isJ1 ? partie.CurrentIndexJ1 : partie.CurrentIndexJ2;
+        var pokemonsList = isJ1 ? partie.PokemonsToGuessJ1 : partie.PokemonsToGuessJ2;
+
+        if (currentIndex >= pokemonsList.Count)
+        {
+            return new GuessResult { IsGameFinished = true, Message = "Partie déjà terminée.", UpdatedGame = partie };
+        }
+
+        var targetPokemon = pokemonsList[currentIndex];
+
+        // Enregistrer le Pokémon comme raté (timeout)
+        RecordCompletedPokemon(partie, isJ1, targetPokemon, false, 0);
+
+        // NE PAS passer au Pokémon suivant automatiquement
+        // Le joueur le fera manuellement avec le bouton du popup
+        // Mais il faut incrémenter l'index pour que le frontend sache qu'on doit passer au suivant
+        AdvanceToNextPokemon(partie, isJ1);
+
+        return new GuessResult
+        {
+            IsCorrect = false,
+            IsTurnFinished = true,
+            IsTimeout = true,
+            PointsEarned = 0,
+            Message = $"Temps écoulé ! C'était {targetPokemon.NameFr}.",
+            UpdatedGame = partie,
+            IsGameFinished = CheckIfGameFinished(partie, isJ1)
+        };
+    }
+
+    public double GetRemainingTime(string partieId, string dresseurId)
+    {
+        var partie = _fakeGameStore.FirstOrDefault(p => p.Id == partieId);
+        if (partie == null)
+            return 0;
+
+        bool isJ1 = dresseurId == partie.Dresseur1Id;
+        DateTime? timerStart = isJ1 ? partie.TimerStartJ1 : partie.TimerStartJ2;
+        double timeRemaining = isJ1 ? partie.TimeRemainingJ1 : partie.TimeRemainingJ2;
+
+        if (timerStart == null)
+            return timeRemaining;
+
+        var elapsed = (DateTime.UtcNow - timerStart.Value).TotalSeconds;
+        return Math.Max(0, timeRemaining - elapsed);
     }
 }

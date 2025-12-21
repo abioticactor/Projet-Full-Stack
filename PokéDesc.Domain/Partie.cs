@@ -42,6 +42,10 @@ public class Partie
     // État du tour actuel (Joueur 1)
     public int AttemptsUsedJ1 { get; set; } = 0;
     public List<string> UsedHintsJ1 { get; set; } = new List<string>();
+    
+    // Timer Joueur 1
+    public DateTime? TimerStartJ1 { get; set; }
+    public double TimeRemainingJ1 { get; set; } = 60.0; // secondes
 
     // Progression Joueur 2
     public int CurrentIndexJ2 { get; set; } = 0;
@@ -50,6 +54,10 @@ public class Partie
     // État du tour actuel (Joueur 2)
     public int AttemptsUsedJ2 { get; set; } = 0;
     public List<string> UsedHintsJ2 { get; set; } = new List<string>();
+    
+    // Timer Joueur 2
+    public DateTime? TimerStartJ2 { get; set; }
+    public double TimeRemainingJ2 { get; set; } = 60.0; // secondes
 
     // Historique des Pokémons complétés
     public List<CompletedPokemon> CompletedPokemonsJ1 { get; set; } = new List<CompletedPokemon>();

@@ -35,4 +35,14 @@ public interface IPartieService
     /// Récupère l'état actuel de la partie.
     /// </summary>
     Task<Partie> GetGameAsync(string partieId);
+
+    /// <summary>
+    /// Récupère le temps restant pour un joueur.
+    /// </summary>
+    double GetRemainingTime(string partieId, string dresseurId);
+    
+    /// <summary>
+    /// Réinitialise le timer pour un joueur.
+    /// </summary>
+    void ResetTimer(string partieId, string dresseurId);
 }

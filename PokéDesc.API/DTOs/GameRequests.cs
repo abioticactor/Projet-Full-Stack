@@ -42,3 +42,9 @@ public class StartGameRequest
     
     public bool IsSolo { get; set; } = false; // Mode solo ou multijoueur
 }
+
+public class ResetTimerRequest
+{
+    [Required]
+    public string DresseurId { get; set; } = string.Empty;
+}
