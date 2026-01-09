@@ -131,7 +131,10 @@ public class AuthService
         {
             var handler = new JwtSecurityTokenHandler();
             var jwtToken = handler.ReadJwtToken(token);
-            
+
+            // Debug log to inspect claims
+            Console.WriteLine("Token Claims: " + string.Join(", ", jwtToken.Claims.Select(c => $"{c.Type}: {c.Value}")));
+
             _currentUserId = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
             _currentEmail = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Email)?.Value;
             _currentPseudo = jwtToken.Claims.FirstOrDefault(c => c.Type == "pseudo")?.Value;

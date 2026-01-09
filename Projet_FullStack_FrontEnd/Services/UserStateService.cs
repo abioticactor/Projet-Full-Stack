@@ -57,7 +57,7 @@ public class UserStateService
                     {
                         Id = profil.id ?? _authService.CurrentUserId ?? "",
                         Pseudo = profil.pseudo ?? _authService.CurrentPseudo ?? "",
-                        Email = _authService.CurrentEmail ?? "",
+                        Email = profil.email ?? _authService.CurrentEmail ?? "", // Use profil.email first
                         Amis = profil.amis ?? new List<string>(),
                         Victoires = profil.victoires ?? 0,
                         Defaites = profil.defaites ?? 0,
@@ -118,7 +118,11 @@ public class UserStateService
         NotifyStateChanged();
     }
 
-    private void NotifyStateChanged() => OnChange?.Invoke();
+    private void NotifyStateChanged()
+    {
+        Console.WriteLine("NotifyStateChanged invoked"); // Debug log
+        OnChange?.Invoke();
+    }
 
     // Classes pour les réponses API
     private class ProfilResponse
@@ -129,6 +133,7 @@ public class UserStateService
         public int? victoires { get; set; }
         public int? defaites { get; set; }
         public int? partiesJouees { get; set; }
+        public string? email { get; set; } // Ajout de la propriété email
     }
 }
 
