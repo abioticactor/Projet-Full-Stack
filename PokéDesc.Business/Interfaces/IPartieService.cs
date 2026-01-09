@@ -14,7 +14,7 @@ public interface IPartieService
     /// <summary>
     /// Lance la partie avec le mode de jeu choisi.
     /// </summary>
-    Task<Partie> StartGameAsync(string partieId, string mode);
+    Task<Partie> StartGameAsync(string partieId, string mode, bool isSolo = false);
 
     /// <summary>
     /// Permet à un deuxième joueur de rejoindre une partie existante via son code.
@@ -35,4 +35,14 @@ public interface IPartieService
     /// Récupère l'état actuel de la partie.
     /// </summary>
     Task<Partie> GetGameAsync(string partieId);
+
+    /// <summary>
+    /// Récupère le temps restant pour un joueur.
+    /// </summary>
+    double GetRemainingTime(string partieId, string dresseurId);
+    
+    /// <summary>
+    /// Réinitialise le timer pour un joueur.
+    /// </summary>
+    void ResetTimer(string partieId, string dresseurId);
 }

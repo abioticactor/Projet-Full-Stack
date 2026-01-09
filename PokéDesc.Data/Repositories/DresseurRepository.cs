@@ -40,4 +40,23 @@ public class DresseurRepository
     {
         return await _dresseursCollection.Find(d => d.Id == id).FirstOrDefaultAsync();
     }
+
+    // Méthode pour ajouter ou mettre à jour un Pokémon dans le Pokédex du dresseur
+    public async Task UpdatePokedexAsync(string dresseurId, PokemonCapture pokemonCapture)
+    {
+        var filter = Builders<Dresseur>.Filter.Eq(d => d.Id, dresseurId);
+        var update = Builders<Dresseur>.Update.Push(d => d.Pokedex, pokemonCapture);
+        await _dresseursCollection.UpdateOneAsync(filter, update);
+    }
+
+    // Méthode pour mettre à jour le niveau d'un Pokémon existant dans le Pokédex
+    public async Task UpdatePokemonLevelAsync(string dresseurId, int pokemonId, int newLevel)
+    {
+        var filter = Builders<Dresseur>.Filter.And(
+            Builders<Dresseur>.Filter.Eq(d => d.Id, dresseurId),
+            Builders<Dresseur>.Filter.ElemMatch(d => d.Pokedex, p => p.PokemonId == pokemonId)
+        );
+        var update = Builders<Dresseur>.Update.Set("Pokedex.$.Niveau", newLevel);
+        await _dresseursCollection.UpdateOneAsync(filter, update);
+    }
 }

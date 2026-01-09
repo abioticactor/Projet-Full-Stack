@@ -17,6 +17,17 @@ public class PokemonRepository
         return await _collection.Find(_ => true).ToListAsync();
     }
 
+    public async Task<(List<Pokemon> items, int totalCount)> GetPaginatedAsync(int page, int pageSize)
+    {
+        var totalCount = await _collection.CountDocumentsAsync(_ => true);
+        var items = await _collection.Find(_ => true)
+            .SortBy(p => p.PokedexNumber)
+            .Skip((page - 1) * pageSize)
+            .Limit(pageSize)
+            .ToListAsync();
+        return (items, (int)totalCount);
+    }
+
     public async Task<Pokemon> GetByIdAsync(string id)
     {
         return await _collection.Find(p => p.Id == id).FirstOrDefaultAsync();

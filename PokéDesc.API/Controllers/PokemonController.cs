@@ -19,10 +19,25 @@ public class PokemonController : ControllerBase
     /// Récupère tous les Pokémon
     /// </summary>
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] int? page, [FromQuery] int? pageSize)
     {
         try
         {
+            // Si page et pageSize sont fournis, utiliser la pagination
+            if (page.HasValue && pageSize.HasValue && page.Value > 0 && pageSize.Value > 0)
+            {
+                var (items, totalCount, totalPages) = await _service.GetPokemonsPaginatedAsync(page.Value, pageSize.Value);
+                return Ok(new
+                {
+                    items,
+                    page = page.Value,
+                    pageSize = pageSize.Value,
+                    totalCount,
+                    totalPages
+                });
+            }
+            
+            // Sinon, retourner tous les pokémons
             var pokemons = await _service.GetAllPokemonsAsync();
             return Ok(pokemons);
         }

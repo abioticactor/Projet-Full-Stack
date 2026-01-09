@@ -24,6 +24,9 @@ public class Partie
     // Statut : "EnAttente", "EnCours", "Termine"
     public string Statut { get; set; } = "EnAttente";
 
+    // Mode de jeu : true si solo (1 joueur), false si multijoueur (2 joueurs)
+    public bool ModeSolo { get; set; } = false;
+
     // --- Logique du Jeu ---
 
     // La liste des 6 Pokémon à deviner pour le Joueur 1
@@ -39,6 +42,10 @@ public class Partie
     // État du tour actuel (Joueur 1)
     public int AttemptsUsedJ1 { get; set; } = 0;
     public List<string> UsedHintsJ1 { get; set; } = new List<string>();
+    
+    // Timer Joueur 1
+    public DateTime? TimerStartJ1 { get; set; }
+    public double TimeRemainingJ1 { get; set; } = 60.0; // secondes
 
     // Progression Joueur 2
     public int CurrentIndexJ2 { get; set; } = 0;
@@ -47,4 +54,22 @@ public class Partie
     // État du tour actuel (Joueur 2)
     public int AttemptsUsedJ2 { get; set; } = 0;
     public List<string> UsedHintsJ2 { get; set; } = new List<string>();
+    
+    // Timer Joueur 2
+    public DateTime? TimerStartJ2 { get; set; }
+    public double TimeRemainingJ2 { get; set; } = 60.0; // secondes
+
+    // Historique des Pokémons complétés
+    public List<CompletedPokemon> CompletedPokemonsJ1 { get; set; } = new List<CompletedPokemon>();
+    public List<CompletedPokemon> CompletedPokemonsJ2 { get; set; } = new List<CompletedPokemon>();
+}
+
+public class CompletedPokemon
+{
+    public string PokemonId { get; set; } = string.Empty;
+    public string PokemonName { get; set; } = string.Empty;
+    public bool WasGuessed { get; set; } // true si deviné, false si raté
+    public int AttemptsUsed { get; set; }
+    public List<string> HintsUsed { get; set; } = new List<string>();
+    public int PointsEarned { get; set; }
 }

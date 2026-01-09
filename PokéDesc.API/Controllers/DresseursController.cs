@@ -119,7 +119,7 @@ public class DresseursController : ControllerBase
 
         try
         {
-            await _dresseurService.CapturerPokemonAsync(monId, request.PokemonId, request.Niveau);
+            await _dresseurService.CapturerPokemonAsync(monId, request.PokemonId);
             return Ok(new { message = "Pokémon ajouté au Pokédex !" });
         }
         catch (Exception ex)
@@ -157,4 +157,4 @@ public record LoginRequest(string Email, string Password);
 // NOUVEAU Record pour la requête d'ajout d'ami
 public record AjouterAmiRequest(string PseudoAmi);
 
- public record AjoutPokemonRequest(int PokemonId, int Niveau);
+public record AjoutPokemonRequest(int PokemonId);
