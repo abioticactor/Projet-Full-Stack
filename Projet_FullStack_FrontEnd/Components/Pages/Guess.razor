@@ -139,9 +139,10 @@
                 <div class="hints-grid">
                     <button 
                         @onclick="@(() => RequestHint("Type1"))" 
-                        disabled="@usedHints.Contains("Type1")"
+                        disabled="@(usedHints.Contains("Type1") || IsHintLockedDueToTime("Type1"))"
                         class="hint-button @(usedHints.Contains("Type1") ? "revealed" : "")"
-                        style="position: relative;">
+                        style="position: relative;"
+                        title="@GetHintTooltip("Type1")">
                         @if (activeHintAnimations.ContainsKey("Type1"))
                         {
                             <span class="hint-time-penalty-float">-@(activeHintAnimations["Type1"])s</span>
@@ -150,6 +151,12 @@
                         {
                             <span class="revealed-hint-content">@revealedHints["Type 1"]</span>
                             <span class="used-badge">✓</span>
+                        }
+                        else if (IsHintLockedDueToTime("Type1"))
+                        {
+                            <span class="hint-icon">🔷</span>
+                            <span>Type 1</span>
+                            <span class="locked-badge">🔒</span>
                         }
                         else
                         {
@@ -160,9 +167,10 @@
 
                     <button 
                         @onclick="@(() => RequestHint("Type2"))" 
-                        disabled="@usedHints.Contains("Type2")"
+                        disabled="@(usedHints.Contains("Type2") || IsHintLockedDueToTime("Type2"))"
                         class="hint-button @(usedHints.Contains("Type2") ? "revealed" : "")"
-                        style="position: relative;">
+                        style="position: relative;"
+                        title="@GetHintTooltip("Type2")">
                         @if (activeHintAnimations.ContainsKey("Type2"))
                         {
                             <span class="hint-time-penalty-float">-@(activeHintAnimations["Type2"])s</span>
@@ -171,6 +179,12 @@
                         {
                             <span class="revealed-hint-content">@revealedHints["Type 2"]</span>
                             <span class="used-badge">✓</span>
+                        }
+                        else if (IsHintLockedDueToTime("Type2"))
+                        {
+                            <span class="hint-icon">🔶</span>
+                            <span>Type 2</span>
+                            <span class="locked-badge">🔒</span>
                         }
                         else
                         {
@@ -181,9 +195,10 @@
 
                     <button 
                         @onclick="@(() => RequestHint("Generation"))" 
-                        disabled="@usedHints.Contains("Generation")"
+                        disabled="@(usedHints.Contains("Generation") || IsHintLockedDueToTime("Generation"))"
                         class="hint-button @(usedHints.Contains("Generation") ? "revealed" : "")"
-                        style="position: relative;">
+                        style="position: relative;"
+                        title="@GetHintTooltip("Generation")">
                         @if (activeHintAnimations.ContainsKey("Generation"))
                         {
                             <span class="hint-time-penalty-float">-@(activeHintAnimations["Generation"])s</span>
@@ -192,6 +207,12 @@
                         {
                             <span class="revealed-hint-content">@revealedHints["Génération"]</span>
                             <span class="used-badge">✓</span>
+                        }
+                        else if (IsHintLockedDueToTime("Generation"))
+                        {
+                            <span class="hint-icon">📅</span>
+                            <span>Génération</span>
+                            <span class="locked-badge">🔒</span>
                         }
                         else
                         {
@@ -202,9 +223,10 @@
 
                     <button 
                         @onclick="@(() => RequestHint("Category"))" 
-                        disabled="@usedHints.Contains("Category")"
+                        disabled="@(usedHints.Contains("Category") || IsHintLockedDueToTime("Category"))"
                         class="hint-button @(usedHints.Contains("Category") ? "revealed" : "")"
-                        style="position: relative;">
+                        style="position: relative;"
+                        title="@GetHintTooltip("Category")">
                         @if (activeHintAnimations.ContainsKey("Category"))
                         {
                             <span class="hint-time-penalty-float">-@(activeHintAnimations["Category"])s</span>
@@ -213,6 +235,12 @@
                         {
                             <span class="revealed-hint-content">@revealedHints["Catégorie"]</span>
                             <span class="used-badge">✓</span>
+                        }
+                        else if (IsHintLockedDueToTime("Category"))
+                        {
+                            <span class="hint-icon">🏷️</span>
+                            <span>Catégorie</span>
+                            <span class="locked-badge">🔒</span>
                         }
                         else
                         {
@@ -223,9 +251,10 @@
 
                     <button 
                         @onclick="@(() => RequestHint("Stats"))" 
-                        disabled="@usedHints.Contains("Stats")"
+                        disabled="@(usedHints.Contains("Stats") || IsHintLockedDueToTime("Stats"))"
                         class="hint-button @(usedHints.Contains("Stats") ? "revealed" : "")"
-                        style="position: relative;">
+                        style="position: relative;"
+                        title="@GetHintTooltip("Stats")">
                         @if (activeHintAnimations.ContainsKey("Stats"))
                         {
                             <span class="hint-time-penalty-float">-@(activeHintAnimations["Stats"])s</span>
@@ -234,6 +263,12 @@
                         {
                             <span class="revealed-hint-content stats">@revealedHints["Statistiques"]</span>
                             <span class="used-badge">✓</span>
+                        }
+                        else if (IsHintLockedDueToTime("Stats"))
+                        {
+                            <span class="hint-icon">📊</span>
+                            <span>Statistiques</span>
+                            <span class="locked-badge">🔒</span>
                         }
                         else
                         {
@@ -244,9 +279,10 @@
 
                     <button 
                         @onclick="@(() => RequestHint("Height"))" 
-                        disabled="@usedHints.Contains("Height")"
+                        disabled="@(usedHints.Contains("Height") || IsHintLockedDueToTime("Height"))"
                         class="hint-button @(usedHints.Contains("Height") ? "revealed" : "")"
-                        style="position: relative;">
+                        style="position: relative;"
+                        title="@GetHintTooltip("Height")">
                         @if (activeHintAnimations.ContainsKey("Height"))
                         {
                             <span class="hint-time-penalty-float">-@(activeHintAnimations["Height"])s</span>
@@ -255,6 +291,12 @@
                         {
                             <span class="revealed-hint-content">@revealedHints["Taille"]</span>
                             <span class="used-badge">✓</span>
+                        }
+                        else if (IsHintLockedDueToTime("Height"))
+                        {
+                            <span class="hint-icon">📏</span>
+                            <span>Taille</span>
+                            <span class="locked-badge">🔒</span>
                         }
                         else
                         {
@@ -265,9 +307,10 @@
 
                     <button 
                         @onclick="@(() => RequestHint("Weight"))" 
-                        disabled="@usedHints.Contains("Weight")"
+                        disabled="@(usedHints.Contains("Weight") || IsHintLockedDueToTime("Weight"))"
                         class="hint-button @(usedHints.Contains("Weight") ? "revealed" : "")"
-                        style="position: relative;">
+                        style="position: relative;"
+                        title="@GetHintTooltip("Weight")">
                         @if (activeHintAnimations.ContainsKey("Weight"))
                         {
                             <span class="hint-time-penalty-float">-@(activeHintAnimations["Weight"])s</span>
@@ -276,6 +319,12 @@
                         {
                             <span class="revealed-hint-content">@revealedHints["Poids"]</span>
                             <span class="used-badge">✓</span>
+                        }
+                        else if (IsHintLockedDueToTime("Weight"))
+                        {
+                            <span class="hint-icon">⚖️</span>
+                            <span>Poids</span>
+                            <span class="locked-badge">🔒</span>
                         }
                         else
                         {
@@ -286,9 +335,10 @@
 
                     <button 
                         @onclick="@(() => RequestHint("Abilities"))" 
-                        disabled="@usedHints.Contains("Abilities")"
+                        disabled="@(usedHints.Contains("Abilities") || IsHintLockedDueToTime("Abilities"))"
                         class="hint-button @(usedHints.Contains("Abilities") ? "revealed" : "")"
-                        style="position: relative;">
+                        style="position: relative;"
+                        title="@GetHintTooltip("Abilities")">
                         @if (activeHintAnimations.ContainsKey("Abilities"))
                         {
                             <span class="hint-time-penalty-float">-@(activeHintAnimations["Abilities"])s</span>
@@ -297,6 +347,12 @@
                         {
                             <span class="revealed-hint-content">@revealedHints["Talents"]</span>
                             <span class="used-badge">✓</span>
+                        }
+                        else if (IsHintLockedDueToTime("Abilities"))
+                        {
+                            <span class="hint-icon">⚡</span>
+                            <span>Talents</span>
+                            <span class="locked-badge">🔒</span>
                         }
                         else
                         {
@@ -307,9 +363,10 @@
 
                     <button 
                         @onclick="@(() => RequestHint("Sprite"))" 
-                        disabled="@usedHints.Contains("Sprite")"
+                        disabled="@(usedHints.Contains("Sprite") || IsHintLockedDueToTime("Sprite"))"
                         class="hint-button @(usedHints.Contains("Sprite") ? "revealed" : "")"
-                        style="position: relative;">
+                        style="position: relative;"
+                        title="@GetHintTooltip("Sprite")">
                         @if (activeHintAnimations.ContainsKey("Sprite"))
                         {
                             <span class="hint-time-penalty-float">-@(activeHintAnimations["Sprite"])s</span>
@@ -318,6 +375,12 @@
                         {
                             <img src="@revealedHints["Silhouette"]" alt="Silhouette" class="revealed-sprite-img" />
                             <span class="used-badge">✓</span>
+                        }
+                        else if (IsHintLockedDueToTime("Sprite"))
+                        {
+                            <span class="hint-icon">👤</span>
+                            <span>Silhouette</span>
+                            <span class="locked-badge">🔒</span>
                         }
                         else
                         {
@@ -1046,6 +1109,58 @@
         }
     }
 
+    private bool IsHintLockedDueToTime(string hintType)
+    {
+        // Si l'indice est déjà utilisé, ne pas le verrouiller (priorité à l'état "utilisé")
+        if (usedHints.Contains(hintType))
+            return false;
+
+        // Définir les pénalités de temps pour chaque indice
+        var timePenalties = new Dictionary<string, double>
+        {
+            { "Type1", 5.0 },
+            { "Type2", 5.0 },
+            { "Generation", 3.0 },
+            { "Category", 3.0 },
+            { "Stats", 7.0 },
+            { "Height", 2.0 },
+            { "Weight", 2.0 },
+            { "Abilities", 8.0 },
+            { "Sprite", 30.0 }
+        };
+
+        // Vérifier si l'indice consomme plus de temps que disponible
+        if (timePenalties.TryGetValue(hintType, out double penalty))
+        {
+            return penalty > timeRemaining;
+        }
+
+        return false;
+    }
+
+    private string GetHintTooltip(string hintType)
+    {
+        var timePenalties = new Dictionary<string, double>
+        {
+            { "Type1", 5.0 },
+            { "Type2", 5.0 },
+            { "Generation", 3.0 },
+            { "Category", 3.0 },
+            { "Stats", 7.0 },
+            { "Height", 2.0 },
+            { "Weight", 2.0 },
+            { "Abilities", 8.0 },
+            { "Sprite", 30.0 }
+        };
+
+        if (IsHintLockedDueToTime(hintType) && timePenalties.TryGetValue(hintType, out double penalty))
+        {
+            return $"Temps insuffisant - Il vous reste {timeRemaining:F1}s, cet indice coûte {penalty}s";
+        }
+
+        return string.Empty;
+    }
+
     public class PartieDto
     {
         public string? Id { get; set; }
@@ -1708,6 +1823,22 @@
         align-items: center;
         justify-content: center;
         font-size: 0.8rem;
+    }
+
+    .locked-badge {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: var(--color-text-muted);
+        color: white;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        filter: none;
     }
 
     .success-reveal {
