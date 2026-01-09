@@ -1,4 +1,5 @@
 using Projet_FullStack_FrontEnd.Components;
+using Projet_FullStack_FrontEnd.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,8 @@ builder.Services.AddScoped<Projet_FullStack_FrontEnd.Services.AuthService>();
 // User state service to manage current user data across the app
 builder.Services.AddScoped<Projet_FullStack_FrontEnd.Services.UserStateService>();
 
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -26,6 +29,8 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+app.MapHub<ChatHub>("/chathub");
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

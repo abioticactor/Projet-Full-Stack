@@ -1,4 +1,7 @@
 @page "/amis"
+@inject IJSRuntime JSRuntime
+@using Microsoft.AspNetCore.Components.Authorization
+@inject Projet_FullStack_FrontEnd.Services.UserStateService UserState
 
 <RequireAuth>
 <!-- ========================================== -->
@@ -304,12 +307,17 @@
         <div class="modal-box" @onclick:stopPropagation="true">
             <h3 style="margin-top:0">Message à @AmiSelectionnePourMessage.Pseudo</h3>
             <p style="font-size:0.9rem; color:#666;">Envoyez un message rapide ou une invitation.</p>
-            
-            <textarea class="modal-textarea" placeholder="Écrivez votre message ici..." @bind="ContenuMessage"></textarea>
+
+            <!-- Zone où les messages du chat pourraient apparaître -->
+            <ul id="messagesList" style="list-style-type: none; padding: 0; height: 150px; overflow-y: auto; border: 1px solid #eee; padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+                <!-- Les messages reçus via SignalR seront ajoutés ici par le script -->
+            </ul>
+
+            <textarea id="messageInput" class="modal-textarea" placeholder="Écrivez votre message ici..." @bind="ContenuMessage"></textarea>
             
             <div class="modal-buttons">
                 <button class="btn-action" style="background:#ccc; color:#333;" @onclick="FermerModal">Annuler</button>
-                <button class="btn-action btn-msg" @onclick="EnvoyerMessage">Envoyer ✈</button>
+                <button id="sendBtn" class="btn-action btn-msg" @onclick="EnvoyerMessage">Envoyer ✈</button>
             </div>
         </div>
     </div>
@@ -319,6 +327,8 @@
 <!-- 3. LE C# (LA LOGIQUE) -->
 <!-- ========================================== -->
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
     // --- 1. Modèles de données ---
     public class Ami
     {
@@ -340,8 +350,9 @@
     private string ContenuMessage { get; set; } = "";
 
     // --- 3. Initialisation (Fausses Données) ---
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        await UserState.LoadUserDataAsync();
         // On remplit la liste avec des faux amis pour tester l'affichage
         ListeAmis = new List<Ami>
         {
@@ -410,23 +421,29 @@
     }
 
     // --- Gestion de la Modale Message ---
-    private void OuvrirModalMessage(Ami ami)
+    private async Task OuvrirModalMessage(Ami ami)
     {
         AmiSelectionnePourMessage = ami;
         ContenuMessage = "";
+        // On attend que la modale soit rendue, puis on initialise SignalR
+        await Task.Delay(50); 
+        if (UserState.CurrentUser != null)
+        {
+            await JSRuntime.InvokeVoidAsync("initSignalR", UserState.CurrentUser.Pseudo);
+        }
     }
 
     private void FermerModal()
     {
         AmiSelectionnePourMessage = null;
+        JSRuntime.InvokeVoidAsync("disconnectSignalR");
     }
 
-    private void EnvoyerMessage()
+    private async Task EnvoyerMessage()
     {
-        if (AmiSelectionnePourMessage != null)
+        if (AmiSelectionnePourMessage != null && !string.IsNullOrWhiteSpace(ContenuMessage))
         {
-            // Simulation d'envoi API
-            Console.WriteLine($"Message envoyé à {AmiSelectionnePourMessage.Pseudo} : {ContenuMessage}");
+            await JSRuntime.InvokeVoidAsync("sendMessage", AmiSelectionnePourMessage.Pseudo);
             MessageFeedback = $"✉ Message envoyé à {AmiSelectionnePourMessage.Pseudo}.";
             FermerModal();
         }
@@ -444,3 +461,81 @@
     }
 }
 </RequireAuth>
+
+<script>
+    let connection;
+
+    function initSignalR(currentUserPseudo) {
+        // Connexion SignalR
+        if (connection) return; // Déjà connecté
+
+        connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chathub")
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on("ReceiveMessage", (user, message) => {
+            const messagesList = document.getElementById("messagesList");
+            if (!messagesList) return;
+
+            const li = document.createElement("li");
+            li.textContent = `${user}: ${message}`;
+            messagesList.appendChild(li);
+            messagesList.scrollTop = messagesList.scrollHeight; // Scroll vers le bas
+        });
+
+        connection.onreconnected = (connectionId) => {
+            const sendBtn = document.getElementById("sendBtn");
+            if (!sendBtn) return;
+            sendBtn.disabled = false;
+            sendBtn.textContent = "Envoyer";
+        };
+
+        connection.onreconnecting = (error) => {
+            const sendBtn = document.getElementById("sendBtn");
+            if (!sendBtn) return;
+            sendBtn.disabled = true;
+            sendBtn.textContent = "Connexion...";
+        };
+
+        connection.start()
+            .then(() => {
+                const sendBtn = document.getElementById("sendBtn");
+                if (sendBtn) sendBtn.disabled = false;
+                console.log("✅ Connecté au hub SignalR");
+                // On stocke le pseudo de l'utilisateur actuel dans une variable globale du script
+                window.currentUserForChat = currentUserPseudo;
+            })
+            .catch(err => {
+                console.error("❌ Erreur de connexion SignalR:", err);
+            });
+    }
+
+     function disconnectSignalR() {
+         if (connection) {
+             connection.stop();
+             connection = null;
+             console.log("🛑 Déconnecté du hub SignalR");
+         }
+     }
+ 
+     function sendMessage(recipientUser) {
+         const messageInput = document.getElementById("messageInput");
+         if (!connection || !messageInput || !window.currentUserForChat) {
+             console.error("Impossible d'envoyer le message : connexion non établie, champ de saisie introuvable ou utilisateur actuel non défini.");
+             return;
+         }
+ 
+         const message = messageInput.value;
+         if (message.trim() === "") return;
+ 
+         // Le hub SignalR doit être adapté pour gérer un destinataire
+         connection.invoke("SendMessageToUser", window.currentUserForChat, recipientUser, message)
+             .then(() => {
+                 // Optionnel : vider le champ de saisie après l'envoi
+                 // messageInput.value = "";
+             })
+             .catch(err => console.error("Erreur lors de l'envoi du message:", err));
+     }
+</script>
+
