@@ -105,6 +105,28 @@ public class PokemonService : IPokemonService
         }).ToList();
     }
 
+    public async Task<List<Pokemon>> GetFinalEvolutionPokemonsAsync()
+    {
+        var allPokemons = await _repository.GetAllAsync();
+        // Filtrer les Pokémons qui sont au niveau maximum de leur chaîne d'évolution
+        return allPokemons.Where(p => 
+        {
+            if (p.EvolutionChain?.Chain == null || !p.EvolutionChain.Chain.Any())
+                return false;
+            
+            // Chercher l'entrée correspondant au Pokémon actuel dans la chaîne
+            var evolutionEntry = p.EvolutionChain.Chain
+                .FirstOrDefault(e => string.Equals(e.Name, p.NameEn, StringComparison.OrdinalIgnoreCase));
+            
+            if (evolutionEntry == null)
+                return false;
+            
+            // Vérifier si c'est le niveau le plus élevé dans la chaîne
+            var maxLevel = p.EvolutionChain.Chain.Max(e => e.Level);
+            return evolutionEntry.Level == maxLevel;
+        }).ToList();
+    }
+
     public async Task<string> GetCensoredDescriptionAsync(string id)
     {
         var pokemon = await GetPokemonByIdAsync(id);

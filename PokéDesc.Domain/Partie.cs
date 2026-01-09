@@ -27,6 +27,9 @@ public class Partie
     // Mode de jeu : true si solo (1 joueur), false si multijoueur (2 joueurs)
     public bool ModeSolo { get; set; } = false;
 
+    // Mode de difficulté : "Standard", "Etendu", "SansLimite"
+    public string GameMode { get; set; } = "Standard";
+
     // --- Logique du Jeu ---
 
     // La liste des 6 Pokémon à deviner pour le Joueur 1

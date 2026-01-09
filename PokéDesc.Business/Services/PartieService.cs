@@ -73,17 +73,18 @@ public class PartieService : IPartieService
 
         // Marquer le mode solo dans la partie
         partie.ModeSolo = isSolo;
+        partie.GameMode = mode;
+
+        int numberOfPokemons = 6;
+        var random = new Random();
 
         if (mode == "Standard")
         {
-            int numberOfPokemons = 6;
-            
-            // Récupérer les listes de Pokémons
+            // Mode Standard : Pokémons de base + 1% de chance légendaire/mythique
             var basePokemons = await _pokemonService.GetBaseEvolutionPokemonsAsync();
             var legendaryMythicalPokemons = await _pokemonService.GetLegendaryOrMythicalPokemonsAsync();
             
             // Générer les tirages communs pour déterminer le type de chaque position
-            var random = new Random();
             var rarityDraws = new bool[numberOfPokemons];
             for (int i = 0; i < numberOfPokemons; i++)
             {
@@ -92,21 +93,51 @@ public class PartieService : IPartieService
             }
             
             // Génération des Pokémons pour chaque joueur selon les tirages
-            // En mode solo, on génère quand même pour J1 et J2 mais on n'utilise que J1
             partie.PokemonsToGuessJ1 = SelectPokemonsBasedOnDraws(rarityDraws, basePokemons, legendaryMythicalPokemons, random);
             partie.PokemonsToGuessJ2 = SelectPokemonsBasedOnDraws(rarityDraws, basePokemons, legendaryMythicalPokemons, random);
-            partie.Statut = "EnCours";
+        }
+        else if (mode == "Etendu")
+        {
+            // Mode Étendu : Tous les Pokémons (y compris évolutions) + 1% de chance légendaire/mythique
+            var allPokemons = await _pokemonService.GetAllPokemonsAsync();
+            var legendaryMythicalPokemons = await _pokemonService.GetLegendaryOrMythicalPokemonsAsync();
             
-            // Initialiser les timers pour chaque joueur
-            partie.TimerStartJ1 = DateTime.UtcNow;
-            partie.TimeRemainingJ1 = 60.0;
-            partie.TimerStartJ2 = DateTime.UtcNow;
-            partie.TimeRemainingJ2 = 60.0;
+            // Séparer les Pokémons normaux des légendaires/mythiques
+            var normalPokemons = allPokemons
+                .Where(p => !p.Status.IsLegendary && !p.Status.IsMythical)
+                .ToList();
+            
+            // Générer les tirages avec 1% de chance légendaire
+            var rarityDraws = new bool[numberOfPokemons];
+            for (int i = 0; i < numberOfPokemons; i++)
+            {
+                rarityDraws[i] = random.Next(100) == 0;
+            }
+            
+            partie.PokemonsToGuessJ1 = SelectPokemonsBasedOnDraws(rarityDraws, normalPokemons, legendaryMythicalPokemons, random);
+            partie.PokemonsToGuessJ2 = SelectPokemonsBasedOnDraws(rarityDraws, normalPokemons, legendaryMythicalPokemons, random);
+        }
+        else if (mode == "SansLimite")
+        {
+            // Mode Sans Limite : Pokémons finaux d'évolution + légendaires sans restriction
+            var finalEvolutionPokemons = await _pokemonService.GetFinalEvolutionPokemonsAsync();
+            
+            // Sélectionner aléatoirement parmi tous les Pokémons finaux (légendaires inclus)
+            partie.PokemonsToGuessJ1 = SelectRandomPokemons(finalEvolutionPokemons, numberOfPokemons, random);
+            partie.PokemonsToGuessJ2 = SelectRandomPokemons(finalEvolutionPokemons, numberOfPokemons, random);
         }
         else
         {
-            throw new ArgumentException($"Mode de jeu '{mode}' inconnu.");
+            throw new ArgumentException($"Mode de jeu '{mode}' inconnu. Modes disponibles : Standard, Etendu, SansLimite");
         }
+
+        partie.Statut = "EnCours";
+        
+        // Initialiser les timers pour chaque joueur
+        partie.TimerStartJ1 = DateTime.UtcNow;
+        partie.TimeRemainingJ1 = 60.0;
+        partie.TimerStartJ2 = DateTime.UtcNow;
+        partie.TimeRemainingJ2 = 60.0;
 
         return partie;
     }
@@ -123,6 +154,19 @@ public class PartieService : IPartieService
         {
             var sourceList = isRare ? legendaryMythicalPokemons : basePokemons;
             var selectedPokemon = sourceList[random.Next(sourceList.Count)];
+            selectedPokemons.Add(selectedPokemon);
+        }
+        
+        return selectedPokemons;
+    }
+
+    private List<Pokemon> SelectRandomPokemons(List<Pokemon> pokemonList, int count, Random random)
+    {
+        var selectedPokemons = new List<Pokemon>();
+        
+        for (int i = 0; i < count; i++)
+        {
+            var selectedPokemon = pokemonList[random.Next(pokemonList.Count)];
             selectedPokemons.Add(selectedPokemon);
         }
         

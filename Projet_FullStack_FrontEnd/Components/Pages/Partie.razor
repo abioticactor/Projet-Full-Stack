@@ -97,6 +97,39 @@
                 </div>
 
                 <div class="lobby-actions">
+                    @* Sélection du mode de jeu (visible uniquement pour le créateur) *@
+                    @if (isPlayer1)
+                    {
+                        <div class="game-mode-selector">
+                            <h3 class="mode-selector-title">Sélectionnez le mode de jeu</h3>
+                            <div class="game-mode-cards">
+                                <button class="mode-card @(selectedGameMode == "Standard" ? "active" : "")" 
+                                        @onclick="@(() => selectedGameMode = "Standard")"
+                                        disabled="@(partie?.Statut == "EnCours")">
+                                    <span class="mode-icon">🎮</span>
+                                    <span class="mode-name">Standard</span>
+                                    <span class="mode-description">Pokémons de base + 1% légendaires</span>
+                                </button>
+
+                                <button class="mode-card @(selectedGameMode == "Etendu" ? "active" : "")" 
+                                        @onclick="@(() => selectedGameMode = "Etendu")"
+                                        disabled="@(partie?.Statut == "EnCours")">
+                                    <span class="mode-icon">🌐</span>
+                                    <span class="mode-name">Étendu</span>
+                                    <span class="mode-description">Tous les Pokémons + 1% légendaires</span>
+                                </button>
+
+                                <button class="mode-card @(selectedGameMode == "SansLimite" ? "active" : "")" 
+                                        @onclick="@(() => selectedGameMode = "SansLimite")"
+                                        disabled="@(partie?.Statut == "EnCours")">
+                                    <span class="mode-icon">🔥</span>
+                                    <span class="mode-name">Sans Limite</span>
+                                    <span class="mode-description">Évolutions finales + légendaires illimités</span>
+                                </button>
+                            </div>
+                        </div>
+                    }
+
                     @if (partie?.Statut == "Prêt")
                     {
                         <div class="ready-message">
@@ -163,6 +196,7 @@
     private string player1Pseudo = string.Empty;
     private string player2Pseudo = string.Empty;
     private bool isPlayer1 = false;
+    private string selectedGameMode = "Standard"; // Mode de jeu par défaut
     private System.Threading.Timer? autoRefreshTimer;
 
     protected override async Task OnInitializedAsync()
@@ -310,7 +344,7 @@
         errorMessage = null;
         try
         {
-            var request = new StartGameRequest { Mode = "Standard", IsSolo = false };
+            var request = new StartGameRequest { Mode = selectedGameMode, IsSolo = false };
             var response = await Http.PostAsJsonAsync(
                 $"api/partie/{currentPartieId}/start", 
                 request
@@ -346,7 +380,7 @@
         errorMessage = null;
         try
         {
-            var request = new StartGameRequest { Mode = "Standard", IsSolo = true };
+            var request = new StartGameRequest { Mode = selectedGameMode, IsSolo = true };
             var response = await Http.PostAsJsonAsync(
                 $"api/partie/{currentPartieId}/start", 
                 request
@@ -546,6 +580,7 @@
         public string? Dresseur1Id { get; set; }
         public string? Dresseur2Id { get; set; }
         public bool ModeSolo { get; set; } = false;
+        public string GameMode { get; set; } = "Standard";
     }
 
     private class DresseurDto
@@ -982,6 +1017,93 @@
         border-radius: var(--radius-md); 
         text-align: center;
         border: 1px solid rgba(211, 47, 47, 0.2);
+        font-weight: 500;
+    }
+    
+    /* Sélection du mode de jeu */
+    .game-mode-selector {
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .mode-selector-title {
+        font-size: 1.1rem;
+        color: var(--color-text);
+        margin-bottom: var(--space-md);
+        font-weight: 600;
+    }
+    
+    .game-mode-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--space-md);
+        margin-bottom: var(--space-lg);
+    }
+    
+    .mode-card {
+        background: var(--color-white);
+        border: 2px solid var(--color-border);
+        border-radius: var(--radius-md);
+        padding: var(--space-md);
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-xs);
+        text-align: center;
+        min-height: 140px;
+    }
+    
+    .mode-card:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+        border-color: var(--color-blue);
+    }
+    
+    .mode-card.active {
+        background: rgba(30, 136, 229, 0.1);
+        border-color: var(--color-blue);
+        border-width: 3px;
+    }
+    
+    .mode-card:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .mode-icon {
+        font-size: 2rem;
+        filter: grayscale(100%);
+        opacity: 0.7;
+        margin-bottom: var(--space-xs);
+    }
+    
+    .mode-card.active .mode-icon {
+        filter: none;
+        opacity: 1;
+    }
+    
+    .mode-name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--color-text);
+        margin-bottom: var(--space-xs);
+    }
+    
+    .mode-card.active .mode-name {
+        color: var(--color-blue);
+    }
+    
+    .mode-description {
+        font-size: 0.85rem;
+        color: var(--color-text-muted);
+        line-height: 1.4;
+    }
+    
+    .mode-card.active .mode-description {
+        color: var(--color-blue);
         font-weight: 500;
     }
 </style>

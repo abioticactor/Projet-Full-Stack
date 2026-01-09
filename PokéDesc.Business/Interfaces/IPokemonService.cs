@@ -15,6 +15,7 @@ public interface IPokemonService
     Task<List<Pokemon>> GetMythicalPokemonsAsync();
     Task<List<Pokemon>> GetLegendaryOrMythicalPokemonsAsync();
     Task<List<Pokemon>> GetBaseEvolutionPokemonsAsync();
+    Task<List<Pokemon>> GetFinalEvolutionPokemonsAsync();
     Task<string> GetCensoredDescriptionAsync(string id);
     Task<string> GetPokemonNameFrAsync(string id);
     Task<PokemonHints> GetPokemonHintsAsync(string id);
