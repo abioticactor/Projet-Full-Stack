@@ -1,0 +1,42 @@
+name: Deploy Frontend to Azure
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Étape 1 : Vérifier le code source
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Étape 2 : Installer .NET
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+
+    # Étape 3 : Restaurer les dépendances
+    - name: Restore dependencies
+      run: dotnet restore Projet_FullStack_FrontEnd/Projet_FullStack_FrontEnd.csproj
+
+    # Étape 4 : Construire le projet
+    - name: Build project
+      run: dotnet build Projet_FullStack_FrontEnd/Projet_FullStack_FrontEnd.csproj --configuration Release
+
+    # Étape 5 : Publier le projet
+    - name: Publish project
+      run: dotnet publish Projet_FullStack_FrontEnd/Projet_FullStack_FrontEnd.csproj --configuration Release --output ./publish
+
+    # Étape 6 : Déployer sur Azure
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: "NomDeVotreAppAzure"  # Remplacez par le nom de votre App Service
+        slot-name: "production"
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: ./publish
