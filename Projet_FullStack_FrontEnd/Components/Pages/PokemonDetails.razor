@@ -1,0 +1,261 @@
+@page "/pokemon/{number:int}"
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject Microsoft.Extensions.Logging.ILogger<Projet_FullStack_FrontEnd.Components.Pages.PokemonDetails> Logger
+@inject NavigationManager NavigationManager
+
+<div class="hero-content">
+    <div class="hero-title">Pokémon</div>
+
+    @if (isLoading)
+    {
+        <p><em>Chargement...</em></p>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <p class="text-danger">Erreur : @errorMessage</p>
+    }
+    else if (pokemonValid)
+    {
+        <div class="detail-card">
+            <div class="detail-header">
+                <div class="sprite-large">
+                    <img src="@GetString(new[] { "sprites", "frontDefault" })" alt="@GetString(new[] { "nameFr", "name" })" />
+                </div>
+                <div class="card-body">
+                    <h2 class="detail-name">#@GetString(new[] { "numericId" }).PadLeft(3, '0') - @GetString(new[] { "nameFr", "name" })</h2>
+                    <div class="types">
+                            @foreach (var t in GetTypes())
+                            {
+                                var display = t ?? string.Empty;
+                                var css = (display ?? string.Empty).ToLowerInvariant().Replace(' ', '-').Replace('é','e').Replace('è','e');
+                                <span class="type @css">@display</span>
+                            }
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-body">
+                <div class="description">
+                    <p>@GetString(new[] { "description" })</p>
+                </div>
+
+                <div class="stats">
+                    <h4>Stats</h4>
+                    <ul>
+                        @foreach (var s in GetStats())
+                        {
+                            <li><strong>@s.Key</strong>: @s.Value</li>
+                        }
+                    </ul>
+                </div>
+
+                <div class="actions">
+                    <button class="back-btn" @onclick="Back">← Retour au Pokédex</button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int number { get; set; }
+
+    private System.Text.Json.JsonElement pokemon;
+    private bool pokemonValid = false;
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        errorMessage = null;
+        try
+        {
+            var resp = await Http.GetAsync($"api/pokemon/pokedex/{number}");
+            if (resp.IsSuccessStatusCode)
+            {
+                var json = await resp.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
+                if (json.ValueKind != System.Text.Json.JsonValueKind.Undefined)
+                {
+                    pokemon = json;
+                    pokemonValid = true;
+                }
+                else
+                {
+                    errorMessage = "Données invalides reçues du serveur.";
+                }
+            }
+            else if (resp.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                errorMessage = "Pokémon introuvable.";
+            }
+            else
+            {
+                errorMessage = $"Erreur HTTP: {(int)resp.StatusCode} {resp.ReasonPhrase}";
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors de la récupération du Pokémon");
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    void Back()
+    {
+        NavigationManager.NavigateTo("/pokedex");
+    }
+
+    string GetString(string[] path)
+    {
+        try
+        {
+            var el = pokemon;
+            for (int i = 0; i < path.Length; i++)
+            {
+                if (el.ValueKind == System.Text.Json.JsonValueKind.Object && el.TryGetProperty(path[i], out var child))
+                {
+                    el = child;
+                }
+                else if (i == path.Length - 1 && el.ValueKind != System.Text.Json.JsonValueKind.Object)
+                {
+                    return el.ToString() ?? string.Empty;
+                }
+                else
+                {
+                    return string.Empty;
+                }
+            }
+
+            return el.ValueKind switch
+            {
+                System.Text.Json.JsonValueKind.String => el.GetString() ?? string.Empty,
+                System.Text.Json.JsonValueKind.Number => el.GetRawText(),
+                _ => el.ToString() ?? string.Empty,
+            };
+        }
+        catch
+        {
+            return string.Empty;
+        }
+    }
+
+    IEnumerable<string> GetTypes()
+    {
+        var list = new List<string>();
+        try
+        {
+            if (pokemon.ValueKind == System.Text.Json.JsonValueKind.Object && pokemon.TryGetProperty("types", out var typesEl) && typesEl.ValueKind == System.Text.Json.JsonValueKind.Array)
+            {
+                foreach (var item in typesEl.EnumerateArray())
+                {
+                    var name = string.Empty;
+                    if (item.ValueKind == System.Text.Json.JsonValueKind.Object)
+                    {
+                        if (item.TryGetProperty("name", out var n) && n.ValueKind == System.Text.Json.JsonValueKind.String)
+                            name = n.GetString() ?? string.Empty;
+                        else if (item.TryGetProperty("nameFr", out var nf) && nf.ValueKind == System.Text.Json.JsonValueKind.String)
+                            name = nf.GetString() ?? string.Empty;
+                        else if (item.TryGetProperty("name_fr", out var nf2) && nf2.ValueKind == System.Text.Json.JsonValueKind.String)
+                            name = nf2.GetString() ?? string.Empty;
+                        else if (item.TryGetProperty("nameEn", out var ne) && ne.ValueKind == System.Text.Json.JsonValueKind.String)
+                            name = ne.GetString() ?? string.Empty;
+                        else if (item.TryGetProperty("name_en", out var ne2) && ne2.ValueKind == System.Text.Json.JsonValueKind.String)
+                            name = ne2.GetString() ?? string.Empty;
+                    }
+
+                    if (!string.IsNullOrEmpty(name)) list.Add(name);
+                }
+            }
+        }
+        catch { }
+
+        return list;
+    }
+
+
+    IDictionary<string,int> GetStats()
+    {
+        var res = new Dictionary<string,int>();
+        try
+        {
+            if (pokemon.ValueKind == System.Text.Json.JsonValueKind.Object && pokemon.TryGetProperty("stats", out var statsEl) && statsEl.ValueKind == System.Text.Json.JsonValueKind.Object)
+            {
+                foreach (var prop in statsEl.EnumerateObject())
+                {
+                    try
+                    {
+                        var val = 0;
+                        if (prop.Value.ValueKind == System.Text.Json.JsonValueKind.Object && prop.Value.TryGetProperty("value", out var v) && v.ValueKind == System.Text.Json.JsonValueKind.Number)
+                        {
+                            val = v.GetInt32();
+                        }
+
+                        var label = prop.Name;
+                        if (prop.Value.ValueKind == System.Text.Json.JsonValueKind.Object && prop.Value.TryGetProperty("nameEn", out var nameEn) && nameEn.ValueKind == System.Text.Json.JsonValueKind.String)
+                        {
+                            label = nameEn.GetString() ?? label;
+                        }
+
+                        res[label] = val;
+                    }
+                    catch { }
+                }
+            }
+        }
+        catch { }
+
+        return res;
+    }
+}
+
+<style>
+/* Align PokemonDetails styling with Pokedex */
+.hero-content { max-width: 1100px; margin: 0 auto; padding: 1.25rem; color: #fff; }
+.hero-title { font-size: 1.6rem; font-weight: 600; margin-bottom: 0.75rem; }
+
+.detail-card { background: rgba(0,0,0,0.35); border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.10); box-shadow: 0 10px 24px rgba(0,0,0,0.35); padding: 1rem; }
+.detail-header { display:flex; gap:1rem; align-items:center; }
+.sprite-large { width:150px; height:150px; display:flex; align-items:center; justify-content:center; border-radius:999px; background: rgba(255,255,255,0.03); }
+.sprite-large img { width:130px; height:130px; image-rendering: pixelated; }
+.card-body { text-align:left; }
+.detail-name { margin:0; font-size:1.3rem; color:#ffffff; }
+.description { margin-top:1rem; color:#f0f0f0; }
+.stats { margin-top:1rem; }
+.stats ul { list-style:none; padding:0; margin:0.25rem 0; display:flex; gap:0.5rem; flex-wrap:wrap; }
+.stats li { background: rgba(0,0,0,0.35); padding:0.45rem 0.7rem; border-radius:8px; color:#fafafa; }
+.actions { margin-top:1rem; display:flex; justify-content:flex-end; }
+.back-btn { background: transparent; color:#fff; border:1px solid rgba(255,255,255,0.08); padding:0.5rem 0.9rem; border-radius:10px; cursor:pointer; transition: transform 0.2s ease, background 0.2s ease; }
+.back-btn:hover { background: rgba(255,255,255,0.02); transform: translateY(-3px); }
+
+.types { display:flex; gap:0.5rem; justify-content:flex-start; margin-top:0.5rem; flex-wrap:wrap; }
+.type { padding:0.25rem 0.65rem; border-radius:999px; font-size:0.85rem; color:white; box-shadow: inset 0 -2px rgba(0,0,0,0.12); }
+
+/* Types colors */
+.normal { background-color: #A8A878; }
+.fire { background-color: #F08030; }
+.water { background-color: #6890F0; }
+.electric { background-color: #F8D030; color:#222; }
+.grass { background-color: #78C850; }
+.ice { background-color: #98D8D8; color:#222; }
+.fighting { background-color: #C03028; }
+.poison { background-color: #A040A0; }
+.ground { background-color: #E0C068; color:#222; }
+.flying { background-color: #A890F0; }
+.psychic { background-color: #F85888; }
+.bug { background-color: #A8B820; color:#222; }
+.rock { background-color: #B8A038; }
+.ghost { background-color: #705898; }
+.dragon { background-color: #7038F8; }
+.dark { background-color: #705848; }
+.steel { background-color: #B8B8D0; color:#222; }
+.fairy { background-color: #EE99AC; color:#222; }
+
+@@media (max-width: 720px) { .detail-header { flex-direction:column; align-items:center; text-align:center; } }
+</style>

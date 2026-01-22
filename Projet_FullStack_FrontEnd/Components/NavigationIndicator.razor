@@ -1,0 +1,26 @@
+@inject NavigationManager NavigationManager
+
+<div class="nav-indicator" title="Current URI" aria-live="polite">
+    <small>URI: @currentUri</small>
+</div>
+
+@code {
+    private string currentUri = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        currentUri = NavigationManager.Uri;
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        currentUri = e.Location;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

@@ -1,0 +1,36 @@
+.home-layout {
+  position: relative;
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url('/images_menu/background.png');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  padding: 0;
+}
+
+.home-layout .overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 0;
+}
+
+.home-layout-body {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 980px;
+  text-align: center;
+  color: #fff;
+  padding: 2rem;
+}
+
+::deep h1, ::deep h2 {
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  margin-bottom: 1.5rem;
+}

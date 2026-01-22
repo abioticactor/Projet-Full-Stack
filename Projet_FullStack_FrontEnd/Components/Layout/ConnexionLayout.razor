@@ -1,0 +1,164 @@
+@inherits LayoutComponentBase
+
+<div class="home-layout">
+    <header class="home-header">
+        <div class="actions">
+            <button class="btn-outline-primary" @onclick="ShowRegisterModalFunc">S'inscrire</button>
+            <button class="btn-primary" @onclick="ShowLoginModalFunc">Se connecter</button>
+        </div>
+    </header>
+
+    <main class="home-main">
+        @Body
+    </main>
+</div>
+
+<!-- Modal Backdrop -->
+@if (IsLoginModalOpen || IsRegisterModalOpen)
+{
+    <div class="modal-backdrop" @onclick="CloseModals"></div>
+}
+
+<!-- Login Modal -->
+@if (IsLoginModalOpen)
+{
+    <div class="modal-container">
+        <div class="modal-content">
+            <button class="modal-close" @onclick="CloseModals">✕</button>
+            <h2>Se connecter</h2>
+            <form @onsubmit="HandleLogin">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" @bind="LoginEmail" required />
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Mot de passe</label>
+                    <input type="password" id="login-password" @bind="LoginPassword" required />
+                </div>
+                <button type="submit" class="btn-primary">Se connecter</button>
+                @if (!string.IsNullOrEmpty(LoginError))
+                {
+                    <div class="form-error">@LoginError</div>
+                }
+            </form>
+        </div>
+    </div>
+}
+
+<!-- Register Modal -->
+@if (IsRegisterModalOpen)
+{
+    <div class="modal-container">
+        <div class="modal-content">
+            <button class="modal-close" @onclick="CloseModals">✕</button>
+            <h2>S'inscrire</h2>
+            <form @onsubmit="HandleRegister">
+                <div class="form-group">
+                    <label for="register-username">Nom d'utilisateur</label>
+                    <input type="text" id="register-username" @bind="RegisterUsername" required />
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" @bind="RegisterEmail" required />
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Mot de passe</label>
+                    <input type="password" id="register-password" @bind="RegisterPassword" required />
+                </div>
+                <div class="form-group">
+                    <label for="register-confirm-password">Confirmer le mot de passe</label>
+                    <input type="password" id="register-confirm-password" @bind="RegisterConfirmPassword" required />
+                </div>
+                <button type="submit" class="btn-primary">S'inscrire</button>
+                @if (!string.IsNullOrEmpty(RegisterError))
+                {
+                    <div class="form-error">@RegisterError</div>
+                }
+            </form>
+        </div>
+    </div>
+}
+
+@code {
+    private bool IsLoginModalOpen = false;
+    private bool IsRegisterModalOpen = false;
+
+    private string LoginEmail = "";
+    private string LoginPassword = "";
+
+    private string RegisterUsername = "";
+    private string RegisterEmail = "";
+    private string RegisterPassword = "";
+    private string RegisterConfirmPassword = "";
+
+    private void ShowLoginModalFunc()
+    {
+        IsLoginModalOpen = true;
+        IsRegisterModalOpen = false;
+    }
+
+    private void ShowRegisterModalFunc()
+    {
+        IsRegisterModalOpen = true;
+        IsLoginModalOpen = false;
+    }
+
+    private void CloseModals()
+    {
+        IsLoginModalOpen = false;
+        IsRegisterModalOpen = false;
+    }
+
+    [Inject]
+    private Projet_FullStack_FrontEnd.Services.AuthService AuthService { get; set; } = default!;
+
+    private string LoginError = string.Empty;
+
+    private async Task HandleLogin()
+    {
+        LoginError = string.Empty;
+        var (ok, error) = await AuthService.LoginAsync(LoginEmail, LoginPassword);
+        if (!ok)
+        {
+            LoginError = error ?? "Erreur inconnue";
+            return;
+        }
+        // Succès : fermer la modale et naviguer vers /home
+        CloseModals();
+        NavigationManager.NavigateTo("/home", forceLoad: false);
+    }
+
+    private string RegisterError = string.Empty;
+
+    private async Task HandleRegister()
+    {
+        RegisterError = string.Empty;
+        if (RegisterPassword != RegisterConfirmPassword)
+        {
+            RegisterError = "Les mots de passe ne correspondent pas.";
+            return;
+        }
+
+        var (ok, error) = await AuthService.RegisterAsync(RegisterUsername, RegisterEmail, RegisterPassword);
+        if (!ok)
+        {
+            RegisterError = error ?? "Erreur inconnue";
+            return;
+        }
+
+        // Après inscription, on peut automatiquement logguer l'utilisateur
+        var (loginOk, loginError) = await AuthService.LoginAsync(RegisterEmail, RegisterPassword);
+        if (!loginOk)
+        {
+            // Inscription OK mais login automatique a échoué — afficher message
+            RegisterError = loginError ?? "Inscription réussie, mais connexion automatique a échoué.";
+            return;
+        }
+
+        CloseModals();
+        NavigationManager.NavigateTo("/home", forceLoad: false);
+    }
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+}

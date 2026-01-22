@@ -1,0 +1,35 @@
+# Fichiers et dossiers de configuration des IDE
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+ 
+# Fichiers de build et de sortie
+bin/
+obj/
+ 
+# Fichiers générés par .NET et NuGet
+/packages
+project.lock.json
+project.assets.json
+*.nuget.props
+*.nuget.targets
+ 
+# Fichiers du Secret Manager
+secrets.json
+ 
+# Dossiers de publication
+/publish/
+ 
+# Fichiers système (macOS, Windows)
+[Tt]humbs.db
+*.DS_Store
+ 
+# Fichiers de log
+*.log
+
+# Fichiers de build
+*.dll
+*.pdb
+*.exe

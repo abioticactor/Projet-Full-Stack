@@ -1,0 +1,66 @@
+﻿@page "/home"
+
+@layout HomeLayout
+@inject Projet_FullStack_FrontEnd.Services.AuthService AuthService
+
+<PageTitle>PokeGuessr</PageTitle>
+
+<div class="hero-content">
+    <nav class="button-grid" aria-label="Navigation rapide">
+        <div class="nav-button-wrapper">
+            <NavLink class="square-button" href="@GetCarteDresseurUrl()" Match="NavLinkMatch.All" role="link" aria-label="Carte de Dresseur">
+                <div class="btn-image btn-trainer-card" title="Carte de Dresseur" role="img" aria-label="Carte de Dresseur"></div>
+            </NavLink>
+        </div>
+
+        <div class="nav-button-wrapper">
+            <NavLink class="square-button" href="/partie" Match="NavLinkMatch.All" role="link" aria-label="Partie">
+                <div class="btn-image btn-battle" title="Partie" role="img" aria-label="Partie"></div>
+            </NavLink>
+        </div>
+
+        <div class="nav-button-wrapper">
+            <NavAnchor Href="/mini-jeux" Class="square-button" AriaLabel="Mini-Jeux">
+                <div class="btn-image btn-minigames" title="Mini-Jeux" role="img" aria-label="Mini-Jeux"></div>
+            </NavAnchor>
+        </div>
+
+        <div class="nav-button-wrapper">
+            <NavLink class="square-button" href="/pokedex" Match="NavLinkMatch.All" role="link" aria-label="Pokédex">
+                <div class="btn-image btn-pokedex" title="Pokédex" role="img" aria-label="Pokédex"></div>
+            </NavLink>
+        </div>
+
+        <div class="nav-button-wrapper">
+            <NavAnchor Href="/objets" Class="square-button" AriaLabel="Objets">
+                <div class="btn-image btn-items" title="Objets" role="img" aria-label="Objets"></div>
+            </NavAnchor>
+        </div>
+
+        <div class="nav-button-wrapper">
+            <NavLink class="square-button" href="/amis" Match="NavLinkMatch.All" role="link" aria-label="Amis">
+                <div class="btn-image btn-friends" title="Amis" role="img" aria-label="Amis"></div>
+            </NavLink>
+        </div>
+
+        <div class="nav-button-wrapper">
+            <NavLink class="square-button" href="/succes" Match="NavLinkMatch.All" role="link" aria-label="Succès">
+                <div class="btn-image btn-achievements" title="Succès" role="img" aria-label="Succès"></div>
+            </NavLink>
+        </div>
+
+        <div class="nav-button-wrapper">
+            <NavLink class="square-button" href="/parametres" Match="NavLinkMatch.All" role="link" aria-label="Paramètres">
+                <div class="btn-image btn-settings" title="Paramètres" role="img" aria-label="Paramètres"></div>
+            </NavLink>
+        </div>
+    </nav>
+</div>
+
+@code {
+    private string GetCarteDresseurUrl()
+    {
+        var pseudo = AuthService.CurrentPseudo ?? "Joueur";
+        return $"/carte-dresseur/{pseudo}";
+    }
+}

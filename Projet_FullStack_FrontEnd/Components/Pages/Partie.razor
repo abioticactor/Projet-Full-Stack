@@ -1,0 +1,1109 @@
+@page "/partie"
+@using System.Net.Http.Json
+@using System.Text.Json.Serialization
+@using Microsoft.JSInterop
+@implements IDisposable
+@inject HttpClient Http
+@inject Microsoft.Extensions.Logging.ILogger<Projet_FullStack_FrontEnd.Components.Pages.Partie> Logger
+@inject NavigationManager NavigationManager
+@inject Projet_FullStack_FrontEnd.Services.AuthService AuthService
+@inject Projet_FullStack_FrontEnd.Services.UserStateService UserState
+@inject IJSRuntime JSRuntime
+
+<RequireAuth>
+<div class="hero-content">
+    <div class="hero-title">Débuter une Partie - @UserState.CurrentUser?.Pseudo</div>
+
+    @if (isLoading || UserState.IsLoading)
+    {
+        <p><em>Chargement…</em></p>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <p class="text-danger">Erreur : @errorMessage</p>
+    }
+    else
+    {
+        @if (string.IsNullOrEmpty(currentPartieId))
+        {
+            <div class="game-options">
+                <!-- Option 1: Créer une partie -->
+                <div class="option-card">
+                    <div class="card-icon">🎮</div>
+                    <h3>Créer une partie</h3>
+                    <p class="card-description">Créez une nouvelle session et partagez le code avec un ami</p>
+                    <button class="btn-primary" @onclick="CreateGame" disabled="@isLoading">Créer une nouvelle partie</button>
+                </div>
+
+                <!-- Option 2: Rejoindre une partie -->
+                <div class="option-card">
+                    <div class="card-icon">🔗</div>
+                    <h3>Rejoindre une partie</h3>
+                    <p class="card-description">Entrez le code de session fourni par votre ami</p>
+                    <div class="input-wrapper">
+                        <input class="input-field @(!string.IsNullOrEmpty(joinErrorMessage) ? "input-error" : "")" 
+                               type="text" 
+                               @bind="codeSession" 
+                               placeholder="Code de session" />
+                        @if (!string.IsNullOrEmpty(joinErrorMessage))
+                        {
+                            <span class="field-error-text">@joinErrorMessage</span>
+                        }
+                    </div>
+                    <button class="btn-primary" @onclick="JoinGame" disabled="@isLoading">Rejoindre la partie</button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- Salle d'attente / Lobby -->
+            <div class="lobby-container">
+                <div class="lobby-header">
+                    <div class="lobby-icon">🎯</div>
+                    <h2>Salle d'attente</h2>
+                    <div class="session-code-display">
+                        <span class="label">Code de session :</span>
+                        <span class="code">@partie?.CodeSession</span>
+                        <button class="copy-btn" @onclick="CopySessionCode" title="Copier le code">
+                            <span class="copy-icon">📋</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="players-status">
+                    <div class="player-card @(isPlayer1 ? "current-player" : "")">
+                        <div class="player-icon">👤</div>
+                        <div class="player-info">
+                            <div class="player-name">@(string.IsNullOrEmpty(player1Pseudo) ? "Joueur 1" : player1Pseudo)</div>
+                        </div>
+                        @if (isPlayer1)
+                        {
+                            <span class="you-badge">Vous</span>
+                        }
+                    </div>
+
+                    <div class="vs-divider">VS</div>
+
+                    <div class="player-card @(!isPlayer1 ? "current-player" : "")">
+                        <div class="player-icon">👤</div>
+                        <div class="player-info">
+                            <div class="player-name">@(string.IsNullOrEmpty(player2Pseudo) ? "En attente..." : player2Pseudo)</div>
+                        </div>
+                        @if (!isPlayer1)
+                        {
+                            <span class="you-badge">Vous</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="lobby-actions">
+                    @* Sélection du mode de jeu (visible uniquement pour le créateur) *@
+                    @if (isPlayer1)
+                    {
+                        <div class="game-mode-selector">
+                            <h3 class="mode-selector-title">Sélectionnez le mode de jeu</h3>
+                            <div class="game-mode-cards">
+                                <button class="mode-card @(selectedGameMode == "Standard" ? "active" : "")" 
+                                        @onclick="@(() => selectedGameMode = "Standard")"
+                                        disabled="@(partie?.Statut == "EnCours")">
+                                    <span class="mode-icon">🎮</span>
+                                    <span class="mode-name">Standard</span>
+                                    <span class="mode-description">Pokémons de base + 1% légendaires</span>
+                                </button>
+
+                                <button class="mode-card @(selectedGameMode == "Etendu" ? "active" : "")" 
+                                        @onclick="@(() => selectedGameMode = "Etendu")"
+                                        disabled="@(partie?.Statut == "EnCours")">
+                                    <span class="mode-icon">🌐</span>
+                                    <span class="mode-name">Étendu</span>
+                                    <span class="mode-description">Tous les Pokémons + 1% légendaires</span>
+                                </button>
+
+                                <button class="mode-card @(selectedGameMode == "SansLimite" ? "active" : "")" 
+                                        @onclick="@(() => selectedGameMode = "SansLimite")"
+                                        disabled="@(partie?.Statut == "EnCours")">
+                                    <span class="mode-icon">🔥</span>
+                                    <span class="mode-name">Sans Limite</span>
+                                    <span class="mode-description">Évolutions finales + légendaires illimités</span>
+                                </button>
+                            </div>
+                        </div>
+                    }
+
+                    @if (partie?.Statut == "Prêt")
+                    {
+                        <div class="ready-message">
+                            <span class="message-icon">✅</span>
+                            <p>Les deux joueurs sont connectés !</p>
+                        </div>
+                        <button class="btn-success" @onclick="StartGame" disabled="@isLoading">
+                            <span class="btn-icon">🚀</span> Démarrer la partie (Mode Standard)
+                        </button>
+                    }
+                    else if (partie?.Statut == "EnAttente")
+                    {
+                        <div class="waiting-message">
+                            <span class="message-icon">⏳</span>
+                            <div>
+                                <p>En attente du second joueur...</p>
+                                <p class="hint">Partagez le code <strong>@partie?.CodeSession</strong> avec votre ami</p>
+                            </div>
+                        </div>
+                        
+                        @* Bouton Solo visible uniquement si J2 n'est pas présent *@
+                        @if (string.IsNullOrEmpty(partie?.Dresseur2Id))
+                        {
+                            <button class="btn-success" @onclick="StartGameSolo" disabled="@isLoading">
+                                <span class="btn-icon">🎮</span> Jouer en solo
+                            </button>
+                        }
+                        
+                        <button class="btn-secondary" @onclick="() => RefreshGameStatus()" disabled="@isLoading">
+                            <span class="btn-icon">🔄</span> Rafraîchir
+                        </button>
+                    }
+                    else
+                    {
+                        <div class="status-message">
+                            <p>Statut : @partie?.Statut</p>
+                        </div>
+                    }
+
+                    <button class="btn-danger" @onclick="CancelLobby">Annuler</button>
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(successMessage))
+        {
+            <div class="success-message">
+                @successMessage
+            </div>
+        }
+    }
+</div>
+</RequireAuth>
+
+@code {
+    private string codeSession = string.Empty;
+    private string currentPartieId = string.Empty;
+    private bool isLoading = false;
+    private string? errorMessage;
+    private string? successMessage;
+    private string? joinErrorMessage;
+    private PartieDto? partie;
+    
+    private string player1Pseudo = string.Empty;
+    private string player2Pseudo = string.Empty;
+    private bool isPlayer1 = false;
+    private string selectedGameMode = "Standard"; // Mode de jeu par défaut
+    private System.Threading.Timer? autoRefreshTimer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await UserState.LoadUserDataAsync();
+    }
+
+    public void Dispose()
+    {
+        autoRefreshTimer?.Dispose();
+    }
+
+    private void StartAutoRefresh()
+    {
+        // Rafraîchir toutes les 2 secondes
+        autoRefreshTimer?.Dispose();
+        autoRefreshTimer = new System.Threading.Timer(async _ =>
+        {
+            await InvokeAsync(async () =>
+            {
+                if (!string.IsNullOrEmpty(currentPartieId))
+                {
+                    // Vérifier si le statut a changé (EnAttente -> Prêt ou Prêt -> EnCours)
+                    await RefreshGameStatus(silent: true);
+                }
+            });
+        }, null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2));
+    }
+
+    private void StopAutoRefresh()
+    {
+        autoRefreshTimer?.Dispose();
+        autoRefreshTimer = null;
+    }
+
+    // API: Créer une partie
+    private async Task CreateGame()
+    {
+        isLoading = true;
+        errorMessage = null;
+        successMessage = null;
+        try
+        {
+            var request = new CreateGameRequest { DresseurId = AuthService.CurrentUserId ?? "" };
+            var response = await Http.PostAsJsonAsync("api/partie/create", request);
+            response.EnsureSuccessStatusCode();
+            partie = await response.Content.ReadFromJsonAsync<PartieDto>();
+            
+            Logger.LogInformation($"Partie créée: ID={partie?.Id}, Code={partie?.CodeSession}, Statut={partie?.Statut}");
+            Logger.LogInformation($"Dresseur1Id={partie?.Dresseur1Id}, Dresseur2Id={partie?.Dresseur2Id}");
+            
+            currentPartieId = partie?.Id ?? string.Empty;
+            await LoadPlayersInfo();
+            successMessage = $"Partie créée avec succès ! Code: {partie?.CodeSession}";
+            
+            // Démarrer le rafraîchissement automatique pour détecter quand J2 rejoint
+            StartAutoRefresh();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors de la création");
+            errorMessage = $"Erreur: {ex.Message}";
+        }
+        finally { isLoading = false; }
+    }
+
+    // API: Rejoindre une partie
+    private async Task JoinGame()
+    {
+        if (string.IsNullOrEmpty(codeSession))
+        {
+            joinErrorMessage = "Veuillez entrer un code de session";
+            return;
+        }
+
+        isLoading = true;
+        joinErrorMessage = null;
+        errorMessage = null;
+        successMessage = null;
+        try
+        {
+            Logger.LogInformation($"Tentative de rejoindre la partie avec le code: {codeSession}");
+            
+            var request = new JoinGameRequest 
+            { 
+                CodeSession = codeSession.Trim().ToUpper(), // Normaliser le code
+                DresseurId = AuthService.CurrentUserId ?? "" 
+            };
+            
+            Logger.LogInformation($"DresseurId: {request.DresseurId}");
+            
+            var response = await Http.PostAsJsonAsync("api/partie/join", request);
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Logger.LogError($"Erreur serveur: {response.StatusCode} - {errorContent}");
+                
+                // Message d'erreur plus clair selon le type d'erreur
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    joinErrorMessage = "Code de session invalide ou partie introuvable";
+                }
+                else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                {
+                    joinErrorMessage = "Impossible de rejoindre cette partie (déjà complète ou terminée)";
+                }
+                else
+                {
+                    joinErrorMessage = "Erreur lors de la connexion à la partie";
+                }
+                return;
+            }
+            
+            partie = await response.Content.ReadFromJsonAsync<PartieDto>();
+            
+            Logger.LogInformation($"Partie rejointe: {partie?.Id}, Statut: {partie?.Statut}");
+            Logger.LogInformation($"Dresseur1Id={partie?.Dresseur1Id}, Dresseur2Id={partie?.Dresseur2Id}");
+            
+            currentPartieId = partie?.Id ?? string.Empty;
+            await LoadPlayersInfo();
+            successMessage = "Vous avez rejoint la partie avec succès !";
+            
+            // Démarrer l'auto-refresh pour détecter quand l'autre joueur lance la partie
+            StartAutoRefresh();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors de la connexion");
+            joinErrorMessage = "Une erreur inattendue s'est produite";
+        }
+        finally { isLoading = false; }
+    }
+
+    // API: Démarrer la partie
+    private async Task StartGame()
+    {
+        if (string.IsNullOrEmpty(currentPartieId))
+        {
+            errorMessage = "Aucune partie sélectionnée";
+            return;
+        }
+
+        isLoading = true;
+        errorMessage = null;
+        try
+        {
+            var request = new StartGameRequest { Mode = selectedGameMode, IsSolo = false };
+            var response = await Http.PostAsJsonAsync(
+                $"api/partie/{currentPartieId}/start", 
+                request
+            );
+            response.EnsureSuccessStatusCode();
+            partie = await response.Content.ReadFromJsonAsync<PartieDto>();
+            
+            Logger.LogInformation($"Partie démarrée, statut: {partie?.Statut}");
+            
+            // Le timer va détecter le changement de statut et rediriger automatiquement
+            // Cela permet à l'autre joueur d'être aussi redirigé
+            successMessage = "Lancement de la partie...";
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors du démarrage");
+            errorMessage = $"Erreur: {ex.Message}";
+        }
+        finally { isLoading = false; }
+    }
+
+    // API: Démarrer la partie en mode solo
+    private async Task StartGameSolo()
+    {
+        if (string.IsNullOrEmpty(currentPartieId))
+        {
+            errorMessage = "Aucune partie sélectionnée";
+            return;
+        }
+
+        isLoading = true;
+        errorMessage = null;
+        try
+        {
+            var request = new StartGameRequest { Mode = selectedGameMode, IsSolo = true };
+            var response = await Http.PostAsJsonAsync(
+                $"api/partie/{currentPartieId}/start", 
+                request
+            );
+            response.EnsureSuccessStatusCode();
+            partie = await response.Content.ReadFromJsonAsync<PartieDto>();
+            
+            Logger.LogInformation($"Partie solo démarrée, statut: {partie?.Statut}");
+            
+            successMessage = "Lancement de la partie solo...";
+            StateHasChanged();
+            
+            // Redirection immédiate vers la page de jeu
+            await Task.Delay(500);
+            NavigationManager.NavigateTo($"/guess/{currentPartieId}/{player1Pseudo}");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors du démarrage solo");
+            errorMessage = $"Erreur: {ex.Message}";
+        }
+        finally { isLoading = false; }
+    }
+
+    private async Task LoadPlayersInfo()
+    {
+        if (partie == null) return;
+
+        try
+        {
+            // Déterminer si l'utilisateur actuel est le joueur 1 ou 2
+            string currentUserId = AuthService.CurrentUserId ?? "";
+            isPlayer1 = partie.Dresseur1Id == currentUserId;
+            
+            Logger.LogInformation($"LoadPlayersInfo - CurrentUser: {currentUserId}, IsPlayer1: {isPlayer1}");
+            Logger.LogInformation($"Dresseur1Id: {partie.Dresseur1Id}, Dresseur2Id: {partie.Dresseur2Id}");
+
+            // Charger le pseudo du joueur 1
+            if (!string.IsNullOrEmpty(partie.Dresseur1Id))
+            {
+                if (partie.Dresseur1Id == currentUserId)
+                {
+                    player1Pseudo = AuthService.CurrentPseudo ?? "Joueur 1";
+                    Logger.LogInformation($"Player1 (Vous): {player1Pseudo}");
+                }
+                else
+                {
+                    var response = await Http.GetAsync($"api/dresseurs/{partie.Dresseur1Id}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var dresseur = await response.Content.ReadFromJsonAsync<DresseurDto>();
+                        player1Pseudo = dresseur?.Pseudo ?? "Joueur 1";
+                        Logger.LogInformation($"Player1 (API): {player1Pseudo}");
+                    }
+                    else
+                    {
+                        player1Pseudo = "Joueur 1";
+                        Logger.LogWarning($"Impossible de charger le pseudo du joueur 1");
+                    }
+                }
+            }
+
+            // Charger le pseudo du joueur 2
+            if (!string.IsNullOrEmpty(partie.Dresseur2Id))
+            {
+                if (partie.Dresseur2Id == currentUserId)
+                {
+                    player2Pseudo = AuthService.CurrentPseudo ?? "Joueur 2";
+                    Logger.LogInformation($"Player2 (Vous): {player2Pseudo}");
+                }
+                else
+                {
+                    var response = await Http.GetAsync($"api/dresseurs/{partie.Dresseur2Id}");
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var dresseur = await response.Content.ReadFromJsonAsync<DresseurDto>();
+                        player2Pseudo = dresseur?.Pseudo ?? "Joueur 2";
+                        Logger.LogInformation($"Player2 (API): {player2Pseudo}");
+                    }
+                    else
+                    {
+                        player2Pseudo = "Joueur 2";
+                        Logger.LogWarning($"Impossible de charger le pseudo du joueur 2");
+                    }
+                }
+            }
+            else
+            {
+                player2Pseudo = string.Empty;
+                Logger.LogInformation("Player2: En attente (Dresseur2Id est vide)");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors du chargement des pseudos");
+        }
+    }
+
+    private async Task RefreshGameStatus(bool silent = false)
+    {
+        if (string.IsNullOrEmpty(currentPartieId)) return;
+
+        if (!silent)
+            isLoading = true;
+            
+        errorMessage = null;
+        try
+        {
+            var response = await Http.GetAsync($"api/partie/{currentPartieId}");
+            response.EnsureSuccessStatusCode();
+            var oldStatus = partie?.Statut;
+            partie = await response.Content.ReadFromJsonAsync<PartieDto>();
+            
+            Logger.LogInformation($"Rafraîchissement: Statut={partie?.Statut}, J1={partie?.Dresseur1Id}, J2={partie?.Dresseur2Id}");
+            
+            await LoadPlayersInfo();
+            
+            // Si le statut passe à "Prêt", arrêter l'auto-refresh pour "EnAttente"
+            if (oldStatus == "EnAttente" && partie?.Statut == "Prêt")
+            {
+                successMessage = "Le joueur 2 a rejoint ! Vous pouvez démarrer la partie.";
+                StateHasChanged();
+            }
+            
+            // Si la partie a démarré (statut "EnCours"), rediriger automatiquement
+            if (partie?.Statut == "EnCours")
+            {
+                StopAutoRefresh();
+                Logger.LogInformation("La partie a démarré ! Redirection vers le jeu...");
+                var pseudo = AuthService.CurrentPseudo ?? "Joueur";
+                NavigationManager.NavigateTo($"/guess/{currentPartieId}/{pseudo}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Erreur lors du rafraîchissement");
+            if (!silent)
+                errorMessage = $"Erreur: {ex.Message}";
+        }
+        finally 
+        { 
+            if (!silent)
+                isLoading = false; 
+        }
+    }
+
+    private async Task CopySessionCode()
+    {
+        if (partie?.CodeSession != null)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", partie.CodeSession);
+                successMessage = "Code copié dans le presse-papier !";
+                await Task.Delay(2000);
+                successMessage = null;
+                StateHasChanged();
+            }
+            catch
+            {
+                // Fallback si clipboard API n'est pas disponible
+                successMessage = "Impossible de copier automatiquement. Code : " + partie.CodeSession;
+            }
+        }
+    }
+
+    private void CancelLobby()
+    {
+        StopAutoRefresh();
+        currentPartieId = string.Empty;
+        partie = null;
+        player1Pseudo = string.Empty;
+        player2Pseudo = string.Empty;
+        successMessage = null;
+        errorMessage = null;
+        joinErrorMessage = null;
+    }
+
+    // DTOs locaux (ou à partager)
+    private class CreateGameRequest { public string DresseurId { get; set; } = string.Empty; }
+    private class JoinGameRequest 
+    { 
+        public string CodeSession { get; set; } = string.Empty;
+        public string DresseurId { get; set; } = string.Empty;
+    }
+    private class StartGameRequest 
+    { 
+        public string Mode { get; set; } = string.Empty; 
+        public bool IsSolo { get; set; } = false;
+    }
+    
+    private class PartieDto
+    {
+        public string? Id { get; set; }
+        public string? CodeSession { get; set; }
+        public string? Statut { get; set; }  // Correspond à "Statut" dans le backend
+        public string? Dresseur1Id { get; set; }
+        public string? Dresseur2Id { get; set; }
+        public bool ModeSolo { get; set; } = false;
+        public string GameMode { get; set; } = "Standard";
+    }
+
+    private class DresseurDto
+    {
+        public string? Id { get; set; }
+        public string? Pseudo { get; set; }
+    }
+}
+
+<style>
+    /* Design tokens - Pokédex Gen 1 moderne/minimaliste */
+    :root {
+        --color-red: #E53935;
+        --color-blue: #1E88E5;
+        --color-bg: #F7F9FC;
+        --color-white: #FFFFFF;
+        --color-border: #D9E1EC;
+        --color-text: #0F172A;
+        --color-text-muted: #546E7A;
+        --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.06);
+        --radius-md: 12px;
+        --space-xs: 8px;
+        --space-sm: 12px;
+        --space-md: 16px;
+        --space-lg: 24px;
+    }
+
+    .hero-content { 
+        max-width: 1200px; 
+        margin: 0 auto; 
+        padding: var(--space-lg); 
+        color: var(--color-text); 
+    }
+    
+    .hero-title { 
+        font-size: 2rem; 
+        margin-bottom: 2rem; 
+        text-align: center;
+        color: var(--color-text);
+        font-weight: 700;
+    }
+    
+    /* Grille des options - applique design system */
+    .game-options { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); 
+        gap: var(--space-lg); 
+    }
+    
+    .option-card { 
+        background: var(--color-white); 
+        padding: var(--space-lg); 
+        border-radius: var(--radius-md); 
+        border: 1px solid var(--color-border); 
+        text-align: center; 
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .option-card:hover { 
+        transform: translateY(-2px); 
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.1);
+    }
+    
+    .card-icon {
+        font-size: 2.5rem;
+        margin-bottom: var(--space-sm);
+        filter: grayscale(100%);
+        opacity: 0.7;
+    }
+    
+    .option-card h3 { 
+        margin-top: 0;
+        margin-bottom: var(--space-sm);
+        color: var(--color-text);
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+    
+    .card-description { 
+        color: var(--color-text-muted); 
+        font-size: 0.95rem; 
+        margin-bottom: var(--space-md);
+        line-height: 1.5;
+    }
+    
+    /* Input style - design system */
+    .input-wrapper {
+        margin-bottom: var(--space-md);
+    }
+    
+    .input-field { 
+        padding: 0.75rem; 
+        width: 100%; 
+        margin-bottom: 0;
+        border: 1px solid var(--color-border); 
+        border-radius: 10px; 
+        background: var(--color-white); 
+        color: var(--color-text); 
+        font-size: 1rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        height: 44px;
+    }
+    
+    .input-field:focus { 
+        outline: none; 
+        border-color: var(--color-blue);
+        box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+    }
+    
+    .input-field.input-error {
+        border-color: #D32F2F;
+    }
+    
+    .input-field.input-error:focus {
+        border-color: #D32F2F;
+        box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+    }
+    
+    .field-error-text {
+        display: block;
+        color: #D32F2F;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+        padding-left: 0.25rem;
+        font-weight: 500;
+    }
+    
+    /* Bouton primaire - design system */
+    .btn-primary { 
+        padding: 0.75rem 1.5rem; 
+        background: var(--color-blue);
+        color: white; 
+        border: none; 
+        border-radius: 10px; 
+        cursor: pointer; 
+        font-weight: 600; 
+        width: 100%; 
+        transition: transform 0.2s, box-shadow 0.2s;
+        height: 44px;
+        font-size: 1rem;
+    }
+    
+    .btn-primary:hover:not(:disabled) { 
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(30, 136, 229, 0.3);
+    }
+    
+    .btn-primary:disabled { 
+        opacity: 0.5; 
+        cursor: not-allowed; 
+        transform: none;
+    }
+    
+    /* Lobby container */
+    .lobby-container { 
+        background: var(--color-white); 
+        padding: var(--space-lg); 
+        border-radius: var(--radius-md); 
+        border: 1px solid var(--color-border);
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .lobby-header { 
+        text-align: center; 
+        margin-bottom: 2rem; 
+    }
+    
+    .lobby-icon {
+        font-size: 2.5rem;
+        margin-bottom: var(--space-sm);
+        filter: grayscale(100%);
+        opacity: 0.7;
+    }
+    
+    .lobby-header h2 { 
+        color: var(--color-text); 
+        margin-bottom: var(--space-md);
+        font-weight: 600;
+        font-size: 1.5rem;
+    }
+    
+    /* Code session badge */
+    .session-code-display { 
+        display: inline-flex; 
+        align-items: center; 
+        gap: var(--space-sm); 
+        background: rgba(30, 136, 229, 0.1); 
+        padding: var(--space-sm) var(--space-md); 
+        border-radius: 999px;
+        border: 1px solid rgba(30, 136, 229, 0.2);
+    }
+    
+    .session-code-display .label { 
+        color: var(--color-text-muted); 
+        font-size: 0.9rem;
+    }
+    
+    .session-code-display .code { 
+        font-size: 1.25rem; 
+        font-weight: 700; 
+        color: var(--color-blue); 
+        letter-spacing: 2px; 
+    }
+    
+    .copy-btn { 
+        background: transparent; 
+        border: 1px solid var(--color-border); 
+        color: var(--color-text-muted); 
+        padding: 0.5rem; 
+        border-radius: 6px; 
+        cursor: pointer; 
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .copy-btn:hover { 
+        background: rgba(30, 136, 229, 0.1); 
+        border-color: var(--color-blue);
+    }
+    
+    .copy-icon {
+        filter: grayscale(100%);
+        opacity: 0.7;
+    }
+    
+    /* Player cards */
+    .players-status { 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        gap: 2rem; 
+        margin: 2rem 0; 
+    }
+    
+    .player-card { 
+        flex: 1; 
+        max-width: 250px; 
+        background: var(--color-white); 
+        padding: var(--space-md); 
+        border-radius: var(--radius-md); 
+        border: 2px solid var(--color-border); 
+        text-align: center; 
+        position: relative;
+        transition: border-color 0.2s;
+    }
+    
+    .player-card.current-player { 
+        border-color: var(--color-blue); 
+        background: rgba(30, 136, 229, 0.05);
+    }
+    
+    .player-icon { 
+        font-size: 3rem; 
+        margin-bottom: 0.5rem;
+        filter: grayscale(100%);
+        opacity: 0.6;
+    }
+    
+    .player-name { 
+        font-size: 1.1rem; 
+        font-weight: 600; 
+        color: var(--color-text); 
+    }
+    
+    .you-badge { 
+        position: absolute; 
+        top: 0.5rem; 
+        right: 0.5rem; 
+        background: var(--color-blue); 
+        color: white; 
+        padding: 0.25rem 0.5rem; 
+        border-radius: 999px; 
+        font-size: 0.75rem; 
+        font-weight: 600; 
+    }
+    
+    .vs-divider { 
+        font-size: 1.5rem; 
+        font-weight: 700; 
+        color: #ffa500;
+    }
+    
+    /* Actions lobby */
+    .lobby-actions { 
+        text-align: center; 
+        margin-top: 2rem; 
+    }
+    
+    /* Messages */
+    .ready-message { 
+        background: rgba(46, 125, 50, 0.1); 
+        color: #2E7D32; 
+        padding: var(--space-md); 
+        border-radius: var(--radius-md); 
+        margin-bottom: var(--space-md);
+        border: 1px solid rgba(46, 125, 50, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-sm);
+    }
+    
+    .ready-message p {
+        margin: 0;
+        font-weight: 500;
+    }
+    
+    .waiting-message { 
+        background: rgba(255, 165, 0, 0.1); 
+        color: #ffa500; 
+        padding: var(--space-md); 
+        border-radius: var(--radius-md); 
+        margin-bottom: var(--space-md);
+        border: 1px solid rgba(255, 165, 0, 0.2);
+        display: flex;
+        align-items: flex-start;
+        gap: var(--space-sm);
+    }
+    
+    .waiting-message p {
+        margin: 0;
+        font-weight: 500;
+    }
+    
+    .waiting-message .hint { 
+        margin-top: 0.5rem; 
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+    
+    .message-icon {
+        filter: grayscale(100%);
+        opacity: 0.7;
+        font-size: 1.5rem;
+    }
+    
+    .status-message { 
+        padding: var(--space-md); 
+        border-radius: var(--radius-md); 
+        margin-bottom: var(--space-md); 
+        color: var(--color-text-muted);
+        background: rgba(0, 0, 0, 0.02);
+    }
+    
+    /* Boutons d'action */
+    .btn-success { 
+        padding: 0.75rem 2rem; 
+        margin: 0.5rem; 
+        border: none; 
+        border-radius: 10px; 
+        cursor: pointer; 
+        font-weight: 600; 
+        transition: transform 0.2s, box-shadow 0.2s;
+        background: #2E7D32;
+        color: white; 
+        font-size: 1.05rem;
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-xs);
+    }
+    
+    .btn-success:hover:not(:disabled) { 
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+    }
+    
+    .btn-secondary { 
+        padding: 0.75rem 2rem; 
+        margin: 0.5rem; 
+        background: rgba(30, 136, 229, 0.1); 
+        color: var(--color-blue); 
+        border: 2px solid var(--color-blue); 
+        border-radius: 10px; 
+        cursor: pointer; 
+        font-weight: 600; 
+        transition: transform 0.2s, background 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-xs);
+    }
+    
+    .btn-secondary:hover:not(:disabled) { 
+        background: rgba(30, 136, 229, 0.2);
+        transform: translateY(-1px);
+    }
+    
+    .btn-danger { 
+        padding: 0.75rem 2rem; 
+        margin: 0.5rem; 
+        background: rgba(211, 47, 47, 0.1); 
+        color: #D32F2F; 
+        border: 2px solid #D32F2F; 
+        border-radius: 10px; 
+        cursor: pointer; 
+        font-weight: 600; 
+        transition: transform 0.2s, background 0.2s; 
+    }
+    
+    .btn-danger:hover { 
+        background: rgba(211, 47, 47, 0.2);
+        transform: translateY(-1px);
+    }
+    
+    .btn-success:disabled, .btn-secondary:disabled { 
+        opacity: 0.5; 
+        cursor: not-allowed; 
+        transform: none; 
+    }
+    
+    .btn-icon {
+        filter: grayscale(100%);
+        opacity: 0.8;
+    }
+    
+    /* Messages de feedback */
+    .success-message { 
+        margin-top: var(--space-md); 
+        padding: var(--space-md); 
+        background: rgba(46, 125, 50, 0.1); 
+        color: #2E7D32; 
+        border-radius: var(--radius-md); 
+        text-align: center;
+        border: 1px solid rgba(46, 125, 50, 0.2);
+        font-weight: 500;
+    }
+    
+    .text-danger { 
+        color: #D32F2F; 
+        padding: var(--space-md); 
+        background: rgba(211, 47, 47, 0.1); 
+        border-radius: var(--radius-md); 
+        text-align: center;
+        border: 1px solid rgba(211, 47, 47, 0.2);
+        font-weight: 500;
+    }
+    
+    /* Sélection du mode de jeu */
+    .game-mode-selector {
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .mode-selector-title {
+        font-size: 1.1rem;
+        color: var(--color-text);
+        margin-bottom: var(--space-md);
+        font-weight: 600;
+    }
+    
+    .game-mode-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--space-md);
+        margin-bottom: var(--space-lg);
+    }
+    
+    .mode-card {
+        background: var(--color-white);
+        border: 2px solid var(--color-border);
+        border-radius: var(--radius-md);
+        padding: var(--space-md);
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-xs);
+        text-align: center;
+        min-height: 140px;
+    }
+    
+    .mode-card:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+        border-color: var(--color-blue);
+    }
+    
+    .mode-card.active {
+        background: rgba(30, 136, 229, 0.1);
+        border-color: var(--color-blue);
+        border-width: 3px;
+    }
+    
+    .mode-card:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .mode-icon {
+        font-size: 2rem;
+        filter: grayscale(100%);
+        opacity: 0.7;
+        margin-bottom: var(--space-xs);
+    }
+    
+    .mode-card.active .mode-icon {
+        filter: none;
+        opacity: 1;
+    }
+    
+    .mode-name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--color-text);
+        margin-bottom: var(--space-xs);
+    }
+    
+    .mode-card.active .mode-name {
+        color: var(--color-blue);
+    }
+    
+    .mode-description {
+        font-size: 0.85rem;
+        color: var(--color-text-muted);
+        line-height: 1.4;
+    }
+    
+    .mode-card.active .mode-description {
+        color: var(--color-blue);
+        font-weight: 500;
+    }
+</style>
